@@ -28,4 +28,18 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
+
+    public String getUserIdFromJWT(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            return true;
+        } catch (Exception ex) {
+            // Can log the exception here
+        }
+        return false;
+    }
 }
