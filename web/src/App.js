@@ -1,10 +1,10 @@
 import './App.css';
-import DigiHealthLoginScreen from './components/LoginScreen';
+import DoctorRegistration from './components/DoctorRegistration';
 
 function App() {
   return (
     <div className="App">
-      <DigiHealthLoginScreen />
+      <DoctorRegistration />
     </div>
   );
 }

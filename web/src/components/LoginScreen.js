@@ -34,7 +34,7 @@ export default function DigiHealthLoginScreen() {
         <form className="form-card" onSubmit={handleLogin}>
           <p className="welcome-text">Welcome Back</p>
           <button type="button" className="google-btn">
-            <img alt="Google Icon" src="/assets/doctor-login.svg" />
+            <img alt="Google Icon" src="/assets/doctorlogin.svg" />
             Continue with Google
           </button>
           <div className="divider-container">
