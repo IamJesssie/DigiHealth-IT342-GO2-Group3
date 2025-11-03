@@ -1,7 +1,7 @@
 import React from 'react';
 import './RegisterScreen.css';
 
-const RegistrationStep3 = ({ onBack, formData, setFormData }) => {
+const RegistrationStep3 = ({ onBack, onSubmit, formData, setFormData }) => {
 
   const handleDayToggle = (day) => {
     const currentDays = formData.workDays || [];
@@ -10,11 +10,6 @@ const RegistrationStep3 = ({ onBack, formData, setFormData }) => {
     } else {
       setFormData({ ...formData, workDays: [...currentDays, day] });
     }
-  };
-
-  const handleSubmit = () => {
-    console.log("Submitting Registration Data:", formData);
-    // Here you would make the API call to the backend to register the doctor
   };
 
   return (
@@ -46,7 +41,7 @@ const RegistrationStep3 = ({ onBack, formData, setFormData }) => {
       </div>
       <div className="button-container">
         <button type="button" className="back-btn" onClick={onBack}>Back</button>
-        <button type="button" className="next-btn" onClick={handleSubmit}>Complete Registration</button>
+        <button type="button" className="next-btn" onClick={onSubmit}>Complete Registration</button>
       </div>
     </div>
   );
