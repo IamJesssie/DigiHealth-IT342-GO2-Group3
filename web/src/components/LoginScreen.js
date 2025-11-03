@@ -26,7 +26,7 @@ export default function DigiHealthLoginScreen() {
       <div className="login-form-container">
         <div className="header-container">
           <div className="logo-container">
-            <img alt="DigiHealth Logo" className="logo-image" src="/assets/icon.png" />
+            <img alt="DigiHealth Logo" className="logo-image" src="/assets/icon.svg" />
           </div>
           <p className="header-title">DigiHealth</p>
           <p className="header-subtitle">Doctor Portal</p>
@@ -34,7 +34,7 @@ export default function DigiHealthLoginScreen() {
         <form className="form-card" onSubmit={handleLogin}>
           <p className="welcome-text">Welcome Back</p>
           <button type="button" className="google-btn">
-            <img alt="Google Icon" src="/assets/doctor-login.png" />
+            <img alt="Google Icon" src="/assets/doctor-login.svg" />
             Continue with Google
           </button>
           <div className="divider-container">
