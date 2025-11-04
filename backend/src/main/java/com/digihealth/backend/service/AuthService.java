@@ -47,6 +47,23 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public void registerDoctor(RegisterDto registerDto) {
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
+
+        User user = new User();
+        user.setFullName(registerDto.getFullName());
+        user.setEmail(registerDto.getEmail());
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        user.setSpecialization(registerDto.getSpecialization());
+        user.setLicenseNumber(registerDto.getLicenseNumber());
+        user.setPhoneNumber(registerDto.getPhoneNumber());
+        user.setRole(Role.DOCTOR); // Set role to DOCTOR
+
+        userRepository.save(user);
+    }
+
     public String loginUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
