@@ -13,7 +13,9 @@ const AppointmentsHeader = () => {
   return (
     <header className="dashboard-header">
       <div className="header-logo-container">
-        <img src="/assets/header-logo.svg" alt="DigiHealth Logo" />
+        <div className="logo-background">
+          <img src="/assets/header-logo.svg" alt="DigiHealth Logo" />
+        </div>
         <div className="header-title-container">
           <h1>DigiHealth</h1>
           <p>Doctor Portal</p>

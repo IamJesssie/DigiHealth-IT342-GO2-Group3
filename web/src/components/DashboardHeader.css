@@ -13,9 +13,18 @@
     gap: 12px;
 }
 
+.logo-background {
+    background: linear-gradient(to bottom, #0093E9, #80D0C7);
+    border-radius: 14px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .header-logo-container img {
-    width: 40px;
-    height: 40px;
+    width: 32px; /* Adjust size of icon itself */
+    height: 32px;
 }
 
 .header-title-container h1 {
