@@ -270,21 +270,21 @@
 
 .personal-info-card {
   border-top: 1px solid #e5e7eb;
-  padding: 24px;
-  min-height: 335px;
+  padding: 30px;
+  min-height: 300px;
 }
 
 .professional-info-card {
   border-top: 1px solid #e5e7eb;
   padding: 24px;
-  min-height: 614px;
+  min-height: 300px;
 }
 
 .personal-info-card .card-header, .professional-info-card .card-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 32px;
+  margin-bottom: 60px;
   position: relative;
 }
 
