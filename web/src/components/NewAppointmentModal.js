@@ -55,7 +55,7 @@ const NewAppointmentModal = ({ show, onClose }) => {
               Cancel
             </button>
             <button type="submit" className="btn-create">
-              <img src="/assets/save-icon.svg" alt="Create" />
+              <img src="/assets/saveicon.svg" alt="Create" />
               Create Appointment
             </button>
           </div>
