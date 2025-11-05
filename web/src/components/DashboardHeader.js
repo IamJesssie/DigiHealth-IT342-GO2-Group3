@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './DashboardHeader.css';
+import ProfileDropdown from './ProfileDropdown';
 
 const DashboardHeader = () => {
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+
+  const toggleDropdown = () => {
+    setDropdownVisible(!isDropdownVisible);
+  };
+
   return (
     <header className="dashboard-header">
       <div className="header-logo-container">
@@ -31,13 +38,14 @@ const DashboardHeader = () => {
           <img src="/assets/notification-icon.svg" alt="Notifications" />
           <span className="notification-badge">2</span>
         </div>
-        <div className="user-profile">
+        <div className="user-profile" onClick={toggleDropdown}>
           <img src="/assets/profile-pic.svg" alt="Dr. Sarah Smith" className="profile-pic" />
           <div className="user-info">
             <p className="user-name">Dr. Sarah Smith</p>
             <p className="user-specialty">General Practitioner</p>
           </div>
           <img src="/assets/dropdown-icon.svg" alt="Dropdown" className="dropdown-icon" />
+          {isDropdownVisible && <ProfileDropdown />}
         </div>
       </div>
     </header>
