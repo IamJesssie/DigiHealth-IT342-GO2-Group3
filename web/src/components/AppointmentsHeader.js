@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import './DashboardHeader.css';
 
 const AppointmentsHeader = () => {
@@ -12,18 +13,18 @@ const AppointmentsHeader = () => {
         </div>
       </div>
       <nav className="header-nav">
-        <a href="#" className="nav-item">
+        <NavLink to="/dashboard" className="nav-item">
           <img src="/assets/dashboard-icon.svg" alt="Dashboard" />
           <span>Dashboard</span>
-        </a>
-        <a href="#" className="nav-item">
+        </NavLink>
+        <NavLink to="/patients" className="nav-item">
           <img src="/assets/patients-nav-icon.svg" alt="Patients" />
           <span>Patients</span>
-        </a>
-        <a href="#" className="nav-item active">
+        </NavLink>
+        <NavLink to="/appointments" className="nav-item">
           <img src="/assets/appointments-nav-icon.svg" alt="Appointments" />
           <span>Appointments</span>
-        </a>
+        </NavLink>
       </nav>
       <div className="header-user-container">
         <div className="notification-icon">

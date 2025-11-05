@@ -1,12 +1,8 @@
 import React from 'react';
 import './Dashboard.css';
-import DashboardHeader from './DashboardHeader';
-
 const Dashboard = () => {
   return (
     <div className="dashboard-container">
-      <DashboardHeader />
-
       <main className="dashboard-main">
         <div className="welcome-message">
           <h2>Welcome back, Dr. Sarah Smith</h2>

@@ -1,7 +1,5 @@
 import React from 'react';
 import './Appointments.css';
-import AppointmentsHeader from './AppointmentsHeader';
-
 const Appointments = () => {
   const appointments = [
     { time: '09:00 AM', patient: 'Sarah Johnson', type: 'General Checkup', doctor: 'Dr. Sarah Smith', status: 'Confirmed' },

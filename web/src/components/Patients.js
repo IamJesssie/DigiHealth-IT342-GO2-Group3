@@ -1,7 +1,5 @@
 import React from 'react';
 import './Patients.css';
-import DashboardHeader from './DashboardHeader'; // Assuming we reuse the header
-
 const Patients = () => {
   const patients = [
     { id: 'P001', name: 'Sarah Johnson', phone: '+1 (555) 123-4567', email: 'sarah.johnson@email.com', lastVisit: 'Oct 15, 2025' },
