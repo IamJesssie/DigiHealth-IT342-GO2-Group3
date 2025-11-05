@@ -285,12 +285,12 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
-  position: relative;
 }
 
-.personal-info-card .card-header img, .professional-info-card .card-header img {
-  width: 20px;
-  height: 20px;
+.card-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .personal-info-card .card-header .card-title, .professional-info-card .card-header .card-title {
@@ -303,9 +303,6 @@
   font-size: 16px;
   color: #606060;
   margin: 0;
-  position: absolute;
-  left: 0;
-  top: 32px;
 }
 
 .card-content {
