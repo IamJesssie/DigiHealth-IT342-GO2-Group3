@@ -24,7 +24,7 @@ const Patients = () => {
           </div>
           <div className="filter-dropdown">
             <span>All Patients</span>
-            <img src="/assets/filter-dropdown-icon.svg" alt="Filter" />
+            <img src="/assets/dropdownicon.svg" alt="Filter" />
           </div>
         </div>
 
@@ -58,8 +58,8 @@ const Patients = () => {
           <div className="table-footer">
             <p>Page 1 of 1</p>
             <div className="pagination-buttons">
-              <button disabled><img src="/assets/prev-page-icon.svg" alt="Previous" /> Previous</button>
-              <button disabled>Next <img src="/assets/next-page-icon.svg" alt="Next" /></button>
+              <button disabled><img src="/assets/previcon.svg" alt="Previous" /> Previous</button>
+              <button disabled>Next <img src="/assets/nexticon.svg" alt="Next" /></button>
             </div>
           </div>
         </div>
