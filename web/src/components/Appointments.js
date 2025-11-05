@@ -1,6 +1,6 @@
 import React from 'react';
 import './Appointments.css';
-import DashboardHeader from './DashboardHeader';
+import AppointmentsHeader from './AppointmentsHeader';
 
 const Appointments = () => {
   const appointments = [
@@ -10,7 +10,7 @@ const Appointments = () => {
 
   return (
     <div className="appointments-container">
-      <DashboardHeader />
+      <AppointmentsHeader />
       <main className="appointments-main">
         <div className="appointments-header">
           <h2>My Appointments</h2>
@@ -42,17 +42,17 @@ const Appointments = () => {
 
         <div className="card filter-card">
             <div className="date-filter">
-                <img src="/assets/calendar-icon.svg" alt="Calendar" />
+                <img src="/assets/today-icon.svg" alt="Calendar" />
                 <div className="date-dropdown">
                     <span>Today - Oct 20, 2025</span>
-                    <img src="/assets/dropdown-icon.svg" alt="dropdown" />
+                    <img src="/assets/today-dropdown.svg" alt="dropdown" />
                 </div>
             </div>
             <div className="view-toggle">
-                <button className="toggle-btn active"><img src="/assets/list-icon.svg" alt="List" /> List</button>
-                <button className="toggle-btn"><img src="/assets/calendar-view-icon.svg" alt="Calendar" /> Calendar</button>
+                <button className="toggle-btn active"><img src="/assets/burger.svg" alt="List" /> List</button>
+                <button className="toggle-btn"><img src="/assets/calendar.svg" alt="Calendar" /> Calendar</button>
             </div>
-            <button className="new-appointment-btn"><img src="/assets/add-icon.svg" alt="Add" /> New Appointment</button>
+            <button className="new-appointment-btn"><img src="/assets/new.svg" alt="Add" /> New Appointment</button>
         </div>
 
         <div className="card appointments-list-card">
