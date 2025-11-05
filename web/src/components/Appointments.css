@@ -119,6 +119,32 @@
     margin: 0;
 }
 
+.table-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #f9fafb;
+}
+
+th, td {
+    padding: 12px 8px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .status-badge {
     padding: 4px 8px;
     border-radius: 8px;
@@ -130,5 +156,3 @@
     color: #065F46;
     border: 1px solid #A7F3D0;
 }
-
-/* Add other status badge styles as needed */

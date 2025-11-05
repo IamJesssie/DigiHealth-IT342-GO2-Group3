@@ -60,28 +60,30 @@ const Appointments = () => {
             <h3>Appointments List</h3>
             <p>Showing 2 appointments</p>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Patient</th>
-                <th>Type</th>
-                <th>Doctor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map(appt => (
-                <tr key={appt.time}>
-                  <td>{appt.time}</td>
-                  <td>{appt.patient}</td>
-                  <td>{appt.type}</td>
-                  <td>{appt.doctor}</td>
-                  <td><span className={`status-badge ${appt.status.toLowerCase()}`}>{appt.status}</span></td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Patient</th>
+                  <th>Type</th>
+                  <th>Doctor</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {appointments.map(appt => (
+                  <tr key={appt.time}>
+                    <td>{appt.time}</td>
+                    <td>{appt.patient}</td>
+                    <td>{appt.type}</td>
+                    <td>{appt.doctor}</td>
+                    <td><span className={`status-badge ${appt.status.toLowerCase()}`}>{appt.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
