@@ -46,7 +46,6 @@ body {
 
 .card-header {
     display: flex;
-    align-items: flex-start;
 }
 
 .card-header p {
