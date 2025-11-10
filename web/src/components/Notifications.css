@@ -1,0 +1,85 @@
+.notification-settings-card .card-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.notification-item-icon-wrapper {
+  background-color: #e3f2fd;
+  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-item-icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
+.notification-item-text {
+  flex-grow: 1;
+}
+
+.notification-item-title {
+  font-size: 16px;
+  color: #0d1b2a;
+  margin: 0;
+}
+
+.notification-item-subtitle {
+  font-size: 14px;
+  color: #606060;
+  margin: 0;
+}
+
+.notification-settings-card hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.save-preferences-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.save-preferences-btn {
+  background: linear-gradient(180deg, #0093e9 0%, #80d0c7 100%);
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  width: 162.875px;
+}
+
+.save-preferences-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.toggle-switch.active {
+  background: linear-gradient(180deg, #0093e9 0%, #80d0c7 100%);
+}
+
+.toggle-switch.active .toggle-handle {
+  transform: translateX(14px);
+}

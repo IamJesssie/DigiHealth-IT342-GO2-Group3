@@ -2,6 +2,7 @@ import React from 'react';
 import './ProfileSettings.css';
 import { Link, useLocation } from 'react-router-dom';
 import SecuritySettings from './SecuritySettings';
+import Notifications from './Notifications';
 
 const ProfileSettings = () => {
   const location = useLocation();
@@ -151,6 +152,10 @@ const ProfileSettings = () => {
 
       {location.pathname === '/profile-settings/security' && (
         <SecuritySettings />
+      )}
+
+      {location.pathname === '/profile-settings/notifications' && (
+        <Notifications />
       )}
     </div>
   );
