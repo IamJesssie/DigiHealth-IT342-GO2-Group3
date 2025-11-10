@@ -26,25 +26,22 @@
   top: 24px;
 }
 
-.card-header-text {
-  position: absolute;
-  left: 52px;
-  top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .card-title {
   font-size: 16px;
   color: #0d1b2a;
   margin: 0;
+  position: absolute;
+  left: 52px;
+  top: 24px;
 }
 
 .card-description {
   font-size: 16px;
   color: #606060;
   margin: 0;
+  position: absolute;
+  left: 52px;
+  top: 48px;
 }
 
 .card-content {
@@ -79,7 +76,7 @@
 .change-password-card hr {
   border: none;
   border-top: 1px solid #e5e7eb;
-  margin: 24px 0;
+  margin: 0;
 }
 
 .password-requirements-card {
