@@ -72,11 +72,14 @@
   padding: 12px;
   font-size: 14px;
   color: #717182;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .change-password-card hr {
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid #e5e7eb;
+  margin: 24px 0;
 }
 
 .password-requirements-card {
