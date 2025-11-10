@@ -52,6 +52,7 @@ body {
     font-size: 16px;
     color: #606060;
     margin: 0;
+    font-weight: bold;
 }
 
 .card-icon {
@@ -62,8 +63,8 @@ body {
     justify-content: center;
     align-items: center;
     position: absolute;
-    right: 24px;
-    top: 24px;
+    right: 11px;
+    top: 11px;
 }
 
 .card-icon.patients { background: linear-gradient(to bottom, #0093E9, #80D0C7); }
@@ -74,6 +75,8 @@ body {
 .card-icon img {
     width: 20px;
     height: 20px;
+    top: 11px;
+    left: 11px;
 }
 
 .card-body .stat-number {
@@ -87,6 +90,7 @@ body {
     font-size: 16px;
     color: #606060;
     margin: 0;
+   
 }
 
 .appointments-table-card {
@@ -98,6 +102,9 @@ body {
 }
 
 .appointments-table-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 30px;
 }
 
@@ -112,9 +119,9 @@ body {
     color: #0093E9;
     background-color: white;
     border-radius: 8px;
-    padding: 8px 16px;
     text-decoration: none;
     font-size: 14px;
+    left: 100px;
 }
 
 table {
