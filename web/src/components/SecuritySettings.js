@@ -1,9 +1,36 @@
 import React from 'react';
 import './SecuritySettings.css';
+import './ProfileSettings.css';
 
 const SecuritySettings = () => {
   return (
-    <div className="security-settings-container">
+    <div className="profile-settings-container">
+      <div className="profile-settings-header">
+        <h2>Profile Settings</h2>
+        <p>Manage your account settings and preferences</p>
+        <div className="active-account-badge">
+          <img src="/assets/active-account.svg" alt="Active Account" />
+          <p>Active Account</p>
+        </div>
+      </div>
+
+      <div className="profile-completion-card">
+        <div className="profile-completion-info">
+          <div className="profile-completion-icon-wrapper">
+            <img src="/assets/profile-completion-icon.svg" alt="Profile Completion" />
+          </div>
+          <div className="profile-completion-text">
+            <p className="profile-completion-title">Profile Completion</p>
+            <p className="profile-completion-subtitle">Keep your profile updated for better security</p>
+          </div>
+        </div>
+        <div className="profile-completion-percentage">
+          <p className="percentage-value">100%</p>
+          <p className="percentage-label">Complete</p>
+        </div>
+        <div className="profile-completion-progress"></div>
+      </div>
+
       <div className="card change-password-card">
         <div className="card-header">
           <img src="/assets/security-tab-icon.svg" alt="Change Password" />
