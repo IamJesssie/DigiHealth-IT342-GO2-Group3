@@ -1,8 +1,11 @@
 import React from 'react';
 import './SecuritySettings.css';
 import './ProfileSettings.css';
+import { Link, useLocation } from 'react-router-dom';
 
 const SecuritySettings = () => {
+  const location = useLocation();
+
   return (
     <div className="profile-settings-container">
       <div className="profile-settings-header">
@@ -29,6 +32,25 @@ const SecuritySettings = () => {
           <p className="percentage-label">Complete</p>
         </div>
         <div className="profile-completion-progress"></div>
+      </div>
+
+      <div className="profile-tabs">
+        <Link to="/profile-settings" className={`profile-tab ${location.pathname === '/profile-settings' ? 'active' : ''}`}>
+          <img src="/assets/profile-tab-icon.svg" alt="Profile" />
+          <p>Profile</p>
+        </Link>
+        <Link to="/profile-settings/security" className={`profile-tab ${location.pathname === '/profile-settings/security' ? 'active' : ''}`}>
+          <img src="/assets/security-tab-icon.svg" alt="Security" />
+          <p>Security</p>
+        </Link>
+        <Link to="/profile-settings/notifications" className={`profile-tab ${location.pathname === '/profile-settings/notifications' ? 'active' : ''}`}>
+          <img src="/assets/notifications-tab-icon.svg" alt="Notifications" />
+          <p>Notifications</p>
+        </Link>
+        <Link to="/profile-settings/schedule" className={`profile-tab ${location.pathname === '/profile-settings/schedule' ? 'active' : ''}`}>
+          <img src="/assets/schedule-tab-icon.svg" alt="Schedule" />
+          <p>Schedule</p>
+        </Link>
       </div>
 
       <div className="card change-password-card">
