@@ -1,2 +1,32 @@
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# Build output
+build/
+target/
+out/
+
+# Dependency directories
+node_modules/
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Other
 .roo/
 New folder/

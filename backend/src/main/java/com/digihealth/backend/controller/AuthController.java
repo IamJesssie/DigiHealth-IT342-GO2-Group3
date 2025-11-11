@@ -1,11 +1,10 @@
 package com.digihealth.backend.controller;
 
-import com.digihealth.backend.dto.LoginRequest;
-import com.digihealth.backend.dto.LoginResponse;
-import com.digihealth.backend.dto.RegistrationRequest;
+import com.digihealth.backend.dto.AuthResponseDto;
+import com.digihealth.backend.dto.LoginDto;
+import com.digihealth.backend.dto.RegisterDto;
 import com.digihealth.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,23 +18,15 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegistrationRequest registrationRequest) {
-        try {
-            authService.registerUser(registrationRequest);
-            return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
+        String token = authService.login(loginDto);
+        return ResponseEntity.ok(new AuthResponseDto(token));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            String token = authService.loginUser(loginRequest);
-            return ResponseEntity.ok(new LoginResponse(token));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Login failed: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
+        authService.registerDoctor(registerDto);
+        return ResponseEntity.ok("Doctor registered successfully!");
     }
 }
