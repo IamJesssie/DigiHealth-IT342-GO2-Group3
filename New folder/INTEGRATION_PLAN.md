@@ -31,11 +31,11 @@ The `master` branch has already been merged with `feature/backend-initial-projec
 
 - [ ] **Step 3: Merge Feature Branches into `feature/integration`**
   - [x] `git merge feature/basic-backend-implementation` (Initial merge attempt resulted in staged changes, which were committed)
-  - [ ] `git merge feature/api-security` (Currently in conflict resolution)
+  - [x] `git merge feature/api-security`
     - [x] Resolved conflict in `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java`
     - [x] Resolved conflict in `backend/src/main/java/com/digihealth/backend/controller/AuthController.java`
-    - [ ] Resolve conflict in `backend/src/main/java/com/digihealth/backend/security/JwtTokenProvider.java`
-    - [ ] Resolve conflict in `backend/src/main/java/com/digihealth/backend/service/AuthService.java`
+    - [x] Resolved conflict in `backend/src/main/java/com/digihealth/backend/security/JwtTokenProvider.java`
+    - [x] Resolved conflict in `backend/src/main/java/com/digihealth/backend/service/AuthService.java`
   - [ ] `git merge feature/react-frontend`
   - [ ] **If Conflicts Occur:** Manually resolve conflicts in the code to ensure both frontend and backend changes are preserved correctly.
 
