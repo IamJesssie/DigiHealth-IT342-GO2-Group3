@@ -1,0 +1,52 @@
+Project Increment 1
+
+Due November 5, 2025 11:59 PM
+
+Instructions
+Description:
+For this first increment, I want you to focus on building the foundation of your project. You are expected to design your database properly, set up the connection between your frontend and backend, and implement basic user authentication using best practices. This phase will serve as the starting point for your system integration development.
+
+Requirements
+
+1.Project ERD Submission
+Include all key entities, relationships, and attributes.
+Identify primary and foreign keys clearly.
+
+2.Initial Project Development
+Database Configuration: Proper setup and connection with your backend (Spring Boot).
+Data Model Definition: Models must match your ERD.
+
+3.ReactJS Implementation (Frontend)
+Follow your approved Figma prototype.
+Implement at least the core screens: Login, Register, Dashboard, and Profile.
+
+4.Basic Backend Implementation (Spring Boot)
+User Authentication (Login/Logout)
+User Registration
+User Profile (Update/Delete)
+
+5. Basic API Security
+Secure your routes and endpoints.
+Use token-based authentication (JWT recommended).
+
+Presentation Requirement
+You will present your project progress during our laboratory schedule and/or lecture session. A detailed presentation schedule will be announced on Wednesday
+Before the presentation, make sure to merge all branches into the main branch through a pull request. The main branch must be the version used for your demo presentation.
+
+Individual Progress Report
+Each member must submit an Individual Progress Report (use the provided template). 
+This report must include:
+
+A list of your personal tasks and contributions.
+
+Screenshots or links showing your GitHub commit history.
+
+Submission Guidelines
+Submit the following in this assignment:
+
+GitHub repository link (individual branch)
+
+ERD diagram file or screenshot
+
+Individual Progress Report (per member)
+

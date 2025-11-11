@@ -1,0 +1,127 @@
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-background {
+    background: linear-gradient(to bottom, #0093E9, #80D0C7);
+    border-radius: 14px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-logo-container img {
+    width: 32px; /* Adjust size of icon itself */
+    height: 32px;
+}
+
+.header-title-container h1 {
+    font-size: 24px;
+    color: #0D1B2A;
+    margin: 0;
+}
+
+.header-title-container p {
+    font-size: 16px;
+    color: #606060;
+    margin: 0;
+}
+
+.header-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1F2937;
+    font-size: 14px;
+}
+
+.nav-item.active, .nav-item:hover {
+    background: linear-gradient(to bottom, #0093E9, #80D0C7);
+    color: white;
+}
+
+.nav-item img {
+    width: 16px;
+    height: 16px;
+}
+
+.header-user-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.notification-icon {
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: #FB2C36;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.profile-pic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.user-info .user-name {
+    font-size: 16px;
+    color: #0D1B2A;
+    margin: 0;
+}
+
+.user-info .user-specialty {
+    font-size: 14px;
+    color: #606060;
+    margin: 0;
+}
+
+.dropdown-icon {
+    width: 16px;
+    height: 16px;
+}

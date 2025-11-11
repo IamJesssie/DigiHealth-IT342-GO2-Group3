@@ -1,0 +1,158 @@
+.appointments-container {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #E3F2FD 0%, #FFFFFF 100%);
+    min-height: 100vh;
+}
+
+.appointments-main {
+    padding: 32px 24px;
+}
+
+.appointments-header h2 {
+    font-size: 24px;
+    color: #0D1B2A;
+    margin: 0 0 8px 0;
+}
+
+.appointments-header p {
+    font-size: 16px;
+    color: #606060;
+    margin: 0;
+}
+
+.stats-tabs {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.stat-tab {
+    flex-grow: 1;
+    padding: 24px;
+    background-color: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+.stat-tab.active {
+    border-color: #0093E9;
+    background-color: #E3F2FD;
+}
+
+.stat-tab p {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: #606060;
+}
+
+.stat-tab span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0D1B2A;
+}
+
+.card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 25px;
+    margin-top: 32px;
+}
+
+.filter-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date-filter, .view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f3f3f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: white;
+    cursor: pointer;
+}
+
+.toggle-btn.active {
+    background: linear-gradient(to bottom, #0093E9, #80D0C7);
+    color: white;
+    border: none;
+}
+
+.new-appointment-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(to bottom, #0093E9, #80D0C7);
+    color: white;
+    cursor: pointer;
+}
+
+.appointments-list-card .table-header {
+    margin-bottom: 24px;
+}
+
+.appointments-list-card h3, .appointments-list-card p {
+    margin: 0;
+}
+
+.table-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #f9fafb;
+}
+
+th, td {
+    padding: 12px 8px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.status-badge.confirmed {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}

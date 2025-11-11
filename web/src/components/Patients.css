@@ -1,0 +1,119 @@
+.patients-container {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #E3F2FD 0%, #FFFFFF 100%);
+    min-height: 100vh;
+}
+
+.patients-main {
+    padding: 32px 24px;
+}
+
+.patients-header h2 {
+    font-size: 24px;
+    color: #0D1B2A;
+    margin: 0 0 8px 0;
+}
+
+.patients-header p {
+    font-size: 16px;
+    color: #606060;
+    margin: 0;
+}
+
+.card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 25px;
+    margin-top: 32px;
+}
+
+.search-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f3f3f5;
+    border: 1px solid #d1d5dc;
+    border-radius: 8px;
+    padding: 0 12px;
+    flex-grow: 1;
+    margin-right: 16px;
+}
+
+.search-bar input {
+    border: none;
+    background: none;
+    height: 44px;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-bar img {
+    width: 20px;
+    height: 20px;
+}
+
+.filter-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f3f3f5;
+    border: 1px solid #d1d5dc;
+    border-radius: 8px;
+    padding: 10px 13px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.patients-table-card .table-header {
+    margin-bottom: 24px;
+}
+
+.patients-table-card h3 {
+    font-size: 16px;
+    color: #0D1B2A;
+    margin: 0;
+}
+
+.patients-table-card p {
+    font-size: 16px;
+    color: #606060;
+    margin: 0;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-buttons button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.pagination-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

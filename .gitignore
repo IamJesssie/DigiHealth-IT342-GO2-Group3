@@ -1,32 +1,75 @@
-# IDE and OS files
-.idea/
-.vscode/
-*.iml
-*.ipr
-*.iws
-.DS_Store
-
-# Build output
-build/
-target/
-out/
-
-# Dependency directories
-node_modules/
-
-# Log files
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
 # Other
 .roo/
 New folder/
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Spring Boot
+application-*.properties
+application-*.yml
+
+# MySQL
+*.sql
+*.dump
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Kotlin
+*.kotlin_module
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+.gradle/
+local.properties
+*.keystore
+!debug.keystore
