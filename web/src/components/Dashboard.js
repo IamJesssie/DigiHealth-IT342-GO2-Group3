@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import apiClient from '../api/client';
+import { useAuth } from '../auth/auth';
 
 const Dashboard = () => {
+  const { currentUser } = useAuth();
   const [summary, setSummary] = useState({
     totalPatients: 0,
     todayConfirmed: 0,
@@ -10,26 +12,22 @@ const Dashboard = () => {
     todayCompleted: 0,
   });
   const [todayAppointments, setTodayAppointments] = useState([]);
-  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const DASHBOARD_SUMMARY_URL = '/api/dashboard/summary';
   const TODAY_APPOINTMENTS_URL = '/api/appointments/today';
-  const CURRENT_USER_URL = '/api/users/me';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        const [userRes, summaryRes, appointmentsRes] = await Promise.all([
-          apiClient.get(CURRENT_USER_URL),
+        const [summaryRes, appointmentsRes] = await Promise.all([
           apiClient.get(DASHBOARD_SUMMARY_URL),
           apiClient.get(TODAY_APPOINTMENTS_URL),
         ]);
 
-        setProfile(userRes.data || null);
         setSummary(summaryRes.data || {
           totalPatients: 0,
           todayConfirmed: 0,
@@ -57,8 +55,8 @@ const Dashboard = () => {
         <div className="welcome-message">
           <h2>
             Welcome back,{' '}
-            {profile && profile.fullName
-              ? profile.fullName
+            {currentUser && currentUser.fullName
+              ? currentUser.fullName
               : 'Doctor'}
           </h2>
           <p>

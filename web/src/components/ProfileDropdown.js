@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './ProfileDropdown.css';
-import { clearToken } from '../auth/auth';
+import { useAuth } from '../auth/auth';
 
 const ProfileDropdown = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    // Clear JWT from storage
-    clearToken();
+    logout();
     // Hard redirect to ensure all state is reset and protected routes re-evaluate
     navigate('/login', { replace: true });
   };

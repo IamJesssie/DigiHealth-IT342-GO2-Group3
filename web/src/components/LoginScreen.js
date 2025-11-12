@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import './LoginScreen.css';
-import { login } from '../api/client';
-import { setToken } from '../auth/auth';
+import { useAuth } from '../auth/auth';
 import { useNavigate } from 'react-router-dom';
 
-export default function DigiHealthLoginScreen({ onNavigateToRegister, onLoginSuccess }) {
+export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,16 +18,8 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister, onLoginSuc
     setSubmitting(true);
 
     try {
-      const { token, raw } = await login(email, password);
-      // Store token using auth helper (writes to digihealth_jwt)
-      setToken(token);
-
-      // Notify parent if provided (backwards compatible)
-      if (typeof onLoginSuccess === 'function') {
-        onLoginSuccess({ token, raw });
-      }
-
-      // Always navigate to dashboard on successful login
+      await login(email, password);
+      // Navigate to dashboard on successful login
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
