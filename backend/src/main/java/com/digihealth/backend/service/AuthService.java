@@ -55,6 +55,8 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
+        System.out.println("[AuthService.registerDoctor] Creating new user...");
+        
         User user = new User();
         user.setFullName(registerDto.getFullName());
         user.setEmail(registerDto.getEmail());
@@ -62,7 +64,12 @@ public class AuthService {
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setRole(Role.DOCTOR); // Set role to DOCTOR
 
-        userRepository.save(user);
+        System.out.println("[AuthService.registerDoctor] User before save - ID: " + user.getId());
+        
+        user = userRepository.save(user);
+        
+        System.out.println("[AuthService.registerDoctor] User after save - ID: " + user.getId());
+        System.out.println("[AuthService.registerDoctor] User after save - Email: " + user.getEmail());
 
         Doctor doctor = new Doctor();
         doctor.setUser(user);
@@ -70,6 +77,8 @@ public class AuthService {
         doctor.setLicenseNumber(registerDto.getLicenseNumber());
 
         doctorRepository.save(doctor);
+        
+        System.out.println("[AuthService.registerDoctor] Doctor saved successfully for user ID: " + user.getId());
     }
 
     public String login(LoginRequest loginRequest) {
@@ -98,11 +107,21 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
+        // Critical debugging
+        System.out.println("[AuthService.login] User loaded from DB:");
+        System.out.println("[AuthService.login]   ID: " + user.getId());
+        System.out.println("[AuthService.login]   Email: " + user.getEmail());
+        System.out.println("[AuthService.login]   Role: " + user.getRole());
+        
         // Ensure we never produce a token for an invalid user object
         if (user.getId() == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User identifier is missing");
         }
 
-        return tokenProvider.generateTokenFromUser(user);
+        String token = tokenProvider.generateTokenFromUser(user);
+        System.out.println("[AuthService.login] Generated JWT token (first 50 chars): " + token.substring(0, Math.min(50, token.length())));
+        System.out.println("[AuthService.login] Token should contain UUID: " + user.getId());
+
+        return token;
     }
 }

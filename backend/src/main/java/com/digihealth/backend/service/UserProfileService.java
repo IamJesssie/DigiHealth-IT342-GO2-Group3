@@ -129,9 +129,27 @@ public class UserProfileService {
     @Transactional(readOnly = true)
     public CurrentUserProfileDto getCurrentUserProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        // Debug logging
+        System.out.println("[UserProfileService] Authentication object: " + authentication);
+        System.out.println("[UserProfileService] Is authenticated: " + (authentication != null && authentication.isAuthenticated()));
+        if (authentication != null) {
+            System.out.println("[UserProfileService] Principal type: " + authentication.getPrincipal().getClass().getName());
+            System.out.println("[UserProfileService] Principal: " + authentication.getPrincipal());
+            System.out.println("[UserProfileService] Name: " + authentication.getName());
+        }
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No authenticated user found");
+        }
+        
         String email = authentication.getName();
+        System.out.println("[UserProfileService] Looking up user by email: " + email);
+        
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        System.out.println("[UserProfileService] User found: " + user.getId() + " - " + user.getEmail());
 
         CurrentUserProfileDto dto = new CurrentUserProfileDto();
         dto.setFullName(user.getFullName());
@@ -164,6 +182,8 @@ public class UserProfileService {
         // email and role are read-only
 
         if (user.getRole() == Role.DOCTOR) {
+            // For doctors, ensure we have a Doctor entity but never fail with 403/exception
+            // if it doesn't exist yet. Create and populate it from the request when needed.
             Doctor doctor = doctorRepository.findByUser(user)
                     .orElseGet(() -> {
                         Doctor newDoctor = new Doctor();
@@ -171,11 +191,22 @@ public class UserProfileService {
                         return newDoctor;
                     });
 
-            doctor.setHospitalAffiliation(request.getDepartment());
-            doctor.setSpecialization(request.getSpecialization());
-            doctor.setLicenseNumber(request.getMedicalLicenseNumber());
-            doctor.setExperienceYears(request.getYearsOfExperience());
-            doctor.setBio(request.getProfessionalBio());
+            // Update doctor-scoped fields only if provided; allow partial updates.
+            if (request.getDepartment() != null) {
+                doctor.setHospitalAffiliation(request.getDepartment());
+            }
+            if (request.getSpecialization() != null) {
+                doctor.setSpecialization(request.getSpecialization());
+            }
+            if (request.getMedicalLicenseNumber() != null) {
+                doctor.setLicenseNumber(request.getMedicalLicenseNumber());
+            }
+            if (request.getYearsOfExperience() != null) {
+                doctor.setExperienceYears(request.getYearsOfExperience());
+            }
+            if (request.getProfessionalBio() != null) {
+                doctor.setBio(request.getProfessionalBio());
+            }
 
             doctorRepository.save(doctor);
         }

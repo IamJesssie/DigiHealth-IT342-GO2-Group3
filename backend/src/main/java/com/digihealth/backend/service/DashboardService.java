@@ -29,18 +29,28 @@ public class DashboardService {
     @Autowired
     private UserRepository userRepository;
 
-    private Doctor getCurrentDoctor() {
+    private Doctor getCurrentDoctorOrNull() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return doctorRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        // Return the associated Doctor if present; otherwise null.
+        return doctorRepository.findByUser(user).orElse(null);
     }
 
     public DashboardSummaryDto getDashboardSummaryForCurrentDoctor() {
-        Doctor doctor = getCurrentDoctor();
+        Doctor doctor = getCurrentDoctorOrNull();
         LocalDate today = LocalDate.now();
+
+        if (doctor == null) {
+            DashboardSummaryDto empty = new DashboardSummaryDto();
+            empty.setTotalPatients(0L);
+            empty.setTodayConfirmed(0L);
+            empty.setTodayPending(0L);
+            empty.setTodayCompleted(0L);
+            return empty;
+        }
 
         List<Appointment> todayAppointments = appointmentRepository.findByDoctorAndAppointmentDate(doctor, today);
 
@@ -70,8 +80,12 @@ public class DashboardService {
     }
 
     public List<TodayAppointmentDto> getTodayAppointmentsForCurrentDoctor() {
-        Doctor doctor = getCurrentDoctor();
+        Doctor doctor = getCurrentDoctorOrNull();
         LocalDate today = LocalDate.now();
+
+        if (doctor == null) {
+            return List.of();
+        }
 
         return appointmentRepository.findByDoctorAndAppointmentDate(doctor, today).stream()
                 .map(this::toTodayAppointmentDto)
@@ -89,7 +103,11 @@ public class DashboardService {
     }
 
     public List<DoctorPatientDto> getPatientsForCurrentDoctor() {
-        Doctor doctor = getCurrentDoctor();
+        Doctor doctor = getCurrentDoctorOrNull();
+
+        if (doctor == null) {
+            return List.of();
+        }
 
         return appointmentRepository.findByDoctor(doctor).stream()
                 .collect(Collectors.groupingBy(app -> app.getPatient()))
@@ -113,7 +131,11 @@ public class DashboardService {
     }
 
     public List<DoctorAppointmentDto> getAppointmentsForCurrentDoctor() {
-        Doctor doctor = getCurrentDoctor();
+        Doctor doctor = getCurrentDoctorOrNull();
+
+        if (doctor == null) {
+            return List.of();
+        }
 
         return appointmentRepository.findByDoctor(doctor).stream()
                 .map(this::toDoctorAppointmentDto)
