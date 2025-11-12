@@ -13,15 +13,28 @@ apiClient.interceptors.request.use(
   (config) => {
     try {
       const token = localStorage.getItem('digihealth_jwt');
+      console.log('[API Client] ========== REQUEST INTERCEPTOR ==========');
+      console.log('[API Client] Request URL:', config.url);
+      console.log('[API Client] Request Method:', config.method);
+      console.log('[API Client] Token in localStorage:', token ? 'YES (length=' + token.length + ')' : 'NO');
+      
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('[API Client] Authorization header SET:', config.headers.Authorization.substring(0, 30) + '...');
+      } else {
+        console.warn('[API Client] NO TOKEN FOUND - Request will be anonymous');
       }
+      console.log('[API Client] All headers:', JSON.stringify(config.headers, null, 2));
+      console.log('[API Client] ===============================================');
     } catch (e) {
-      // Fail silently if storage not available
+      console.error('[API Client] Error in request interceptor:', e);
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('[API Client] Request interceptor error:', error);
+    return Promise.reject(error);
+  }
 );
 
 export default apiClient;
@@ -33,11 +46,16 @@ export const login = async (email, password) => {
     email,
     password,
   });
+  
+  console.log('[Login] Response data:', response.data);
+  
   // Expecting backend to return a JWT or structured response
   const token =
-    response.data?.token ||
     response.data?.accessToken ||
+    response.data?.token ||
     response.data; // fallback for plain-string token
+
+  console.log('[Login] Extracted token:', token ? 'Token found' : 'NO TOKEN');
 
   if (!token) {
     throw new Error('Login response missing token');
