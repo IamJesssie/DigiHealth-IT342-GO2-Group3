@@ -252,10 +252,10 @@ npm run eject  # Eject from Create React App (irreversible)
 - Configure production API endpoints
 
 ## Team Members
-- **Jessie Noel Lapure** - Project Manager / Full Stack Developer - jessienoel.lapure@cit.edu | Iamjesssie
-- **William Bustamante** - Full Stack Developer- william.bustamante@cit.edu | yamn24
-- **Joel Verano** - Full Stack Developer- joel.verano@cit.edu | shinjii
-- **Matthew Rimar Martus** - Full Stack Developer - matthewrimar.martus@cit.edu | Mr-cmd-pip
+- **Jessie Noel Lapure** - Project Manager / Full Stack Developer - jessienoel.lapure@cit.edu | [Iamjesssie](https://github.com/IamJesssie)
+- **William Bustamante** - Full Stack Developer- william.bustamante@cit.edu | [yamn24](https://github.com/yamn24)
+- **Joel Verano** - Full Stack Developer- joel.verano@cit.edu | [shinjii](https://github.com/Veranojoel)
+- **Matthew Rimar Martus** - Full Stack Developer - matthewrimar.martus@cit.edu | [Mr-cmd-pip](https://github.com/Mr-cmd-pip)
 
 ## Deployed Link
 [Will be added after deployment]
