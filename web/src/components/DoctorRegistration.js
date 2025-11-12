@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
 import RegistrationStep1 from './RegistrationStep1';
 import RegistrationStep2 from './RegistrationStep2';
 import RegistrationStep3 from './RegistrationStep3';
 import SuccessModal from './SuccessModal';
 import './DoctorRegistration.css';
 
-import { registerDoctor, login } from '../api/client';
+import { registerDoctor } from '../api/client';
 
-const DoctorRegistration = ({ onNavigateToLogin }) => {
+const DoctorRegistration = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -43,9 +45,8 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
     try {
       await registerDoctor(formData);
 
-      // On successful registration, immediately login with same credentials
-      const { token } = await login(formData.email, formData.password);
-      localStorage.setItem('digihealth_jwt', token);
+      // On successful registration, use AuthContext login to properly set user state
+      await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (error) {
       console.error('Registration or login failed:', error);
@@ -60,12 +61,11 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
       // Handle duplicate email with auto-login attempt
       if (status === 400 && backendMessage && backendMessage.toLowerCase().includes('email already exists')) {
         try {
-          const { token } = await login(formData.email, formData.password);
-          localStorage.setItem('digihealth_jwt', token);
+          await login(formData.email, formData.password);
           navigate('/dashboard');
           return;
         } catch (loginError) {
-          console.error('Auto-login after duplicate registration failed:', loginError);
+          
           setErrorMsg('Account already exists. Please confirm your credentials or log in manually.');
           return;
         }
@@ -94,7 +94,7 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <RegistrationStep1 onNext={nextStep} onNavigateToLogin={onNavigateToLogin} formData={formData} setFormData={setFormData} />;
+        return <RegistrationStep1 onNext={nextStep} onNavigateToLogin={() => navigate('/login')} formData={formData} setFormData={setFormData} />;
       case 2:
         return <RegistrationStep2 onNext={nextStep} onBack={prevStep} formData={formData} setFormData={setFormData} />;
       case 3:
