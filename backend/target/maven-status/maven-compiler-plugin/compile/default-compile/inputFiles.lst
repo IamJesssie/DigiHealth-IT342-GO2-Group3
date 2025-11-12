@@ -2,6 +2,7 @@ D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\mai
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Role.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\AuthService.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\UserProfileService.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtAuthenticationEntryPoint.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\BackendApplication.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\DoctorDashboardController.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileDto.java

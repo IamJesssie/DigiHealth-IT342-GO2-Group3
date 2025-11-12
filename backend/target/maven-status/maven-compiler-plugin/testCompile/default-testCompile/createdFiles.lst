@@ -1,0 +1,3 @@
+com\digihealth\backend\controller\AuthControllerTest.class
+com\digihealth\backend\controller\DoctorDashboardControllerTest.class
+com\digihealth\backend\controller\UserProfileControllerTest.class
