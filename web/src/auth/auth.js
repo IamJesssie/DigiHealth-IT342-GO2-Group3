@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { client } from '../api/client';
+import apiClient from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       // Assuming your API client sets the auth header automatically
-      const userProfile = await client.get('/api/user/profile');
+      const userProfile = await apiClient.get('/api/user/profile');
       setCurrentUser(userProfile.data);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await client.post('/api/auth/login', { email, password });
+      const response = await apiClient.post('/api/auth/login', { email, password });
       const { token } = response.data;
       setToken(token);
       // After setting token, fetch profile
