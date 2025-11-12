@@ -1,10 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Patients.css';
+import apiClient from '../api/client';
+
 const Patients = () => {
-  const patients = [
-    { id: 'P001', name: 'Sarah Johnson', phone: '+1 (555) 123-4567', email: 'sarah.johnson@email.com', lastVisit: 'Oct 15, 2025' },
-    { id: 'P003', name: 'Emily Rodriguez', phone: '+1 (555) 345-6789', email: 'emily.rodriguez@email.com', lastVisit: 'Oct 12, 2025' },
-  ];
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const PATIENTS_URL = '/api/doctors/me/patients';
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        setLoading(true);
+        const res = await apiClient.get(PATIENTS_URL);
+        setPatients(res.data);
+      } catch (err) {
+        setError('Failed to load patients');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="patients-container">
@@ -28,7 +49,7 @@ const Patients = () => {
         <div className="card patients-table-card">
           <div className="table-header">
             <h3>Patient Records</h3>
-            <p>Showing 1-2 of 2 patients</p>
+            <p>Showing 1-{patients.length} of {patients.length} patients</p>
           </div>
           <table>
             <thead>
@@ -41,15 +62,21 @@ const Patients = () => {
               </tr>
             </thead>
             <tbody>
-              {patients.map(patient => (
-                <tr key={patient.id}>
-                  <td>{patient.id}</td>
-                  <td>{patient.name}</td>
-                  <td>{patient.phone}</td>
-                  <td>{patient.email}</td>
-                  <td>{patient.lastVisit}</td>
+              {patients.length === 0 ? (
+                <tr>
+                  <td colSpan="5">No patients found</td>
                 </tr>
-              ))}
+              ) : (
+                patients.map(patient => (
+                  <tr key={patient.id}>
+                    <td>{patient.id || 'N/A'}</td>
+                    <td>{patient.name || 'N/A'}</td>
+                    <td>{patient.phone || 'N/A'}</td>
+                    <td>{patient.email || 'N/A'}</td>
+                    <td>{patient.lastVisit || 'N/A'}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
           <div className="table-footer">

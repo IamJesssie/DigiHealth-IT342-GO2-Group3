@@ -1,14 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Appointments.css';
 import NewAppointmentModal from './NewAppointmentModal';
+import apiClient from '../api/client';
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const appointments = [
-    { time: '09:00 AM', patient: 'Sarah Johnson', type: 'General Checkup', doctor: 'Dr. Sarah Smith', status: 'Confirmed' },
-    { time: '10:30 AM', patient: 'Emily Rodriguez', type: 'Diabetes Consultation', doctor: 'Dr. Sarah Smith', status: 'Confirmed' },
-  ];
+  const APPOINTMENTS_URL = '/api/doctors/me/appointments';
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const res = await apiClient.get(APPOINTMENTS_URL);
+        setAppointments(res.data);
+      } catch (err) {
+        setError('Failed to load appointments');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
+
+  const getStatusCounts = () => {
+    const counts = { all: appointments.length, confirmed: 0, pending: 0, completed: 0, cancelled: 0 };
+    appointments.forEach(appt => {
+      const status = appt.status?.toLowerCase();
+      if (status === 'confirmed') counts.confirmed++;
+      else if (status === 'pending') counts.pending++;
+      else if (status === 'completed') counts.completed++;
+      else if (status === 'cancelled') counts.cancelled++;
+    });
+    return counts;
+  };
+
+  const counts = getStatusCounts();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  const formatTime = (dateTime) => {
+    if (!dateTime) return 'N/A';
+    const date = new Date(dateTime);
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  };
 
   return (
     <div className="appointments-container">
@@ -21,23 +60,23 @@ const Appointments = () => {
         <div className="stats-tabs">
           <div className="stat-tab active">
             <p>All Appointments</p>
-            <span>2</span>
+            <span>{counts.all}</span>
           </div>
           <div className="stat-tab">
             <p>Confirmed</p>
-            <span>2</span>
+            <span>{counts.confirmed}</span>
           </div>
           <div className="stat-tab">
             <p>Pending</p>
-            <span>0</span>
+            <span>{counts.pending}</span>
           </div>
           <div className="stat-tab">
             <p>Completed</p>
-            <span>0</span>
+            <span>{counts.completed}</span>
           </div>
           <div className="stat-tab">
             <p>Cancelled</p>
-            <span>0</span>
+            <span>{counts.cancelled}</span>
           </div>
         </div>
 
@@ -59,7 +98,7 @@ const Appointments = () => {
         <div className="card appointments-list-card">
           <div className="table-header">
             <h3>Appointments List</h3>
-            <p>Showing 2 appointments</p>
+            <p>Showing {appointments.length} appointments</p>
           </div>
           <div className="table-container">
             <table>
@@ -74,12 +113,12 @@ const Appointments = () => {
               </thead>
               <tbody>
                 {appointments.map(appt => (
-                  <tr key={appt.time}>
-                    <td>{appt.time}</td>
-                    <td>{appt.patient}</td>
-                    <td>{appt.type}</td>
-                    <td>{appt.doctor}</td>
-                    <td><span className={`status-badge ${appt.status.toLowerCase()}`}>{appt.status}</span></td>
+                  <tr key={appt.id}>
+                    <td>{formatTime(appt.startDateTime || appt.appointmentTime)}</td>
+                    <td>{appt.patientName || 'N/A'}</td>
+                    <td>{appt.type || 'N/A'}</td>
+                    <td>{appt.doctorName || 'N/A'}</td>
+                    <td><span className={`status-badge ${appt.status?.toLowerCase() || 'unknown'}`}>{appt.status || 'Unknown'}</span></td>
                   </tr>
                 ))}
               </tbody>

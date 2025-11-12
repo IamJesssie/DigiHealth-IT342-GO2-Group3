@@ -1,23 +1,45 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import './LoginScreen.css';
+import { login } from '../api/client';
+import { setToken } from '../auth/auth';
+import { useNavigate } from 'react-router-dom';
 
-export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
+export default function DigiHealthLoginScreen({ onNavigateToRegister, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Attempting to login with:', { email, password });
+    setErrorMsg('');
+    setSubmitting(true);
+
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
-        email,
-        password,
-      });
-      console.log('Login successful:', response.data);
-      // Here you would typically save the token and redirect the user
+      const { token, raw } = await login(email, password);
+      // Store token using auth helper (writes to digihealth_jwt)
+      setToken(token);
+
+      // Notify parent if provided (backwards compatible)
+      if (typeof onLoginSuccess === 'function') {
+        onLoginSuccess({ token, raw });
+      }
+
+      // Always navigate to dashboard on successful login
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Login failed:', error.response ? error.response.data : error.message);
+      console.error('Login failed:', error);
+      const backendMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (typeof error.response?.data === 'string'
+          ? error.response.data
+          : null);
+      setErrorMsg(backendMessage || 'Invalid email or password. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -44,21 +66,32 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
           </div>
           <div className="form-inputs">
             <label>Email Address</label>
-            <input 
-              type="email" 
-              placeholder="doctor@digihealth.com" 
+            <input
+              type="email"
+              placeholder="doctor@digihealth.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <label>Password</label>
-            <input 
-              type="password" 
-              placeholder="Enter your password" 
+            <input
+              type="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <a href="#" className="forgot-password">Forgot Password?</a>
-            <button type="submit" className="login-btn">Login</button>
+            {errorMsg && (
+              <div className="error-message" style={{ marginTop: '8px' }}>
+                {errorMsg}
+              </div>
+            )}
+            <button
+              type="submit"
+              className="login-btn"
+              disabled={submitting || !email || !password}
+            >
+              {submitting ? 'Logging in...' : 'Login'}
+            </button>
           </div>
           <div className="register-link">
             <p>Don't have an account? <a href="#" onClick={onNavigateToRegister}>Register as a Doctor</a></p>

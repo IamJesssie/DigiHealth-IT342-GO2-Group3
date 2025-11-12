@@ -1,7 +1,7 @@
 import React from 'react';
 import './RegisterScreen.css';
 
-const RegistrationStep3 = ({ onBack, onSubmit, formData, setFormData }) => {
+const RegistrationStep3 = ({ onBack, onSubmit, formData, setFormData, isComplete, isSubmitting }) => {
 
   const handleDayToggle = (day) => {
     const currentDays = formData.workDays || [];
@@ -41,7 +41,9 @@ const RegistrationStep3 = ({ onBack, onSubmit, formData, setFormData }) => {
       </div>
       <div className="button-container">
         <button type="button" className="back-btn" onClick={onBack}>Back</button>
-        <button type="button" className="next-btn" onClick={onSubmit}>Complete Registration</button>
+        <button type="button" className="next-btn" onClick={onSubmit} disabled={!isComplete || isSubmitting}>
+          {isSubmitting ? 'Registering...' : 'Complete Registration'}
+        </button>
       </div>
     </div>
   );

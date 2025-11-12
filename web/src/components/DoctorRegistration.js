@@ -1,35 +1,95 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import RegistrationStep1 from './RegistrationStep1';
 import RegistrationStep2 from './RegistrationStep2';
 import RegistrationStep3 from './RegistrationStep3';
 import SuccessModal from './SuccessModal';
 import './DoctorRegistration.css';
 
-import axios from 'axios';
+import { registerDoctor, login } from '../api/client';
 
 const DoctorRegistration = ({ onNavigateToLogin }) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
+  const isRegistrationComplete = () => {
+    return (
+      formData.fullName &&
+      formData.email &&
+      formData.password &&
+      formData.specialization &&
+      formData.licenseNumber &&
+      formData.phoneNumber &&
+      formData.workDays &&
+      formData.workDays.length > 0
+    );
+  };
+
   const handleRegistrationSubmit = async () => {
-    console.log("Submitting Registration Data:", formData);
+    if (!isRegistrationComplete()) {
+      setErrorMsg('Please fill in all required fields.');
+      return;
+    }
+    console.log('Submitting Registration Data:', formData);
+    setErrorMsg('');
+    setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:8080/api/auth/register', formData);
-      setShowModal(true);
+      await registerDoctor(formData);
+
+      // On successful registration, immediately login with same credentials
+      const { token } = await login(formData.email, formData.password);
+      localStorage.setItem('digihealth_jwt', token);
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Registration failed:', error.response ? error.response.data : error.message);
-      // Optionally, show an error message to the user
+      console.error('Registration or login failed:', error);
+
+      const response = error.response;
+      const status = response?.status;
+      const backendMessage =
+        response?.data?.message ||
+        response?.data?.error ||
+        (typeof response?.data === 'string' ? response.data : null);
+
+      // Handle duplicate email with auto-login attempt
+      if (status === 400 && backendMessage && backendMessage.toLowerCase().includes('email already exists')) {
+        try {
+          const { token } = await login(formData.email, formData.password);
+          localStorage.setItem('digihealth_jwt', token);
+          navigate('/dashboard');
+          return;
+        } catch (loginError) {
+          console.error('Auto-login after duplicate registration failed:', loginError);
+          setErrorMsg('Account already exists. Please confirm your credentials or log in manually.');
+          return;
+        }
+      }
+
+      // Generic 400 - validation or bad request
+      if (status === 400) {
+        setErrorMsg(backendMessage || 'Invalid registration details. Please review and try again.');
+        return;
+      }
+
+      // 401 - unauthorized / bad credentials
+      if (status === 401) {
+        setErrorMsg(backendMessage || 'Invalid email or password.');
+        return;
+      }
+
+      // Other errors (500, network, etc.)
+      setErrorMsg(backendMessage || 'Registration failed due to a server error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    onNavigateToLogin(); // Navigate back to login
-  };
 
   const renderStep = () => {
     switch (step) {
@@ -38,7 +98,7 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
       case 2:
         return <RegistrationStep2 onNext={nextStep} onBack={prevStep} formData={formData} setFormData={setFormData} />;
       case 3:
-        return <RegistrationStep3 onBack={prevStep} onSubmit={handleRegistrationSubmit} formData={formData} setFormData={setFormData} />;
+        return <RegistrationStep3 onBack={prevStep} onSubmit={handleRegistrationSubmit} formData={formData} setFormData={setFormData} isComplete={isRegistrationComplete()} isSubmitting={isSubmitting} />;
       default:
         return <div>Registration Complete!</div>;
     }
@@ -46,7 +106,6 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
 
   return (
     <div className="registration-container">
-        {showModal && <SuccessModal onClose={closeModal} />}
         <div className="header-container">
           <div className="logo-container">
             <img alt="DigiHealth Logo" className="logo-image" src="/assets/icon.svg" />
@@ -54,6 +113,7 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
           <p className="header-title">DigiHealth</p>
           <p className="header-subtitle">Doctor Registration</p>
         </div>
+        {errorMsg && <div className="error-message">{errorMsg}</div>}
         {/* You can add the stepper component here */}
         {renderStep()}
         <div className="footer-container">
