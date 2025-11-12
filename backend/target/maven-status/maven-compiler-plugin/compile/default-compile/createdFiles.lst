@@ -1,5 +1,5 @@
-com\digihealth\backend\entity\Gender.class
+com\digihealth\backend\entity\User.class
 com\digihealth\backend\entity\Role.class
+com\digihealth\backend\entity\Gender.class
 com\digihealth\backend\entity\Address.class
 com\digihealth\backend\BackendApplication.class
-com\digihealth\backend\entity\User.class
