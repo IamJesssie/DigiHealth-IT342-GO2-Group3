@@ -11,18 +11,24 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = async () => {
-    const token = getToken();
+  const fetchUserProfile = async (tokenOverride = null) => {
+    const token = tokenOverride || getToken();
     if (!token) {
       setLoading(false);
       return;
     }
     try {
-      // Assuming your API client sets the auth header automatically
-      const userProfile = await apiClient.get('/api/users/me');
+      console.log('[AuthContext] Fetching user profile with token:', token.substring(0, 20) + '...');
+      // Manually attach token to ensure it's used for this request
+      const userProfile = await apiClient.get('/api/users/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log('[AuthContext] User profile fetched:', userProfile.data);
       setCurrentUser(userProfile.data);
     } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      console.error('[AuthContext] Failed to fetch user profile:', error.response?.status, error.response?.data);
       // If token is invalid, clear it
       clearToken();
       setCurrentUser(null);
@@ -38,10 +44,31 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await apiClient.post('/api/auth/login', { email, password });
-      const { token } = response.data;
-      setToken(token);
-      // After setting token, fetch profile
-      await fetchUserProfile();
+
+      // Support multiple possible response shapes for robustness:
+      // - { accessToken, tokenType }
+      // - { token }
+      // - raw string token
+      const { accessToken, token, tokenType } = response.data || {};
+      const resolvedToken =
+        accessToken ||
+        token ||
+        (typeof response.data === 'string' ? response.data : null);
+
+      if (!resolvedToken) {
+        throw new Error('Login response missing token');
+      }
+
+      // Persist JWT for apiClient to use as Authorization: Bearer <token>
+      setToken(resolvedToken);
+      
+      console.log('[AuthContext] Token saved to localStorage:', resolvedToken.substring(0, 20) + '...');
+
+      // After setting token, fetch the authenticated user's profile
+      // Pass the token directly to avoid any localStorage timing issues
+      await fetchUserProfile(resolvedToken);
+
+      // Preserve original behavior for callers
       return response;
     } catch (error) {
       // Re-throw the error so the login component can handle it
