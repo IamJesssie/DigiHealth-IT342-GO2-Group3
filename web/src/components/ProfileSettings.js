@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ProfileSettings.css';
 import { Link, useLocation } from 'react-router-dom';
 import SecuritySettings from './SecuritySettings';
@@ -8,15 +8,50 @@ import { useAuth } from '../auth/auth';
 
 const ProfileSettings = () => {
   const location = useLocation();
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, updateProfile } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
   if (loading) {
     return <div>Loading profile...</div>;
   }
 
-  if (!currentUser) {
-    return <div>Could not load user profile. Please try logging in again.</div>;
-  }
+  const handleEdit = () => {
+    setIsEditing(true);
+    setFormData({
+      fullName: currentUser.fullName,
+      phoneNumber: currentUser.phone || '',
+      specialization: currentUser.specialization || '',
+      medicalLicenseNumber: currentUser.medicalLicenseNumber || '',
+      professionalBio: currentUser.professionalBio || '',
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage('');
+    try {
+      await updateProfile(formData);
+      setMessage('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (error) {
+      setMessage('Failed to update profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData({});
+    setMessage('');
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
     <div className="profile-settings-container">
@@ -105,7 +140,7 @@ const ProfileSettings = () => {
             <div className="card-content">
               <div className="input-group">
                 <label>Full Name<span className="required">*</span></label>
-                <input type="text" value={currentUser.fullName} readOnly />
+                <input type="text" name="fullName" value={isEditing ? formData.fullName : currentUser.fullName} onChange={handleChange} readOnly={!isEditing} />
               </div>
               <div className="input-group">
                 <label>Email Address<span className="required">*</span></label>
@@ -113,7 +148,7 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group">
                 <label>Phone Number</label>
-                <input type="text" value={currentUser.phone || ''} readOnly />
+                <input type="text" name="phoneNumber" value={isEditing ? formData.phoneNumber : (currentUser.phone || '')} onChange={handleChange} readOnly={!isEditing} />
               </div>
               <div className="input-group">
                 <label>Role</label>
@@ -135,11 +170,11 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group">
                 <label>Specialization</label>
-                <input type="text" value={currentUser.specialization || ''} readOnly />
+                <input type="text" name="specialization" value={isEditing ? formData.specialization : (currentUser.specialization || '')} onChange={handleChange} readOnly={!isEditing} />
               </div>
               <div className="input-group">
                 <label>Medical License Number</label>
-                <input type="text" value={currentUser.medicalLicenseNumber || ''} readOnly />
+                <input type="text" name="medicalLicenseNumber" value={isEditing ? formData.medicalLicenseNumber : (currentUser.medicalLicenseNumber || '')} onChange={handleChange} readOnly={!isEditing} />
               </div>
               <div className="input-group">
                 <label>Years of Experience</label>
@@ -147,14 +182,22 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group full-width">
                 <label>Professional Bio</label>
-                <textarea readOnly value={currentUser.professionalBio || 'No bio available'}></textarea>
-                <p className="char-count">{(currentUser.professionalBio || '').length} / 500 characters</p>
+                <textarea name="professionalBio" readOnly={!isEditing} value={isEditing ? formData.professionalBio : (currentUser.professionalBio || 'No bio available')} onChange={handleChange}></textarea>
+                <p className="char-count">{(isEditing ? formData.professionalBio : (currentUser.professionalBio || '')).length} / 500 characters</p>
               </div>
               <div className="save-changes-section">
-                <button className="save-changes-btn">
-                  <img src="/assets/save-changes-icon.svg" alt="Save Changes" />
-                  Save Changes
-                </button>
+                {message && <p className={message.includes('success') ? 'success-message' : 'error-message'}>{message}</p>}
+                {isEditing ? (
+                  <>
+                    <button className="save-changes-btn" onClick={handleSave} disabled={saving}>
+                      <img src="/assets/save-changes-icon.svg" alt="Save Changes" />
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                  </>
+                ) : (
+                  <button className="edit-btn" onClick={handleEdit}>Edit Profile</button>
+                )}
               </div>
             </div>
           </div>

@@ -45,9 +45,12 @@ const DoctorRegistration = () => {
     try {
       await registerDoctor(formData);
 
-      // On successful registration, use AuthContext login to properly set user state
-      await login(formData.email, formData.password);
-      navigate('/dashboard');
+      // On successful registration, show success modal and redirect to login
+      // Do not auto-login to align with FRS (doctor approval required)
+      setShowModal(true);
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000); // Redirect after 3 seconds
     } catch (error) {
       console.error('Registration or login failed:', error);
 

@@ -76,6 +76,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await apiClient.put('/api/users/me', profileData);
+      // Update local state with new data
+      setCurrentUser({ ...currentUser, ...response.data });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = () => {
     clearToken();
     setCurrentUser(null);
@@ -87,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser,
     login,
     logout,
+    updateProfile,
     isAuthenticated: !!currentUser,
     loading,
   };
