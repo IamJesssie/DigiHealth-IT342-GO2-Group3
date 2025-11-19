@@ -12,6 +12,8 @@ import Notifications from './components/Notifications';
 import Schedule from './components/Schedule';
 import DigiHealthLoginScreen from './components/LoginScreen';
 import DoctorRegistration from './components/DoctorRegistration';
+import AdminPortal from './components/AdminPortal';
+import AdminLogin from './components/AdminLogin';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -22,6 +24,9 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      <Route path="/admin" element={<AdminPortal />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      
       <Route
         path="/login"
         element={!isAuthenticated ? <DigiHealthLoginScreen /> : <Navigate to="/dashboard" replace />}

@@ -1,0 +1,188 @@
+/* Admin Portal Styles */
+
+.admin-portal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+.admin-portal-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0066cc 0%, #00a8e8 50%, #00d4ff 100%);
+  z-index: -1;
+}
+
+.admin-portal-logo {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.9;
+}
+
+.logo-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.admin-portal-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-portal-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8d4ff 0%, #d4c5ff 100%);
+  border-radius: 12px;
+  color: #8b5cf6;
+}
+
+.shield-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.admin-portal-content {
+  text-align: center;
+  width: 100%;
+}
+
+.admin-portal-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: 0.5px;
+}
+
+.admin-portal-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #666;
+}
+
+.admin-portal-description {
+  margin: 16px 0 0 0;
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+
+.admin-continue-btn {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #0066cc 0%, #0088dd 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.admin-continue-btn:hover {
+  background: linear-gradient(135deg, #0052a3 0%, #006ecc 100%);
+  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+  transform: translateY(-2px);
+}
+
+.admin-continue-btn:active {
+  transform: translateY(0);
+}
+
+.admin-portal-footer {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.admin-portal-footer p {
+  margin: 4px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .admin-portal-card {
+    padding: 32px 24px;
+    margin: 20px;
+  }
+
+  .admin-portal-title {
+    font-size: 20px;
+  }
+
+  .admin-portal-subtitle {
+    font-size: 16px;
+  }
+
+  .admin-portal-description {
+    font-size: 13px;
+  }
+
+  .admin-continue-btn {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .admin-portal-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .admin-portal-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .shield-icon {
+    width: 42px;
+    height: 42px;
+  }
+}
