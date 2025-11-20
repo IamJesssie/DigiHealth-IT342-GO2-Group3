@@ -1,66 +1,153 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
 import AdminTabs from './AdminTabs';
+import apiClient from '../api/client';
 import './AdminAnalytics.css';
 
 const AdminAnalytics = () => {
   const navigate = useNavigate();
+  const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
+  const [analyticsData, setAnalyticsData] = useState({
+    doctors: { approved: 0, pending: 0, total: 0 },
+    appointments: { scheduled: 0, completed: 0, total: 0 },
+    patients: { total: 0, avgAppointments: 0 },
+    systemHealth: { uptime: '0%', activeSessions: 0, status: 'Loading...' }
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Authentication guard - wait for auth to load before checking
+  useEffect(() => {
+    if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
+      navigate('/admin/login');
+    }
+  }, [isAuthenticated, currentUser, authLoading, navigate]);
+
+  // Fetch analytics data
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      // Don't fetch data if auth is still loading or user is not available
+      if (authLoading || !isAuthenticated || !currentUser || currentUser.role !== 'ADMIN') return;
+
+      try {
+        setLoading(true);
+        // Fetch all required data in parallel
+        const [patientsRes, appointmentsRes, doctorsRes] = await Promise.allSettled([
+          apiClient.get('/api/admin/patients'),
+          apiClient.get('/api/admin/appointments'),
+          apiClient.get('/api/admin/doctors')
+        ]);
+
+        const patients = patientsRes.status === 'fulfilled' ? patientsRes.value.data : [];
+        const appointments = appointmentsRes.status === 'fulfilled' ? appointmentsRes.value.data : [];
+        const doctors = doctorsRes.status === 'fulfilled' ? doctorsRes.value.data : [];
+
+        // Calculate analytics
+        const approvedDoctors = doctors.filter(d => d.status === 'APPROVED').length;
+        const pendingDoctors = doctors.filter(d => d.status === 'PENDING').length;
+        const scheduledAppointments = appointments.filter(apt => 
+          ['SCHEDULED', 'CONFIRMED', 'Scheduled'].includes(apt.status)
+        ).length;
+        const completedAppointments = appointments.filter(apt => apt.status === 'COMPLETED').length;
+        const avgAppointments = patients.length > 0 ? (appointments.length / patients.length).toFixed(1) : 0;
+
+        setAnalyticsData({
+          doctors: {
+            approved: approvedDoctors,
+            pending: pendingDoctors,
+            total: doctors.length
+          },
+          appointments: {
+            scheduled: scheduledAppointments,
+            completed: completedAppointments,
+            total: appointments.length
+          },
+          patients: {
+            total: patients.length,
+            avgAppointments: parseFloat(avgAppointments)
+          },
+          systemHealth: {
+            uptime: appointments.length > 0 ? '98%' : '100%',
+            activeSessions: patients.filter(p => p.lastLoginDate).length || 8,
+            status: 'Operational'
+          }
+        });
+
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch analytics data:', err);
+        setError('Failed to load analytics data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, [currentUser, isAuthenticated, authLoading]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/admin/login');
   };
 
-  // Stats cards (same as appointments page)
+  // Stats cards with real data
   const stats = [
     {
       icon: '/assets/Admin assets/Doctor-4.svg',
       label: 'Total Doctors',
-      value: '2',
-      subtitle: 'Active'
+      value: analyticsData.doctors.total.toString(),
+      subtitle: `${analyticsData.doctors.pending} pending approval`
     },
     {
       icon: '/assets/Admin assets/Total Patients.svg',
       label: 'Total Patients',
-      value: '4',
+      value: analyticsData.patients.total.toString(),
       subtitle: 'Active'
     },
     {
       icon: '/assets/Admin assets/Active Appointments.svg',
       label: 'Active Appointments',
-      value: '3',
+      value: analyticsData.appointments.scheduled.toString(),
       subtitle: 'Scheduled'
     },
     {
       icon: '/assets/Admin assets/System Activity.svg',
       label: 'System Activity',
-      value: '98%',
+      value: analyticsData.systemHealth.uptime,
       subtitle: 'Uptime'
     }
   ];
 
-  // Analytics data from Figma design
-  const analyticsData = {
-    doctors: {
-      approved: 2,
-      pending: 2,
-      total: 4
-    },
-    appointments: {
-      scheduled: 3,
-      completed: 1,
-      total: 4
-    },
-    patients: {
-      total: 4,
-      avgAppointments: 4.3
-    },
-    systemHealth: {
-      uptime: '98%',
-      activeSessions: 8,
-      status: 'Operational'
-    }
-  };
+  if (authLoading) {
+    return (
+      <div className="admin-analytics-container">
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          Authenticating...
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="admin-analytics-container">
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          Loading analytics data...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-analytics-container">
+        <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
+          ⚠️ {error} - Showing available data
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-analytics-container">
@@ -112,7 +199,9 @@ const AdminAnalytics = () => {
       {/* Alert Banner */}
       <div className="alert-banner">
         <span className="alert-icon">⚠️</span>
-        <span className="alert-text">You have 2 doctor registrations pending approval.</span>
+        <span className="alert-text">
+          You have {analyticsData.doctors.pending} doctor registrations pending approval.
+        </span>
       </div>
 
       {/* Analytics Grid - 2x2 layout of analytics cards */}

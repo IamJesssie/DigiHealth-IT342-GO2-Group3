@@ -1,55 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
+import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
 import './AdminAppointments.css';
 
 const AdminAppointments = () => {
   const navigate = useNavigate();
+  const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Demo data - matches Figma design exactly
+  // Authentication guard
   useEffect(() => {
-    setAppointments([
-      {
-        id: 'A001',
-        patientName: 'John Smith',
-        doctorName: 'Dr. Sarah Johnson',
-        date: '2/20/2024',
-        time: '09:00 AM',
-        reason: 'Regular checkup',
-        status: 'Scheduled'
-      },
-      {
-        id: 'A002',
-        patientName: 'Emma Davis',
-        doctorName: 'Dr. Michael Chen',
-        date: '2/20/2024',
-        time: '10:30 AM',
-        reason: 'Follow-up consultation',
-        status: 'Scheduled'
-      },
-      {
-        id: 'A003',
-        patientName: 'Robert Brown',
-        doctorName: 'Dr. Sarah Johnson',
-        date: '2/19/2024',
-        time: '02:00 PM',
-        reason: 'Blood pressure check',
-        status: 'Completed'
-      },
-      {
-        id: 'A004',
-        patientName: 'Lisa Anderson',
-        doctorName: 'Dr. Michael Chen',
-        date: '2/21/2024',
-        time: '11:00 AM',
-        reason: 'Vaccination',
-        status: 'Scheduled'
+    if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
+      navigate('/admin/login');
+    }
+  }, [isAuthenticated, currentUser, authLoading, navigate]);
+
+  // Fetch appointments from API (using doctor appointments for now)
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!isAuthenticated || currentUser?.role !== 'ADMIN') return;
+      
+      try {
+        setLoading(true);
+        // For now, get all doctor appointments since there's no admin-specific endpoint
+        const response = await apiClient.get('/api/doctors/me/appointments');
+        const appointmentsData = response.data.map(apt => ({
+          id: apt.appointmentId,
+          patientName: `${apt.patientFirstName} ${apt.patientLastName}`,
+          doctorName: apt.doctorName || 'Unknown Doctor',
+          date: new Date(apt.appointmentDate).toLocaleDateString(),
+          time: apt.appointmentTime,
+          reason: apt.notes || apt.symptoms || 'Regular consultation',
+          status: apt.status
+        }));
+        setAppointments(appointmentsData);
+      } catch (err) {
+        // If admin can't access doctor endpoints, use fallback data
+        setError('Limited appointment data available');
+        setAppointments([
+          {
+            id: 'DEMO001',
+            patientName: 'Demo Patient',
+            doctorName: 'Demo Doctor',
+            date: new Date().toLocaleDateString(),
+            time: '09:00',
+            reason: 'Demo consultation',
+            status: 'SCHEDULED'
+          }
+        ]);
+        console.error('Error fetching appointments:', err);
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    fetchAppointments();
+  }, [isAuthenticated, currentUser]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -77,29 +89,54 @@ const AdminAppointments = () => {
   const stats = [
     {
       label: 'Total Doctors',
-      value: '2',
-      subtitle: '2 pending approval',
+      value: new Set(appointments.map(apt => apt.doctorName)).size.toString(),
+      subtitle: 'Active doctors',
       icon: '/assets/Admin assets/Doctor-4.svg'
     },
     {
       label: 'Total Patients',
-      value: '4',
-      subtitle: 'Registered users',
+      value: new Set(appointments.map(apt => apt.patientName)).size.toString(),
+      subtitle: 'With appointments',
       icon: '/assets/Admin assets/Total Patients.svg'
     },
     {
       label: 'Active Appointments',
-      value: '3',
-      subtitle: '1 completed',
+      value: appointments.filter(apt => 
+        ['SCHEDULED', 'CONFIRMED', 'Scheduled'].includes(apt.status)
+      ).length.toString(),
+      subtitle: 'Scheduled',
       icon: '/assets/Admin assets/Active Appointments.svg'
     },
     {
-      label: 'System Activity',
-      value: '98%',
-      subtitle: '↗ System uptime',
+      label: 'Completed Today',
+      value: appointments.filter(apt => {
+        const today = new Date().toLocaleDateString();
+        return apt.date === today && apt.status === 'COMPLETED';
+      }).length.toString(),
+      subtitle: 'Today',
       icon: '/assets/Admin assets/Analytics.svg'
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="admin-appointments-container">
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          Loading appointments data...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-appointments-container">
+        <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
+          ⚠️ {error} - Showing available data
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-appointments-container">

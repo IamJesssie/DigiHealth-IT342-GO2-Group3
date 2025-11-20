@@ -1,79 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
+import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
 import './AdminPatients.css';
 
 const AdminPatients = () => {
   const navigate = useNavigate();
+  const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Demo data - matches Figma design
+  // Authentication guard
   useEffect(() => {
-    setPatients([
-      {
-        id: 'P001',
-        name: 'John Doe',
-        email: 'john.doe@email.com',
-        phone: '+1-555-0101',
-        age: 34,
-        gender: 'Male',
-        status: 'Active',
-        lastVisit: '2/15/2024',
-        registeredDate: '1/10/2024',
-        appointmentsCount: 5
-      },
-      {
-        id: 'P002',
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@email.com',
-        phone: '+1-555-0102',
-        age: 28,
-        gender: 'Female',
-        status: 'Active',
-        lastVisit: '2/18/2024',
-        registeredDate: '1/15/2024',
-        appointmentsCount: 3
-      },
-      {
-        id: 'P003',
-        name: 'Michael Chen',
-        email: 'michael.chen@email.com',
-        phone: '+1-555-0103',
-        age: 42,
-        gender: 'Male',
-        status: 'Inactive',
-        lastVisit: '1/20/2024',
-        registeredDate: '12/05/2023',
-        appointmentsCount: 7
-      },
-      {
-        id: 'P004',
-        name: 'Emily Davis',
-        email: 'emily.davis@email.com',
-        phone: '+1-555-0104',
-        age: 31,
-        gender: 'Female',
-        status: 'Active',
-        lastVisit: '2/20/2024',
-        registeredDate: '1/25/2024',
-        appointmentsCount: 2
-      },
-      {
-        id: 'P005',
-        name: 'David Wilson',
-        email: 'david.wilson@email.com',
-        phone: '+1-555-0105',
-        age: 55,
-        gender: 'Male',
-        status: 'Active',
-        lastVisit: '2/12/2024',
-        registeredDate: '11/30/2023',
-        appointmentsCount: 12
+    if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
+      navigate('/admin/login');
+    }
+  }, [isAuthenticated, currentUser, authLoading, navigate]);
+
+  // Fetch patients from API
+  useEffect(() => {
+    const fetchPatients = async () => {
+      if (!isAuthenticated || currentUser?.role !== 'ADMIN') return;
+      
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/api/admin/patients');
+        const patientsData = response.data.map(user => ({
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          phone: user.phoneNumber || 'N/A',
+          age: calculateAge(user.patient?.birthDate),
+          gender: user.patient?.gender || 'N/A',
+          status: user.isActive ? 'Active' : 'Inactive',
+          lastVisit: 'N/A', // TODO: Calculate from appointments
+          registeredDate: new Date(user.createdAt).toLocaleDateString(),
+          appointmentsCount: 0 // TODO: Get from appointments
+        }));
+        setPatients(patientsData);
+      } catch (err) {
+        setError('Failed to load patients data');
+        console.error('Error fetching patients:', err);
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    fetchPatients();
+  }, [isAuthenticated, currentUser]);
+
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return 'N/A';
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -106,8 +96,12 @@ const AdminPatients = () => {
     },
     {
       label: 'New This Month',
-      value: '2',
-      subtitle: 'Registered in Feb',
+      value: patients.filter(p => {
+        const regDate = new Date(p.registeredDate);
+        const now = new Date();
+        return regDate.getMonth() === now.getMonth() && regDate.getFullYear() === now.getFullYear();
+      }).length.toString(),
+      subtitle: 'Registered this month',
       icon: '/assets/Admin assets/Total Patients.svg'
     },
     {
@@ -123,6 +117,26 @@ const AdminPatients = () => {
       icon: '/assets/Admin assets/Active Appointments.svg'
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="admin-patients-container">
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          Loading patients data...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-patients-container">
+        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-patients-container">

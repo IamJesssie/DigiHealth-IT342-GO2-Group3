@@ -42,6 +42,9 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
     const token = getToken();
     
+    console.log('[AuthContext] Initialization - storedUser:', storedUser);
+    console.log('[AuthContext] Initialization - token exists:', !!token);
+    
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);

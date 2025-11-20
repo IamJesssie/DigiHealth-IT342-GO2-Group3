@@ -1,4 +1,4 @@
-Here is the ERD translated into PlantUML syntax:
+Here is the ERD translated into PlantUML syntax based on the actual codebase implementation:
 
 ```plantuml
 @startuml
@@ -9,19 +9,17 @@ hide circle
 skinparam linetype ortho
 
 entity "USER" {
-  * user_id : UUID <<PK>>
+  * id : UUID <<PK>>
   --
   email : VARCHAR(255) <<UNIQUE>>
   password_hash : VARCHAR(255)
   role : ENUM
-  first_name : VARCHAR(100)
-  last_name : VARCHAR(100)
+  full_name : VARCHAR(255)
   phone_number : VARCHAR(20)
-  profile_image_url : VARCHAR(500)
-  created_at : TIMESTAMP
-  updated_at : TIMESTAMP
+  specialization : VARCHAR(100)
+  license_number : VARCHAR(50)
   is_active : BOOLEAN
-  google_oauth_id : VARCHAR(255)
+  is_approved : BOOLEAN
 }
 
 entity "PATIENT" {
@@ -34,8 +32,6 @@ entity "PATIENT" {
   medical_conditions : TEXT
   emergency_contact_name : VARCHAR(100)
   emergency_contact_phone : VARCHAR(20)
-  blood_type : CHAR(3)
-  address_id : UUID <<FK>>
   birth_date : DATE
 }
 
@@ -43,27 +39,12 @@ entity "DOCTOR" {
   * doctor_id : UUID <<PK>>
   --
   user_id : UUID <<FK>>
-  license_number : VARCHAR(50) <<UNIQUE>>
-  specialization : VARCHAR(100)
-  approval_status : ENUM
   consultation_fee : DECIMAL(10,2)
   bio : TEXT
   available_start_time : TIME
   available_end_time : TIME
-  work_days : SET
   experience_years : INT
   hospital_affiliation : VARCHAR(200)
-  address_id : UUID <<FK>>
-}
-
-entity "ADDRESS" {
-  * address_id : UUID <<PK>>
-  --
-  street : TEXT
-  city : VARCHAR(100)
-  state : VARCHAR(100)
-  postal_code : VARCHAR(20)
-  country : VARCHAR(100)
 }
 
 entity "APPOINTMENT" {
@@ -74,7 +55,6 @@ entity "APPOINTMENT" {
   appointment_date : DATE
   appointment_time : TIME
   duration_minutes : INT
-  consultation_type : ENUM
   status : ENUM
   notes : TEXT
   symptoms : TEXT
@@ -84,30 +64,99 @@ entity "APPOINTMENT" {
   updated_at : TIMESTAMP
 }
 
-entity "MEDICAL_RECORD" {
-  * record_id : UUID <<PK>>
+entity "DOCTOR_WORK_DAYS" {
+  * doctor_id : UUID <<FK>>
+  * work_day : ENUM <<PK>>
   --
-  patient_id : UUID <<FK>>
-  doctor_id : UUID <<FK>>
-  appointment_id : UUID <<FK>>
-  diagnosis : TEXT
-  consultation_notes : TEXT
-  prescription : JSON
-  lab_results : JSON
-  vital_signs : JSON
-  treatment_plan : TEXT
+}
+' Admin entities (future implementation)
+entity "ADMIN" {
+  * admin_id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  admin_type : ENUM
+  permissions : JSON
+  last_login : TIMESTAMP
+  created_by : UUID <<FK>>
+  approved_at : TIMESTAMP
+}
+
+entity "ADMIN_AUDIT_LOG" {
+  * log_id : UUID <<PK>>
+  --
+  admin_id : UUID <<FK>>
+  action_type : ENUM
+  entity_type : VARCHAR(50)
+  entity_id : UUID
+  old_value : JSON
+  new_value : JSON
+  timestamp : TIMESTAMP
+  ip_address : VARCHAR(45)
+  user_agent : TEXT
+}
+
+entity "SYSTEM_SETTINGS" {
+  * setting_id : UUID <<PK>>
+  --
+  setting_key : VARCHAR(100) <<UNIQUE>>
+  setting_value : TEXT
+  setting_type : ENUM
+  description : TEXT
+  created_by : UUID <<FK>>
+  last_modified_by : UUID <<FK>>
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+  is_active : BOOLEAN
+}
+
+entity "CLINIC_INFO" {
+  * clinic_id : UUID <<PK>>
+  --
+  clinic_name : VARCHAR(200)
+  clinic_address : TEXT
+  clinic_phone : VARCHAR(20)
+  clinic_email : VARCHAR(255)
+  operating_hours : JSON
+  clinic_logo_url : VARCHAR(500)
+  website_url : VARCHAR(500)
+  description : TEXT
+  created_by : UUID <<FK>>
+  updated_by : UUID <<FK>>
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
 }
 
-' Relationships
-USER "1" -- "1" PATIENT : "is a"
-USER "1" -- "1" DOCTOR : "is a"
-PATIENT "1" -- "N" APPOINTMENT : "books"
-DOCTOR "1" -- "N" APPOINTMENT : "schedules"
-APPOINTMENT "1" -- "1" MEDICAL_RECORD : "has"
-PATIENT "1" -- "1" ADDRESS : "lives at"
-DOCTOR "1" -- "1" ADDRESS : "works at"
+entity "FEEDBACK" {
+  * feedback_id : UUID <<PK>>
+  --
+  patient_id : UUID <<FK>>
+  doctor_id : UUID <<FK>>
+  appointment_id : UUID <<FK>>
+  feedback_type : ENUM
+  rating : INT
+  description : TEXT
+  status : ENUM
+  assigned_to : UUID <<FK>>
+  resolution_notes : TEXT
+  created_at : TIMESTAMP
+  resolved_at : TIMESTAMP
+}
+
+' Current Implementation Relationships
+USER ||--o| PATIENT : "extends to"
+USER ||--o| DOCTOR : "extends to"
+USER ||--o| ADMIN : "is a"
+PATIENT ||--o{ APPOINTMENT : "books"
+DOCTOR ||--o{ APPOINTMENT : "schedules"
+
+' Admin relationships (for future implementation)
+ADMIN ||--o{ ADMIN_AUDIT_LOG : "creates"
+ADMIN ||--o{ SYSTEM_SETTINGS : "configures"
+ADMIN ||--o{ CLINIC_INFO : "manages"
+ADMIN ||--o{ FEEDBACK : "handles"
+PATIENT ||--o{ FEEDBACK : "provides"
+DOCTOR ||--o{ FEEDBACK : "receives"
+APPOINTMENT ||--o| FEEDBACK : "generates"
 
 @enduml
 ```

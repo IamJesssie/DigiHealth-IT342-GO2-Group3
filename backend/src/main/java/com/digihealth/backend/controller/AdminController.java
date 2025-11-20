@@ -1,7 +1,9 @@
 package com.digihealth.backend.controller;
 
 import com.digihealth.backend.entity.User;
+import com.digihealth.backend.entity.Appointment;
 import com.digihealth.backend.repository.UserRepository;
+import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.dto.DoctorApprovalDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ public class AdminController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     /**
      * Get all pending doctor approvals
@@ -121,5 +126,27 @@ public class AdminController {
         }
 
         return ResponseEntity.ok(patient);
+    }
+
+    /**
+     * Get all appointments (admin view)
+     * GET /api/admin/appointments
+     */
+    @GetMapping("/appointments")
+    public ResponseEntity<List<Appointment>> getAllAppointments() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return ResponseEntity.ok(appointments);
+    }
+
+    /**
+     * Get all doctors (both approved and pending)
+     * GET /api/admin/doctors
+     */
+    @GetMapping("/doctors")
+    public ResponseEntity<List<User>> getAllDoctors() {
+        List<User> doctors = userRepository.findAll().stream()
+                .filter(user -> user.getRole().name().equals("DOCTOR"))
+                .toList();
+        return ResponseEntity.ok(doctors);
     }
 }
