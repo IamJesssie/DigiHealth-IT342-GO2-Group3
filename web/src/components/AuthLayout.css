@@ -15,6 +15,50 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Fade animation for forms --- */
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* --- Card hover effect --- */
+.form-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Alternate form switch text --- */
+.switch-form {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #0093e9;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.switch-form:hover {
+  color: #006bb3;
+  text-decoration: underline;
+}
+
 /* === 1. GLOBAL LAYOUT (Background, Header, Footer) === */
 
 .auth-layout-container {
@@ -23,18 +67,25 @@
   align-items: center;
   min-height: 100vh;
   font-family: "Arial", sans-serif;
-  /* 1. Define the complex, large background */
-  background: radial-gradient(circle at 10% 20%, #80f0ff, transparent 30%),
-    radial-gradient(circle at 80% 50%, #92ddff, transparent 30%),
-    radial-gradient(circle at 40% 90%, #d5eeff, transparent 30%);
 
-  /* 2. Make the background much larger than the viewport */
+  /* Softer animated BG */
+  background: radial-gradient(
+      circle at 10% 20%,
+      rgba(128, 240, 255, 0.35),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(146, 221, 255, 0.35),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 40% 90%,
+      rgba(213, 238, 255, 0.35),
+      transparent 30%
+    );
   background-size: 400% 400%;
-
-  /* 3. Apply the smooth panning animation */
   animation: smoothPan 40s ease-in-out infinite;
-
-  /* Ensure the background covers the entire element */
   background-attachment: fixed;
 }
 
@@ -42,7 +93,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
   width: 100%;
   max-width: 900px; /* Max width for the overall layout */
   padding: 24px;
@@ -57,16 +108,21 @@
   width: 100%;
 }
 
-.header-container,
-.footer-container {
+/* === 2. HEADER === */
+
+.header-container {
   text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .logo-container {
-  display: inline-block;
-  padding: 16px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
   background: linear-gradient(to bottom, #0093e9, #80d0c7);
-  border-radius: 16px;
 }
 
 .logo-image {
@@ -75,22 +131,69 @@
 }
 
 .header-subtitle {
+  margin-top: 8px;
   font-size: 16px;
-  color: #606060;
-  margin: 4px 0 0 0;
+  color: #505050;
 }
+
+/* === 3. FOOTER (Improved Structure) === */
 
 .footer-container {
-  font-size: 14px;
-  color: #606060;
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin-top: 15px;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
-/* === 2. SHARED UTILITIES (Errors, Links, Dividers) === */
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.footer-links a {
+  margin: 0 12px;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-links a:hover {
+  color: #374151;
+  transform: translateY(-2px);
+}
+
+.footer-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.footer-version {
+  font-size: 0.75rem;
+}
+
+/* === 4. SHARED UTILITIES (Errors, Links, Dividers) === */
 
 .error-message {
   color: #dc2626;
@@ -98,9 +201,7 @@
   border: 1px solid #fecaca;
   padding: 12px;
   border-radius: 8px;
-  margin-top: 8px;
-  margin-bottom: 16px;
-  font-size: 14px;
+  margin: 8px 0 16px;
   text-align: center;
   width: 100%;
   box-sizing: border-box;
@@ -143,20 +244,24 @@
   font-size: 16px;
 }
 
-/* === 3. CORE FORM CARD STYLES (Applies to Registration Steps) === */
+/* === 5. FORM CARD === */
 
 /* The base white card container */
 .form-card {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 42px;
-  width: 500px; /* Standard width for Registration Steps */
-  box-sizing: border-box;
+  padding: 36px;
+  width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   align-items: center;
+  box-sizing: border-box;
+
+  /* subtle motion */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease;
 }
 
 .form-title {
@@ -172,22 +277,22 @@
   margin: 0;
 }
 
-/* === 3A. LOGIN CARD WIDTH OVERRIDE === */
-/* Apply this class only to the Login form in DigiHealthLoginScreen.js */
+/* Login card size override */
+
 .login-card-override {
-  width: 400px; /* Keeps the Login form small */
-  padding: 30px;
+  width: 400px;
+  padding: 28px;
   gap: 15px;
   margin-bottom: 20px;
 }
 
-/* === 4. FORM ELEMENTS (Inputs, Labels, Buttons) === */
+/* === 6. INPUTS & BUTTONS === */
 
 .form-inputs {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Tighter gap for input groups */
+  gap: 6px; /* Tighter gap for input groups */
 }
 
 .form-inputs label {
@@ -201,14 +306,13 @@
 .form-inputs select {
   height: 44px;
   background: #f3f3f5;
-  border: 1px solid transparent; /* Unified border style */
+  border: 1px solid transparent;
   border-radius: 8px;
   padding: 0 12px;
   font-size: 14px;
   outline: none;
   transition: all 0.2s;
-  box-sizing: border-box; /* Important for consistent sizing */
-  margin-bottom: 8px; /* Added spacing to fit the existing login layout better */
+  box-sizing: border-box;
 }
 
 .form-inputs input:focus,
@@ -218,20 +322,23 @@
 }
 
 /* Primary Action Button (Login) */
-.login-btn {
+.login-btn,
+.next-btn {
   height: 44px;
-  background: linear-gradient(to bottom, #0093e9, #80d0c7);
-  border: none;
   border-radius: 8px;
-  color: white;
   font-size: 14px;
-  cursor: pointer;
   font-weight: 600;
+  border: none;
+  color: white;
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  cursor: pointer;
   transition: opacity 0.2s;
   width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 147, 233, 0.25);
 }
 
-.login-btn:hover:not(:disabled) {
+.login-btn:hover:not(:disabled),
+.next-btn:hover:not(:disabled) {
   opacity: 0.9;
 }
 
@@ -248,8 +355,7 @@
   font-size: 14px;
   cursor: pointer;
 }
-
-/* === 5. REGISTRATION STEP NAVIGATION BUTTONS === */
+/* Navigation buttons */
 
 .button-container {
   display: flex;
@@ -289,7 +395,7 @@
   cursor: not-allowed;
 }
 
-/* === 6. REGISTRATION STEP 3 AVAILABILITY STYLES === */
+/* === 7. AVAILABILITY (STEP 3) === */
 
 .availability-form {
   width: 100%;
@@ -319,10 +425,7 @@
   height: 16px;
   margin: 0;
   cursor: pointer;
-  /* Reset base input styles for checkbox */
-  background: white;
   border: 1px solid #d1d5dc;
-  padding: 0;
 }
 
 .time-inputs {
@@ -341,4 +444,24 @@
 .unavailable-text {
   color: #9ca3af;
   font-style: italic;
+}
+
+/* === 8. RESPONSIVE IMPROVEMENTS === */
+
+@media (max-width: 500px) {
+  .form-card {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
 }
