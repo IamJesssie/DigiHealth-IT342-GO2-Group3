@@ -23,6 +23,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import AdminPatients from "./components/AdminPatients";
 import AdminAppointments from "./components/AdminAppointments";
 import AdminAnalytics from "./components/AdminAnalytics";
+import AdminDashboardSettings from "./components/AdminDashboardSettings";
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
