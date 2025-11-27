@@ -26,9 +26,18 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
     setSubmitting(true);
 
     try {
+      console.log("[LoginScreen] Attempting login with email:", email);
       await login(email, password);
+      console.log("[LoginScreen] Login successful, navigating to dashboard");
       navigate("/dashboard");
     } catch (error) {
+      console.error("[LoginScreen] Login error:", error);
+      console.error(
+        "[LoginScreen] Error response status:",
+        error.response?.status
+      );
+      console.error("[LoginScreen] Error response data:", error.response?.data);
+
       const backendMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -41,11 +50,17 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
         setErrorMsg(
           "Your doctor account is pending approval. Please wait for an administrator to approve your registration before logging in. This typically takes 24-48 hours. Contact support if this takes longer."
         );
+      } else if (error.response?.status === 401) {
+        setErrorMsg(
+          "Invalid email or password. Please check your credentials and try again."
+        );
       } else {
         setErrorMsg(
-          backendMessage || "Invalid email or password. Please try again."
+          backendMessage ||
+            "Login failed. Please check your connection and try again."
         );
       }
+      console.log("[LoginScreen] Error message set:", setErrorMsg);
     } finally {
       setSubmitting(false);
     }

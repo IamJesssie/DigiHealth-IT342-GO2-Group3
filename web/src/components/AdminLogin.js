@@ -7,10 +7,12 @@ import "./AdminLogin.css";
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState("admin@digihealth.com");
-  const [password, setPassword] = useState("admin123");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,62 +21,52 @@ const AdminLogin = () => {
 
     try {
       const response = await login(email, password);
-
-      // Check if user is admin - get user data from response
       const user = response?.data?.user;
 
       if (!user) {
-        setError("Invalid login response. Please try again.");
+        setError("Unexpected login response.");
         return;
       }
 
       if (user.role !== "ADMIN") {
-        setError("Access denied. Admin credentials required.");
+        setError("This account is not authorized for admin access.");
         return;
       }
 
-      // Redirect to admin dashboard
       navigate("/admin/dashboard");
     } catch (err) {
-      const errorMessage =
+      const message =
         err.response?.data?.message ||
         err.message ||
-        "Invalid email or password";
-      setError(errorMessage);
+        "Invalid email or password.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-login-wrapper">
-      <div className="admin-login-background"></div>
-
-      <div className="admin-login-card">
-        {/* Card Header */}
+    <AuthLayout>
+      <div className="admin-login-container">
         <div className="admin-login-header">
-          {/* Admin Icon */}
-          <div className="admin-icon-wrapper">
-            <img
-              src="/assets/header-logo.svg"
-              alt="DigiHealth Logo"
-              className="admin-icon"
-            />
+          <div className="admin-header-icon">
+            <svg viewBox="0 0 24 24" className="admin-shield-icon">
+              <path
+                d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"
+                fill="#0093e9"
+              />
+            </svg>
           </div>
-
-          {/* Title and Description */}
-          <h1 className="admin-login-title">DigiHealth Admin</h1>
-          <p className="admin-login-description">
-            Sign in to access the system administration panel
+          <h2 className="admin-header-title">Administrator Access</h2>
+          <p className="admin-header-subtitle">
+            Secure login for authorized personnel only
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="admin-login-form">
-          {/* Error Message */}
           {error && <div className="admin-login-error">{error}</div>}
 
-          {/* Email Field */}
+          {/* Email */}
           <div className="form-field">
             <label htmlFor="admin-email">Admin Email</label>
             <div className="input-wrapper">
@@ -84,21 +76,17 @@ const AdminLogin = () => {
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
                 />
                 <path
                   d="M2 4l6 4.5L14 4"
                   stroke="currentColor"
                   strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
                 />
               </svg>
               <input
                 id="admin-email"
                 type="email"
-                placeholder="admin@digihealth.com"
+                placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -107,7 +95,7 @@ const AdminLogin = () => {
             </div>
           </div>
 
-          {/* Password Field */}
+          {/* Password */}
           <div className="form-field">
             <label htmlFor="admin-password">Password</label>
             <div className="input-wrapper">
@@ -126,36 +114,37 @@ const AdminLogin = () => {
                   d="M4 6V4a4 4 0 118 0v2"
                   stroke="currentColor"
                   strokeWidth="1.5"
-                  strokeLinecap="round"
                 />
-                <circle cx="8" cy="10" r="1" fill="currentColor" />
               </svg>
+
               <input
                 id="admin-password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
               />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                disabled={loading}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
           </div>
 
-          {/* Sign In Button */}
+          {/* Sign In */}
           <button type="submit" className="admin-signin-btn" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In as Admin"}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
-
-          {/* Demo Credentials Helper */}
-          <div className="demo-credentials">
-            <p className="demo-label">Demo Credentials:</p>
-            <p className="demo-text">Email: admin@digihealth.com</p>
-            <p className="demo-text">Password: admin123</p>
-          </div>
         </form>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
