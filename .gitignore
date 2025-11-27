@@ -73,3 +73,6 @@ build/
 local.properties
 *.keystore
 !debug.keystore
+
+# Maven Build Artifacts
+target/

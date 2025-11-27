@@ -1,41 +1,45 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/auth';
-import './AdminLogin.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/auth";
+import AuthLayout from "./AuthLayout";
+import "./AdminLogin.css";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [email, setEmail] = useState('admin@digihealth.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState("admin@digihealth.com");
+  const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       const response = await login(email, password);
-      
+
       // Check if user is admin - get user data from response
       const user = response?.data?.user;
-      
+
       if (!user) {
-        setError('Invalid login response. Please try again.');
+        setError("Invalid login response. Please try again.");
         return;
       }
-      
-      if (user.role !== 'ADMIN') {
-        setError('Access denied. Admin credentials required.');
+
+      if (user.role !== "ADMIN") {
+        setError("Access denied. Admin credentials required.");
         return;
       }
-      
+
       // Redirect to admin dashboard
-      navigate('/admin/dashboard');
+      navigate("/admin/dashboard");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Invalid email or password';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Invalid email or password";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -51,12 +55,18 @@ const AdminLogin = () => {
         <div className="admin-login-header">
           {/* Admin Icon */}
           <div className="admin-icon-wrapper">
-            <img src="/assets/header-logo.svg" alt="DigiHealth Logo" className="admin-icon" />
+            <img
+              src="/assets/header-logo.svg"
+              alt="DigiHealth Logo"
+              className="admin-icon"
+            />
           </div>
 
           {/* Title and Description */}
           <h1 className="admin-login-title">DigiHealth Admin</h1>
-          <p className="admin-login-description">Sign in to access the system administration panel</p>
+          <p className="admin-login-description">
+            Sign in to access the system administration panel
+          </p>
         </div>
 
         {/* Form */}
@@ -77,7 +87,13 @@ const AdminLogin = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path d="M2 4l6 4.5L14 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M2 4l6 4.5L14 4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               <input
                 id="admin-email"
@@ -96,8 +112,22 @@ const AdminLogin = () => {
             <label htmlFor="admin-password">Password</label>
             <div className="input-wrapper">
               <svg className="input-icon" viewBox="0 0 16 16">
-                <rect x="2" y="6" width="12" height="8" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M4 6V4a4 4 0 118 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <rect
+                  x="2"
+                  y="6"
+                  width="12"
+                  height="8"
+                  rx="1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M4 6V4a4 4 0 118 0v2"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
                 <circle cx="8" cy="10" r="1" fill="currentColor" />
               </svg>
               <input
@@ -114,7 +144,7 @@ const AdminLogin = () => {
 
           {/* Sign In Button */}
           <button type="submit" className="admin-signin-btn" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In as Admin'}
+            {loading ? "Signing in..." : "Sign In as Admin"}
           </button>
 
           {/* Demo Credentials Helper */}

@@ -1,0 +1,467 @@
+/* =========================================
+   AuthLayout.css (Final Consolidated File)
+   ========================================= */
+
+/* === 0. KeyFrames === */
+@keyframes smoothPan {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Fade animation for forms --- */
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* --- Card hover effect --- */
+.form-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Alternate form switch text --- */
+.switch-form {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #0093e9;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.switch-form:hover {
+  color: #006bb3;
+  text-decoration: underline;
+}
+
+/* === 1. GLOBAL LAYOUT (Background, Header, Footer) === */
+
+.auth-layout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: "Arial", sans-serif;
+
+  /* Softer animated BG */
+  background: radial-gradient(
+      circle at 10% 20%,
+      rgba(128, 240, 255, 0.35),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 50%,
+      rgba(146, 221, 255, 0.35),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 40% 90%,
+      rgba(213, 238, 255, 0.35),
+      transparent 30%
+    );
+  background-size: 400% 400%;
+  animation: smoothPan 40s ease-in-out infinite;
+  background-attachment: fixed;
+}
+
+.auth-content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px; /* Max width for the overall layout */
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.auth-body {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* === 2. HEADER === */
+
+.header-container {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logo-container {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+}
+
+.header-subtitle {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #505050;
+}
+
+/* === 3. FOOTER (Improved Structure) === */
+
+.footer-container {
+  margin-top: 15px;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.footer-links a {
+  margin: 0 12px;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-links a:hover {
+  color: #374151;
+  transform: translateY(-2px);
+}
+
+.footer-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.footer-version {
+  font-size: 0.75rem;
+}
+
+/* === 4. SHARED UTILITIES (Errors, Links, Dividers) === */
+
+.error-message {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 8px 0 16px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.register-link {
+  font-size: 14px;
+  color: #606060;
+}
+
+.register-link a {
+  color: #0093e9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forgot-password {
+  text-align: right;
+  font-size: 14px;
+  color: #0093e9;
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.divider-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #d1d5dc;
+}
+
+.divider-text {
+  color: #606060;
+  font-size: 16px;
+}
+
+/* === 5. FORM CARD === */
+
+/* The base white card container */
+.form-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 36px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  box-sizing: border-box;
+
+  /* subtle motion */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease;
+}
+
+.form-title {
+  font-size: 16px;
+  color: #0d1b2a;
+  margin: 0;
+  font-weight: bold;
+}
+
+.form-subtitle {
+  font-size: 16px;
+  color: #606060;
+  margin: 0;
+}
+
+/* Login card size override */
+
+.login-card-override {
+  width: 400px;
+  padding: 28px;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* === 6. INPUTS & BUTTONS === */
+
+.form-inputs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Tighter gap for input groups */
+}
+
+.form-inputs label {
+  font-size: 14px;
+  color: #0d1b2a;
+  font-weight: 500;
+}
+
+/* Styling for all common input types (text, email, password, time, select) */
+.form-inputs input,
+.form-inputs select {
+  height: 44px;
+  background: #f3f3f5;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.form-inputs input:focus,
+.form-inputs select:focus {
+  border-color: #0093e9;
+  background: white;
+}
+
+/* Primary Action Button (Login) */
+.login-btn,
+.next-btn {
+  height: 44px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  color: white;
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 147, 233, 0.25);
+}
+
+.login-btn:hover:not(:disabled),
+.next-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.google-btn {
+  width: 100%;
+  height: 44px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+/* Navigation buttons */
+
+.button-container {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.back-btn,
+.next-btn {
+  flex: 1;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+}
+
+.next-btn {
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  border: none;
+  color: white;
+}
+
+.next-btn:disabled,
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === 7. AVAILABILITY (STEP 3) === */
+
+.availability-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f3f5;
+}
+
+.day-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #0d1b2a;
+}
+
+.day-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  border: 1px solid #d1d5dc;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-inputs input[type="time"] {
+  /* Uses base .form-inputs input style, just needs margin reset */
+  margin-bottom: 0;
+  width: 100px;
+  flex-grow: 0;
+}
+
+.unavailable-text {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* === 8. RESPONSIVE IMPROVEMENTS === */
+
+@media (max-width: 500px) {
+  .form-card {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+}
