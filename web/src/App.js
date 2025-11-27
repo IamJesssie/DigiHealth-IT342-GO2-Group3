@@ -40,6 +40,7 @@ const AppRoutes = () => {
       <Route path="/admin/patients" element={<AdminPatients />} />
       <Route path="/admin/appointments" element={<AdminAppointments />} />
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
+      <Route path="/admin/settings" element={<AdminDashboardSettings />} />
 
       {/* Doctor Routes - Auth protected */}
       <Route
