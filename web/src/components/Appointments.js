@@ -1,30 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import './Appointments.css';
 import NewAppointmentModal from './NewAppointmentModal';
+import DoctorAppointmentDetails from './DoctorAppointmentDetails';
+import DoctorEditAppointment from './DoctorEditAppointment';
 import apiClient from '../api/client';
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const APPOINTMENTS_URL = '/api/doctors/me/appointments';
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        const res = await apiClient.get(APPOINTMENTS_URL);
-        setAppointments(res.data);
-      } catch (err) {
-        setError('Failed to load appointments');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAppointments();
-  }, []);
+  const loadAppointments = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get(APPOINTMENTS_URL);
+      setAppointments(res.data);
+    } catch (err) {
+      setError('Failed to load appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadAppointments(); }, []);
 
   const getStatusCounts = () => {
     const counts = { all: appointments.length, confirmed: 0, pending: 0, completed: 0, cancelled: 0 };
@@ -113,7 +117,7 @@ const Appointments = () => {
               </thead>
               <tbody>
                 {appointments.map(appt => (
-                  <tr key={appt.id}>
+                  <tr key={appt.id} onClick={() => { setSelected(appt); setShowDetails(true); }} className="clickable-row">
                     <td>{formatTime(appt.startDateTime || appt.appointmentTime)}</td>
                     <td>{appt.patientName || 'N/A'}</td>
                     <td>{appt.type || 'N/A'}</td>
@@ -127,6 +131,22 @@ const Appointments = () => {
         </div>
       </main>
       <NewAppointmentModal show={showModal} onClose={() => setShowModal(false)} />
+      {showDetails && selected && (
+        <DoctorAppointmentDetails
+          appointment={selected}
+          onClose={() => setShowDetails(false)}
+          onEdit={() => { setShowDetails(false); setShowEdit(true); }}
+          onStatusUpdated={() => loadAppointments()}
+        />
+      )}
+      {showEdit && selected && (
+        <DoctorEditAppointment
+          appointment={selected}
+          onClose={() => setShowEdit(false)}
+          onSaved={() => loadAppointments()}
+          onCancelled={() => loadAppointments()}
+        />
+      )}
     </div>
   );
 };

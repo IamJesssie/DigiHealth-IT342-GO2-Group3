@@ -145,6 +145,9 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
+.clickable-row { cursor: pointer; }
+.clickable-row:hover { background-color: #f9fafb; }
+
 .status-badge {
     padding: 4px 8px;
     border-radius: 8px;

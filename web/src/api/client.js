@@ -68,3 +68,9 @@ export const registerDoctor = async (registrationData) => {
   // Aligns with backend AuthController.register using RegisterDto
   return apiClient.post('/api/auth/register', registrationData);
 };
+
+// Appointments helpers
+export const updateAppointmentStatus = async (appointmentId, status) => {
+  if (!appointmentId || !status) throw new Error('appointmentId and status are required');
+  return apiClient.put(`/api/appointments/${appointmentId}/status`, { status });
+};

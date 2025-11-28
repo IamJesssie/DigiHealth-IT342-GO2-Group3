@@ -1,0 +1,36 @@
+/* Modal overlay and container */
+.appointment-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.appointment-modal { position: relative; width: 512px; background: #fff; border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); padding: 24px; }
+
+.modal-close { position: absolute; top: 16px; right: 16px; width: 16px; height: 16px; background: transparent; border: 0; opacity: 0.7; cursor: pointer; }
+.modal-close img { width: 16px; height: 16px; }
+
+.dialog-header { display: flex; flex-direction: column; gap: 8px; }
+.dialog-header h2 { margin: 0; color: #0D1B2A; font-size: 18px; font-weight: 700; line-height: 18px; }
+.dialog-header p { margin: 0; color: #717182; font-size: 14px; line-height: 20px; }
+
+.dialog-body { display: flex; flex-direction: column; gap: 24px; margin-top: 32px; }
+.row { display: flex; align-items: center; gap: 12px; }
+.space-between { justify-content: space-between; }
+.col { display: flex; flex-direction: column; gap: 4px; }
+.col label { color: #606060; font-size: 16px; line-height: 24px; }
+.value { color: #0D1B2A; font-size: 16px; line-height: 24px; }
+
+.status-col .status-actions { display: flex; align-items: center; gap: 8px; }
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 1px 7px; border: 1px solid #B9F8CF; border-radius: 8px; background: #DCFCE7; color: #008236; font-size: 12px; line-height: 16px; }
+.badge.pending { background: #FEF3C7; border-color: #FCD34D; color: #92400E; }
+.badge.completed { background: #D1FAE5; border-color: #10B981; color: #065F46; }
+.badge.cancelled { background: #FEE2E2; border-color: #FCA5A5; color: #7F1D1D; }
+
+.btn { border-radius: 8px; cursor: pointer; }
+.btn-outline { display: flex; align-items: center; gap: 8px; border: 1px solid #0093E9; color: #0093E9; background: #fff; padding: 6px 16px; }
+.btn-gradient { border: none; background-image: linear-gradient(180deg, #0093E9 0%, #80D0C7 100%); color: #fff; padding: 8px 16px; }
+.btn-primary-sm { border: none; background: #155DFC; color: #fff; padding: 4px 10px; font-size: 14px; }
+
+.dialog-footer { display: flex; gap: 12px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
+
+.icons-row { justify-content: space-between; }
+.icon-group { display: flex; align-items: center; gap: 12px; width: 223px; }
+.icon-box { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: #E3F2FD; }
+.icon-box img { width: 20px; height: 20px; }
+

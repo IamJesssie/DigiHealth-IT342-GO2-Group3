@@ -1,0 +1,28 @@
+.appointment-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.appointment-modal { position: relative; width: 512px; background: #fff; border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); padding: 24px; }
+.modal-close { position: absolute; top: 16px; right: 16px; width: 16px; height: 16px; background: transparent; border: 0; opacity: 0.7; cursor: pointer; }
+.modal-close img { width: 16px; height: 16px; }
+.dialog-header { display: flex; flex-direction: column; gap: 8px; }
+.dialog-header h2 { margin: 0; color: #0D1B2A; font-size: 18px; font-weight: 700; line-height: 18px; }
+.dialog-header p { margin: 0; color: #717182; font-size: 14px; line-height: 20px; }
+
+.form { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+.row { display: flex; gap: 12px; }
+.half { flex: 1; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group label { color: #0D1B2A; font-size: 14px; }
+.req { color: #FB2C36; }
+.input, .input.readonly { display: flex; align-items: center; justify-content: space-between; padding: 8px 11px; background: #F3F3F5; border-radius: 8px; }
+.input.readonly { opacity: 0.6; }
+.input select { width: 100%; border: none; background: transparent; font-size: 14px; color: #0A0A0A; }
+.subtext { color: #606060; font-size: 16px; }
+
+input[type="date"], input[type="time"], textarea { border: none; background: #F3F3F5; border-radius: 8px; padding: 10px 11px; font-size: 14px; }
+textarea { height: 64px; }
+
+.btn { border-radius: 8px; cursor: pointer; }
+.btn-outline { display: flex; align-items: center; gap: 8px; border: 1px solid rgba(0,0,0,0.1); color: #0A0A0A; background: #fff; padding: 6px 16px; }
+.btn-gradient { border: none; background-image: linear-gradient(180deg, #0093E9 0%, #80D0C7 100%); color: #fff; padding: 8px 16px; display: flex; align-items: center; gap: 8px; }
+.btn-danger { border: none; background: #D4183D; color: #fff; padding: 8px 16px; }
+.dialog-footer { display: flex; gap: 12px; border-top: 1px solid #E5E7EB; padding-top: 15px; }
+
