@@ -37,8 +37,7 @@ public class AppointmentController {
     @Autowired
     private PatientRepository patientRepository;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+
 
     /**
      * Book an appointment

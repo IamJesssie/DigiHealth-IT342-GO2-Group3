@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 import com.digihealth.backend.entity.AppointmentStatus;

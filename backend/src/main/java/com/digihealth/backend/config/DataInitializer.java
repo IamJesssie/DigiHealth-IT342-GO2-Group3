@@ -17,9 +17,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Seeds a demo doctor account with patients and appointments for local/integration testing.

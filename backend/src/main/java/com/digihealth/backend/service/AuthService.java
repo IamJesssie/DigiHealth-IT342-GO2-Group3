@@ -32,8 +32,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final DoctorWorkDayRepository doctorWorkDayRepository;
 
-    @Autowired
-    public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
+        public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.passwordEncoder = passwordEncoder;

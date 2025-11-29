@@ -4,7 +4,7 @@ import com.digihealth.backend.dto.*;
 import com.digihealth.backend.entity.*;
 import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.repository.DoctorRepository;
-import com.digihealth.backend.repository.PatientRepository;
+
 import com.digihealth.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
