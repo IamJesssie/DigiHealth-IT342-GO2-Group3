@@ -33,9 +33,6 @@ public class DoctorService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserProfileService userProfileService;
-
     @Transactional
     public void updateWorkingHours(WorkingHoursDto workingHoursDto) {
         log.debug("updateWorkingHours called: {}", workingHoursDto);

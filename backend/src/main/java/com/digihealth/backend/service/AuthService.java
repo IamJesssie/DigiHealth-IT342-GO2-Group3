@@ -12,7 +12,6 @@ import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
