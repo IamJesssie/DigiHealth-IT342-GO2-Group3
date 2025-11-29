@@ -12,6 +12,7 @@ import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
+import com.digihealth.backend.service.AppointmentNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,6 +37,9 @@ public class AppointmentController {
 
     @Autowired
     private PatientRepository patientRepository;
+
+    @Autowired
+    private AppointmentNotificationService appointmentNotificationService;
 
 
 
@@ -139,9 +143,11 @@ public class AppointmentController {
 
             appointment.setStatus(AppointmentStatus.valueOf(statusUpdate.getStatus()));
             Appointment updated = appointmentRepository.save(appointment);
+        
+        appointmentNotificationService.notifyAppointmentStatusChange(updated);
 
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
+        return ResponseEntity.ok(updated);
+    } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating appointment: " + e.getMessage());
         }
     }
