@@ -65,7 +65,7 @@
 ## 👩‍💼 SYSTEM ADMINISTRATION
 
 ### FR-9: Administrator Management
-**Status:** ✅ **FULLY IMPLEMENTED** (Full approval + deactivation/reactivation workflows with backend APIs, cascading appointment cancellation, login security fixes, and test updates)
+**Status:** ⚠️ **PARTIALLY IMPLEMENTED** (Core approval + deactivation/reactivation workflows implemented with backend APIs, cascading appointment cancellation, login security; clinic details, appointment policies, system monitoring pending)
 
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
