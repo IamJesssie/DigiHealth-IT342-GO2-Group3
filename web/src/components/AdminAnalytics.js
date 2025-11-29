@@ -94,25 +94,25 @@ const AdminAnalytics = ({ nested = false }) => {
   // Stats cards with real data
   const stats = [
     {
-      icon: '/assets/Admin assets/Doctor-4.svg',
+      icon: '/assets/Admin-assets/Doctor-4.svg',
       label: 'Total Doctors',
       value: analyticsData.doctors.total.toString(),
       subtitle: `${analyticsData.doctors.pending} pending approval`
     },
     {
-      icon: '/assets/Admin assets/Total Patients.svg',
+      icon: '/assets/Admin-assets/Total-Patients.svg',
       label: 'Total Patients',
       value: analyticsData.patients.total.toString(),
       subtitle: 'Active'
     },
     {
-      icon: '/assets/Admin assets/Active Appointments.svg',
+      icon: '/assets/Admin-assets/Active-Appointments.svg',
       label: 'Active Appointments',
       value: analyticsData.appointments.scheduled.toString(),
       subtitle: 'Scheduled'
     },
     {
-      icon: '/assets/Admin assets/System Activity.svg',
+      icon: '/assets/Admin-assets/System Activity.svg',
       label: 'System Activity',
       value: analyticsData.systemHealth.uptime,
       subtitle: 'Uptime'
@@ -264,7 +264,7 @@ const AdminAnalytics = ({ nested = false }) => {
             </div>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
-            <img src="/assets/Admin assets/Logout.svg" alt="logout" className="logout-icon-img" />
+            <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
             Logout
           </button>
         </div>

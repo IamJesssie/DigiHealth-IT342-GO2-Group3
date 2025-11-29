@@ -27,13 +27,13 @@ const AdminTabs = () => {
   const activeTab = getActiveTab();
 
   const tabs = [
-    { id: 'doctors', label: 'Doctors', icon: '/assets/Admin assets/Doctor-4.svg', path: '/admin/dashboard' },
-    { id: 'patients', label: 'Patients', icon: '/assets/Admin assets/Patients.svg', path: '/admin/patients' },
-    { id: 'appointments', label: 'Appointments', icon: '/assets/Admin assets/Appointments.svg', path: '/admin/appointments' },
-    { id: 'analytics', label: 'Analytics', icon: '/assets/Admin assets/Analytics.svg', path: '/admin/analytics' },
+    { id: 'doctors', label: 'Doctors', icon: '/assets/Admin-assets/Doctor-4.svg', path: '/admin/dashboard' },
+    { id: 'patients', label: 'Patients', icon: '/assets/Admin-assets/Patients.svg', path: '/admin/patients' },
+    { id: 'appointments', label: 'Appointments', icon: '/assets/Admin-assets/Appointments.svg', path: '/admin/appointments' },
+    { id: 'analytics', label: 'Analytics', icon: '/assets/Admin-assets/Analytics.svg', path: '/admin/analytics' },
     // Approximations using available assets
-    { id: 'monitoring', label: 'Monitoring', icon: '/assets/Admin assets/System Activity.svg', path: '/admin/monitoring' },
-    { id: 'settings', label: 'Settings', icon: '/assets/Admin assets/Shield.svg', path: '/admin/settings' }
+    { id: 'monitoring', label: 'Monitoring', icon: '/assets/Admin-assets/System-Activity.svg', path: '/admin/monitoring' },
+    { id: 'settings', label: 'Settings', icon: '/assets/Admin-assets/Shield.svg', path: '/admin/settings' }
   ];
 
   const handleTabClick = (tabPath) => {

@@ -144,7 +144,7 @@ const AdminPatients = ({
       label: 'Total Patients',
       value: patients.length.toString(),
       subtitle: `${patients.filter(p => p.status === 'Active').length} active`,
-      icon: '/assets/Admin assets/Total Patients.svg'
+      icon: '/assets/Admin-assets/Total-Patients.svg'
     },
     {
       label: 'New This Month',
@@ -154,19 +154,19 @@ const AdminPatients = ({
         return regDate.getMonth() === now.getMonth() && regDate.getFullYear() === now.getFullYear();
       }).length.toString(),
       subtitle: 'Registered this month',
-      icon: '/assets/Admin assets/Total Patients.svg'
+      icon: '/assets/Admin-assets/Total-Patients.svg'
     },
     {
       label: 'Active Patients',
       value: patients.filter(p => p.status === 'Active').length.toString(),
       subtitle: 'Currently active',
-      icon: '/assets/Admin assets/Approved.svg'
+      icon: '/assets/Admin-assets/Approved.svg'
     },
     {
       label: 'Total Appointments',
       value: patients.reduce((sum, p) => sum + p.appointmentsCount, 0).toString(),
       subtitle: 'All time',
-      icon: '/assets/Admin assets/Active Appointments.svg'
+      icon: '/assets/Admin-assets/Active-Appointments.svg'
     }
   ];
 
@@ -285,7 +285,7 @@ const AdminPatients = ({
 
         {filteredPatients.length === 0 && (
           <div className="empty-state">
-            <img src="/assets/Admin assets/Total Patients.svg" alt="no patients" className="empty-icon" />
+            <img src="/assets/Admin-assets/Total-Patients.svg" alt="no patients" className="empty-icon" />
             <h3>No patients found</h3>
             <p>No patients match your current search criteria.</p>
           </div>
@@ -317,7 +317,7 @@ const AdminPatients = ({
             </div>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
-            <img src="/assets/Admin assets/Logout.svg" alt="logout" className="logout-icon-img" />
+            <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
             Logout
           </button>
         </div>
@@ -438,7 +438,7 @@ const AdminPatients = ({
 
           {filteredPatients.length === 0 && (
             <div className="empty-state">
-              <img src="/assets/Admin assets/Total Patients.svg" alt="no patients" className="empty-icon" />
+              <img src="/assets/Admin-assets/Total-Patients.svg" alt="no patients" className="empty-icon" />
               <h3>No patients found</h3>
               <p>No patients match your current search criteria.</p>
             </div>

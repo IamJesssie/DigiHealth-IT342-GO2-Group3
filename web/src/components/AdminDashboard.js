@@ -147,25 +147,25 @@ const AdminDashboard = () => {
       label: 'Total Doctors',
       value: allDoctors.length.toString(),
       subtitle: `${pendingDoctors.length} pending approval`,
-      icon: '/assets/Admin assets/Doctor-4.svg'
+      icon: '/assets/Admin-assets/Doctor-4.svg'
     },
     {
       label: 'Total Patients',
       value: allPatients.length.toString(),
       subtitle: 'Registered users',
-      icon: '/assets/Admin assets/Total Patients.svg'
+      icon: '/assets/Admin-assets/Total-Patients.svg'
     },
     {
       label: 'Active Appointments',
       value: '0',
       subtitle: 'Loading...',
-      icon: '/assets/Admin assets/Active Appointments.svg'
+      icon: '/assets/Admin-assets/Active-Appointments.svg'
     },
     {
       label: 'System Activity',
       value: '98%',
       subtitle: '↗ System uptime',
-      icon: '/assets/Admin assets/Analytics.svg'
+      icon: '/assets/Admin-assets/Analytics.svg'
     }
   ];
 
@@ -191,7 +191,7 @@ const AdminDashboard = () => {
             </div>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
-            <img src="/assets/Admin assets/Logout.svg" alt="logout" className="logout-icon-img" />
+            <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
             Logout
           </button>
         </div>
