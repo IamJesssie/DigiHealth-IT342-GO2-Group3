@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.authority.AuthorityUtils;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -28,10 +28,11 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new org.springframework.security.authentication.DisabledException("User account is deactivated.");
         }
 
+        String roleName = user.getRole() != null ? user.getRole().name() : "PATIENT";
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
-                new ArrayList<>()
+                AuthorityUtils.createAuthorityList("ROLE_" + roleName)
         );
     }
 
@@ -48,10 +49,11 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new org.springframework.security.authentication.DisabledException("User account is deactivated.");
         }
 
+        String roleName = user.getRole() != null ? user.getRole().name() : "PATIENT";
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
-                new ArrayList<>()
+                AuthorityUtils.createAuthorityList("ROLE_" + roleName)
         );
     }
 }

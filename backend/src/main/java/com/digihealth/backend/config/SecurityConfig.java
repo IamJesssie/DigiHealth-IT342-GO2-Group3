@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // Public auth endpoints used by the frontend (canonical)
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 // Everything else requires authentication
                 .anyRequest().authenticated();
 

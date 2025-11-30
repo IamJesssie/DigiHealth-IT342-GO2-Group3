@@ -118,7 +118,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-6: Appointment Management
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED (Core flows)
 
 **Description:** View and manage appointments.
 
@@ -181,16 +181,29 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-8: Role-Based Access Control
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED (Core RBAC)
 
 **Features:**
 - Roles: Patient, Doctor, Admin | ✅ IMPLEMENTED
 - Data visibility restrictions (assigned patients only) | ✅ IMPLEMENTED
-- Permission checks for admin endpoints | NOT IMPLEMENTED
+- Permission checks for admin endpoints | ✅ IMPLEMENTED
 
 **References:**
-- `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java`
-- `backend/src/main/java/com/digihealth/backend/security/CustomUserDetailsService.java`
+- `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java:65–72`
+- `backend/src/main/java/com/digihealth/backend/security/CustomUserDetailsService.java:32–37, 53–58`
+
+**Acceptance Criteria:**
+- All non-auth endpoints require a valid JWT | ✅ IMPLEMENTED
+- `/api/admin/**` requires `ROLE_ADMIN` | ✅ IMPLEMENTED
+- JWT subject resolves to user ID and loads role authorities | ✅ IMPLEMENTED
+- Inactive users are blocked; unapproved doctors cannot log in | ✅ IMPLEMENTED
+
+**Gaps to MVP (Next Tasks):**
+- Add method-level authorization (`@PreAuthorize`) for doctor/patient actions | NOT IMPLEMENTED
+- Enforce object-level checks (doctor can access only assigned patient data) | NOT IMPLEMENTED
+- Frontend route/menu gating based on role | NOT IMPLEMENTED
+- RBAC integration tests across roles and endpoints | NOT IMPLEMENTED
+- Audit logging for sensitive actions | NOT IMPLEMENTED
 
 ---
 
@@ -273,7 +286,7 @@ This document aligns functional requirements to the current repository implement
 - Settings UI: `web/src/components/AdminDashboardSettings.js:12–40`
 
 **Gaps to MVP:**
-- Permission checks for `/api/admin/**` by role | ❌ NOT IMPLEMENTED
+- Permission checks for `/api/admin/**` by role | ✅ IMPLEMENTED
 - Success toast notifications across admin actions | ❌ NOT IMPLEMENTED
 - Audit logging for admin actions | ❌ NOT IMPLEMENTED
 - Enforce appointment policy settings in booking | ❌ NOT IMPLEMENTED
@@ -388,12 +401,28 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 - Basic route protection in security config: `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java:65–72`
 
 **Gaps:**
-- Role-based restriction for `/api/admin/**` | ❌ NOT IMPLEMENTED
+- Role-based restriction for `/api/admin/**` | ✅ IMPLEMENTED
 - Google OAuth 2.0 integration | ❌ NOT IMPLEMENTED
 - Audit logging for sensitive actions | ❌ NOT IMPLEMENTED
 - Consistent error handling and input validation across endpoints | ❌ NOT IMPLEMENTED
 
 ---
+
+## Compliance Roadmap
+- Implement Google OAuth
+  - Spring Security OAuth2 client + Google; map tokens to existing `User` entities and roles; add `/oauth2/authorization/google` and custom success handler.
+- Add OpenAPI/Swagger
+  - Include `springdoc-openapi-ui` in `pom.xml`; annotate controllers; expose `/swagger-ui/index.html`.
+- Enforce admin role gating — ✅ IMPLEMENTED
+  - `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java:65–72` and `backend/src/main/java/com/digihealth/backend/security/CustomUserDetailsService.java:32–37,53–58`.
+- Add pagination
+  - Use `Pageable` in repository methods; accept `page`/`size` in controllers; return `Page<T>` for lists (patients/doctors/appointments).
+- Add audit logging
+  - Create `AuditLog` entity (operation, actorId, resourceId, timestamp) and write audit entries in admin/doctor actions.
+- Deliver minimal Android app
+  - 5+ screens: Login, Appointments List, Appointment Detail, Create/Cancel, Profile; reuse backend endpoints; store JWT using `EncryptedSharedPreferences`; basic offline cache with Room or simple file cache.
+- Standardize error schema
+  - Implement a `@ControllerAdvice` with a unified error contract `{ code, message, details }`.
 
 ## Implementation Notes
 - Postman flows available in `DigiHealth_Postman_Collection.json` for registration, login, admin approvals, appointments.
