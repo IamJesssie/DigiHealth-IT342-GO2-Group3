@@ -118,7 +118,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-6: Appointment Management
-**Status:** ✅ FULLY IMPLEMENTED (Core flows)
+**Status:** ✅ FULLY IMPLEMENTED (Core flows + rescheduling)
 
 **Description:** View and manage appointments.
 
@@ -128,55 +128,76 @@ This document aligns functional requirements to the current repository implement
 - Mark as cancelled | ✅ IMPLEMENTED
 - Real-time status updates | ✅ IMPLEMENTED
 - Filter by status | ✅ IMPLEMENTED
+- Reschedule date/time | ✅ IMPLEMENTED
 
 **Implementation:**
 - Frontend:
   - `web/src/components/Appointments.js` (list, filters)
   - `web/src/components/DoctorAppointmentDetails.js` (complete)
-  - `web/src/components/DoctorEditAppointment.js` (cancel)
-  - `web/src/api/client.js` (status update API)
+  - `web/src/components/DoctorEditAppointment.js` (edit date/time, cancel)
+  - `web/src/components/NewAppointmentModal.js` (create appointment)
+  - `web/src/api/client.js` (status update API, doctor create/update helpers)
 - Backend:
   - `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:136–153` (status update)
   - `backend/src/main/java/com/digihealth/backend/service/AppointmentNotificationService.java:15–24` (broadcast)
   - `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java:9–23`
+  - `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:114–140` (doctor creates appointment)
+  - `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:142–178` (doctor updates appointment)
 
 **Code References:**
 - List and refresh: `web/src/components/Appointments.js:17–29, 133–149`
 - Complete action: `web/src/components/DoctorAppointmentDetails.js:8–16`
-- Cancel action: `web/src/components/DoctorEditAppointment.js:16–29, 31–43`
-- API method: `web/src/api/client.js:72–76`
+- Edit/reschedule action: `web/src/components/DoctorEditAppointment.js:83–137`
+- Create appointment: `web/src/components/NewAppointmentModal.js:39–63`
+- API methods: `web/src/api/client.js:72–88`
 - Admin subscriptions: `web/src/components/AdminAppointments.js:66–71`
 
 **Gaps to MVP:**
-- Notes captured on completion (deferred to FR-7) | ❌ NOT IMPLEMENTED
+- Auto prompt to capture notes when marking appointment completed | ❌ NOT IMPLEMENTED
 - Centralized error handling (frontend interceptor) | ❌ NOT IMPLEMENTED
 - Real-time visual indicators in doctor Appointments view | ❌ NOT IMPLEMENTED
 
 ---
 
 ## FR-7: Patient Record Management
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED (Core records)
 
-**Description:** View and update patient records.
+**Description:** Allows doctors to view and update patient records (consultation notes, diagnosis, prescriptions, observations), search patients by name/ID, and view patient appointment history. Access is restricted to patients assigned to the doctor via appointments.
 
 **Acceptance Criteria:**
 - View patient records (assigned only) | ✅ IMPLEMENTED
-- Add/edit consultation notes | ❌ NOT IMPLEMENTED
-- Prescriptions and observations | ❌ NOT IMPLEMENTED
+- Add/edit consultation notes | ✅ IMPLEMENTED
+- Prescriptions and observations | ✅ IMPLEMENTED
 - View appointment history | ✅ IMPLEMENTED
-- Search patients by name/ID | ❌ NOT IMPLEMENTED
+- Search patients by name/ID | ✅ IMPLEMENTED
 
 **Implementation:**
 - Frontend:
-  - `web/src/components/Patients.js` (basic viewing)
-- Backend:
-  - To add: `MedicalNotesController.java`, `MedicalNote` entity, repository, DTOs
-  - Enforce doctor-only access to assigned patients
+  - `web/src/components/Patients.js` (list, search, notes CRUD UI, rich text editor, pagination)
+  - Backend:
+  - `backend/src/main/java/com/digihealth/backend/controller/MedicalNotesController.java` (notes CRUD)
+  - `backend/src/main/java/com/digihealth/backend/entity/MedicalNote.java` (entity)
+  - `backend/src/main/java/com/digihealth/backend/repository/MedicalNoteRepository.java` (repo)
+  - `backend/src/main/java/com/digihealth/backend/dto/CreateUpdateMedicalNoteRequest.java`, `MedicalNoteDto.java` (DTOs)
+  - Search: `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:34–44, +search method`
+  - Enforce doctor-only access via appointment relationship checks in controller
 
 **Gaps to MVP:**
-- CRUD for medical notes and timelines | ❌ NOT IMPLEMENTED
-- Rich text editor for notes | ❌ NOT IMPLEMENTED
-- Role checks and audit logging on notes endpoints | ❌ NOT IMPLEMENTED
+- Rich text editor for notes | ✅ IMPLEMENTED
+- Role annotations (`@PreAuthorize`) and audit logging | ✅ IMPLEMENTED
+- Attach notes directly within appointment completion flow | ✅ IMPLEMENTED
+- Timeline view and filtering | ✅ IMPLEMENTED
+- Export notes as PDF and print-friendly layout | ✅ IMPLEMENTED
+- Edit/delete note actions with undo | ✅ IMPLEMENTED
+- Paginate patient lists and notes; server-side search | ✅ IMPLEMENTED
+ - Patient ID readability in UI (short UUID) | ✅ IMPLEMENTED
+
+**Next Suggested Tasks:**
+- Enhance RTE with formatting shortcuts and link support.
+- Add note versioning and compare diffs.
+- Server-side pagination for patients (DB-level) and notes (Pageable).
+- PDF export improvements with headers/footers and clinic branding.
+- Role-based UI gating and breadcrumbs for patients/notes.
 
 ---
 
@@ -274,7 +295,7 @@ This document aligns functional requirements to the current repository implement
   - `web/src/components/AdminLogin.js`
   - `web/src/components/AdminDashboard.js`
   - `web/src/components/AdminPatients.js`
-  - `web/src/components/AdminAppointments.js`
+  - `web/src/components/AdminAppointments.js` (binds to `/api/admin/appointments`)
   - `web/src/components/AdminDashboardSettings.js`
   - `web/src/components/AdminAnalytics.js`
 - Backend:
