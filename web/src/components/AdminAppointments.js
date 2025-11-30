@@ -27,13 +27,12 @@ const AdminAppointments = ({ nested = false }) => {
 
     try {
       setLoading(true);
-      // For now, get all doctor appointments since there's no admin-specific endpoint
-      const response = await apiClient.get('/api/doctors/me/appointments');
+      const response = await apiClient.get('/api/admin/appointments');
       const appointmentsData = response.data.map(apt => ({
         id: apt.appointmentId,
-        patientName: `${apt.patientFirstName} ${apt.patientLastName}`,
-        doctorName: apt.doctorName || 'Unknown Doctor',
-        date: new Date(apt.appointmentDate).toLocaleDateString(),
+        patientName: (apt.patient && apt.patient.user && apt.patient.user.fullName) ? apt.patient.user.fullName : 'Unknown Patient',
+        doctorName: (apt.doctor && apt.doctor.user && apt.doctor.user.fullName) ? apt.doctor.user.fullName : 'Unknown Doctor',
+        date: apt.appointmentDate,
         time: apt.appointmentTime,
         reason: apt.notes || apt.symptoms || 'Regular consultation',
         status: apt.status

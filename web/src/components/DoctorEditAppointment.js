@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import './DoctorEditAppointment.css';
-import { updateAppointmentStatus } from '../api/client';
+import apiClient, { updateDoctorAppointment } from '../api/client';
 
 const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) => {
-  const [date, setDate] = useState(appointment?.startDateTime || appointment?.appointmentTime || '');
-  const [time, setTime] = useState(appointment?.startDateTime || appointment?.appointmentTime || '');
+  const initialDate = appointment?.startDateTime ? appointment.startDateTime.split(' ')[0] : '';
+  const initialTime = appointment?.startDateTime ? appointment.startDateTime.split(' ')[1]?.slice(0,5) : '';
+  const [date, setDate] = useState(initialDate);
+  const [time, setTime] = useState(initialTime);
   const [type, setType] = useState(appointment?.type || '');
   const [doctorName, setDoctorName] = useState(appointment?.doctorName || '');
   const [status, setStatus] = useState(appointment?.status || 'CONFIRMED');
@@ -16,8 +18,26 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
   const handleSave = async () => {
     try {
       setSaving(true);
-      // Currently only status update is supported by backend
-      await updateAppointmentStatus(appointment.id, status);
+      const payload = {
+        appointmentDate: date ? new Date(date).toISOString().slice(0,10) : null,
+        appointmentTime: time || null,
+        status,
+        notes
+      };
+      await updateDoctorAppointment(appointment.id, payload);
+      if (status === 'COMPLETED' && notes && notes.trim() && appointment.patientId) {
+        try {
+          await apiClient.post(`/api/doctors/me/patients/${appointment.patientId}/notes`, {
+            appointmentId: appointment.id,
+            noteText: notes,
+            diagnosis: '',
+            prescriptions: '',
+            observations: ''
+          });
+        } catch (e) {
+          console.warn('Saved status, but note creation failed', e);
+        }
+      }
       onSaved && onSaved({ status });
       onClose && onClose();
     } catch (e) {
@@ -42,8 +62,8 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
     }
   };
 
-  const localDate = date ? new Date(date).toISOString().slice(0, 10) : '';
-  const localTime = time ? new Date(time).toTimeString().slice(0,5) : '';
+  const localDate = date || '';
+  const localTime = time || '';
 
   return (
     <div className="appointment-modal-overlay" role="dialog" aria-modal="true">
@@ -80,17 +100,15 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
 
           <div className="form-group">
             <label>Appointment Type <span className="req">*</span></label>
-            <div className="input">
-              <span>{type || 'Select type'}</span>
-              <img src="/assets/figma-exports/edit-appointment-type-dropdown-icon.svg" alt="dropdown" />
+            <div className="input readonly">
+              <span>{type || 'Consultation'}</span>
             </div>
           </div>
 
           <div className="form-group">
             <label>Doctor <span className="req">*</span></label>
-            <div className="input">
-              <span>{doctorName || 'Select doctor'}</span>
-              <img src="/assets/figma-exports/edit-doctor-dropdown-icon.svg" alt="dropdown" />
+            <div className="input readonly">
+              <span>{doctorName || '—'}</span>
             </div>
           </div>
 

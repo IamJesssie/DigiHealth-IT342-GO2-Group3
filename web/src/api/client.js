@@ -6,6 +6,7 @@ export const API_BASE_URL =
 // Create a preconfigured Axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
 });
 
 // Attach JWT token if present
@@ -73,4 +74,16 @@ export const registerDoctor = async (registrationData) => {
 export const updateAppointmentStatus = async (appointmentId, status) => {
   if (!appointmentId || !status) throw new Error('appointmentId and status are required');
   return apiClient.put(`/api/appointments/${appointmentId}/status`, { status });
+};
+
+export const createDoctorAppointment = async (payload) => {
+  return apiClient.post('/api/doctors/me/appointments', payload);
+};
+
+export const updateDoctorAppointment = async (appointmentId, payload) => {
+  return apiClient.put(`/api/doctors/me/appointments/${appointmentId}`, payload);
+};
+
+export const getDoctorPatients = async () => {
+  return apiClient.get('/api/doctors/me/patients');
 };

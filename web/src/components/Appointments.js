@@ -130,7 +130,7 @@ const Appointments = () => {
           </div>
         </div>
       </main>
-      <NewAppointmentModal show={showModal} onClose={() => setShowModal(false)} />
+      <NewAppointmentModal show={showModal} onClose={() => setShowModal(false)} onCreated={() => loadAppointments()} />
       {showDetails && selected && (
         <DoctorAppointmentDetails
           appointment={selected}
