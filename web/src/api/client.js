@@ -118,3 +118,8 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const getErrorMessage = (error) => {
+  if (!error) return 'Request failed';
+  return error.normalizedMessage || (error.response && (typeof error.response.data === 'string' ? error.response.data : (error.response.data?.message || error.response.data?.error))) || error.message || 'Request failed';
+};
