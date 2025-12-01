@@ -66,8 +66,17 @@ export const login = async (email, password) => {
 };
 
 export const registerDoctor = async (registrationData) => {
-  // Aligns with backend AuthController.register using RegisterDto
-  return apiClient.post('/api/auth/register', registrationData);
+  const workDays = registrationData.workDays || [];
+  const workHours = registrationData.workHours || {};
+  const availability = {};
+  workDays.forEach((day) => {
+    const start = (workHours[day] && workHours[day].startTime) ? workHours[day].startTime : '09:00';
+    const end = (workHours[day] && workHours[day].endTime) ? workHours[day].endTime : '17:00';
+    availability[day] = `${start}-${end}`;
+  });
+  const payload = { ...registrationData, availability };
+  delete payload.workHours;
+  return apiClient.post('/api/auth/register', payload);
 };
 
 // Appointments helpers
@@ -91,3 +100,21 @@ export const getDoctorPatients = async () => {
 export const updateDoctorPatientDetails = async (patientId, payload) => {
   return apiClient.put(`/api/doctors/me/patients/${patientId}/details`, payload);
 };
+
+export const createMedicalNote = async (patientId, payload) => {
+  return apiClient.post(`/api/doctors/me/patients/${patientId}/notes`, payload);
+};
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    try {
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      const msg = typeof data === 'string' ? data : (data?.message || data?.error || 'Request failed');
+      error.normalizedMessage = msg;
+      error.statusCode = status;
+    } catch {}
+    return Promise.reject(error);
+  }
+);
