@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.UUID;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
@@ -48,6 +49,9 @@ public class DoctorDashboardController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private com.digihealth.backend.repository.AdminSettingsRepository adminSettingsRepository;
 
     @GetMapping("/dashboard/summary")
     public ResponseEntity<DashboardSummaryDto> getDashboardSummary() {
@@ -280,5 +284,54 @@ public class DoctorDashboardController {
     public ResponseEntity<WorkingHoursDto> getWorkingHours() {
         WorkingHoursDto workingHours = doctorService.getWorkingHours();
         return ResponseEntity.ok(workingHours);
+    }
+
+    @GetMapping("/doctors/me/available-slots")
+    public ResponseEntity<List<String>> getAvailableSlots(@RequestParam("date") String dateStr) {
+        Doctor doctor = getCurrentDoctor();
+        LocalDate date = LocalDate.parse(dateStr);
+
+        WorkingHoursDto wh = doctorService.getWorkingHours();
+        String dayName;
+        switch (date.getDayOfWeek()) {
+            case MONDAY: dayName = "Monday"; break;
+            case TUESDAY: dayName = "Tuesday"; break;
+            case WEDNESDAY: dayName = "Wednesday"; break;
+            case THURSDAY: dayName = "Thursday"; break;
+            case FRIDAY: dayName = "Friday"; break;
+            case SATURDAY: dayName = "Saturday"; break;
+            case SUNDAY: dayName = "Sunday"; break;
+            default: dayName = "Monday";
+        }
+
+        if (wh.getWorkDays() == null || !wh.getWorkDays().contains(dayName)) {
+            return ResponseEntity.ok(java.util.Collections.emptyList());
+        }
+
+        WorkingHoursDto.TimeRange tr = wh.getWorkHours() != null ? wh.getWorkHours().get(dayName) : null;
+        String startStr = tr != null && tr.getStartTime() != null ? tr.getStartTime() : "09:00";
+        String endStr = tr != null && tr.getEndTime() != null ? tr.getEndTime() : "17:00";
+        LocalTime start = LocalTime.parse(startStr);
+        LocalTime end = LocalTime.parse(endStr);
+
+        int slotMinutes = adminSettingsRepository.findById(1L)
+                .map(s -> s.getAppointmentSlotMinutes() != null ? s.getAppointmentSlotMinutes() : 30)
+                .orElse(30);
+
+        List<String> occupied = appointmentRepository.findByDoctor(doctor).stream()
+                .filter(a -> date.equals(a.getAppointmentDate()))
+                .map(a -> a.getAppointmentTime().toString().substring(0, 5))
+                .collect(Collectors.toList());
+
+        List<String> slots = new java.util.ArrayList<>();
+        LocalTime t = start;
+        while (!t.plusMinutes(slotMinutes).isAfter(end)) {
+            String s = t.toString().substring(0, 5);
+            if (!occupied.contains(s)) {
+                slots.add(s);
+            }
+            t = t.plusMinutes(slotMinutes);
+        }
+        return ResponseEntity.ok(slots);
     }
 }

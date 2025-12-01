@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './NewAppointmentModal.css';
-import { createDoctorAppointment, getDoctorPatients } from '../api/client';
+import apiClient, { createDoctorAppointment, getDoctorPatients } from '../api/client';
 
 const NewAppointmentModal = ({ show, onClose, onCreated }) => {
   // Function to stop click propagation
@@ -16,6 +16,8 @@ const NewAppointmentModal = ({ show, onClose, onCreated }) => {
   const [symptoms, setSymptoms] = useState('');
   const [status, setStatus] = useState('SCHEDULED');
   const [saving, setSaving] = useState(false);
+  const [slots, setSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     const loadPatients = async () => {
@@ -28,6 +30,22 @@ const NewAppointmentModal = ({ show, onClose, onCreated }) => {
     };
     if (show) loadPatients();
   }, [show]);
+
+  useEffect(() => {
+    const loadSlots = async () => {
+      if (!date) { setSlots([]); return; }
+      try {
+        setLoadingSlots(true);
+        const res = await apiClient.get(`/api/doctors/me/available-slots`, { params: { date } });
+        setSlots(Array.isArray(res.data) ? res.data : []);
+      } catch (e) {
+        setSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+    loadSlots();
+  }, [date]);
 
   if (!show) {
     return null;
@@ -80,7 +98,16 @@ const NewAppointmentModal = ({ show, onClose, onCreated }) => {
             </div>
             <div className="form-group">
               <label>Time *</label>
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+              {slots.length > 0 ? (
+                <select value={time} onChange={(e) => setTime(e.target.value)}>
+                  <option value="">Select a slot</option>
+                  {slots.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              ) : (
+                <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={loadingSlots} />
+              )}
             </div>
           </div>
           <div className="form-group">
