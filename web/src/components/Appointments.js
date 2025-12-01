@@ -4,6 +4,7 @@ import NewAppointmentModal from './NewAppointmentModal';
 import DoctorAppointmentDetails from './DoctorAppointmentDetails';
 import DoctorEditAppointment from './DoctorEditAppointment';
 import apiClient from '../api/client';
+import { useAppointmentUpdates } from '../hooks/useAppointmentUpdates';
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -13,6 +14,8 @@ const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [liveUpdatedId, setLiveUpdatedId] = useState(null);
+  const [liveBanner, setLiveBanner] = useState('');
 
   const APPOINTMENTS_URL = '/api/doctors/me/appointments';
 
@@ -29,6 +32,20 @@ const Appointments = () => {
   };
 
   useEffect(() => { loadAppointments(); }, []);
+
+  const onLiveUpdate = (appt) => {
+    try {
+      const id = appt?.appointmentId || appt?.id || null;
+      if (id) {
+        setLiveUpdatedId(id.toString());
+        setLiveBanner('Live update received');
+        setTimeout(() => setLiveBanner(''), 3000);
+      }
+      loadAppointments();
+    } catch {}
+  };
+
+  const { disconnect } = useAppointmentUpdates(onLiveUpdate);
 
   const getStatusCounts = () => {
     const counts = { all: appointments.length, confirmed: 0, pending: 0, completed: 0, cancelled: 0 };
@@ -60,6 +77,10 @@ const Appointments = () => {
           <h2>My Appointments</h2>
           <p>View and manage your scheduled appointments</p>
         </div>
+
+        {liveBanner && (
+          <div className="live-banner">{liveBanner}</div>
+        )}
 
         <div className="stats-tabs">
           <div className="stat-tab active">
@@ -117,7 +138,7 @@ const Appointments = () => {
               </thead>
               <tbody>
                 {appointments.map(appt => (
-                  <tr key={appt.id} onClick={() => { setSelected(appt); setShowDetails(true); }} className="clickable-row">
+                  <tr key={appt.id} onClick={() => { setSelected(appt); setShowDetails(true); }} className={`clickable-row ${liveUpdatedId && (appt.id === liveUpdatedId) ? 'row-live' : ''}`}>
                     <td>{formatTime(appt.startDateTime || appt.appointmentTime)}</td>
                     <td>{appt.patientName || 'N/A'}</td>
                     <td>{appt.type || 'N/A'}</td>

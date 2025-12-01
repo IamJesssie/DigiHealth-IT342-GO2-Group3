@@ -147,6 +147,16 @@ tbody tr:last-child td {
 
 .clickable-row { cursor: pointer; }
 .clickable-row:hover { background-color: #f9fafb; }
+.row-live { background-color: #fff7ed; }
+
+.live-banner {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background-color: #ecfeff;
+    border: 1px solid #a5f3fc;
+    color: #0e7490;
+    border-radius: 8px;
+}
 
 .status-badge {
     padding: 4px 8px;
