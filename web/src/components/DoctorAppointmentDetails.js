@@ -1,18 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './DoctorAppointmentDetails.css';
-import { updateAppointmentStatus } from '../api/client';
+import { updateAppointmentStatus, createMedicalNote } from '../api/client';
 
 const DoctorAppointmentDetails = ({ appointment, onClose, onEdit, onStatusUpdated }) => {
   if (!appointment) return null;
 
-  const handleComplete = async () => {
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleComplete = () => {
+    setShowPrompt(true);
+  };
+
+  const skipAndComplete = async () => {
     try {
+      setSaving(true);
       await updateAppointmentStatus(appointment.id, 'COMPLETED');
       onStatusUpdated && onStatusUpdated('COMPLETED');
       onClose && onClose();
     } catch (e) {
-      console.error('Failed to complete appointment', e);
       alert('Failed to mark as completed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveNoteAndComplete = async () => {
+    try {
+      setSaving(true);
+      if (noteText && appointment.patientId) {
+        await createMedicalNote(appointment.patientId, { noteText, appointmentId: appointment.id });
+      }
+      await updateAppointmentStatus(appointment.id, 'COMPLETED');
+      onStatusUpdated && onStatusUpdated('COMPLETED');
+      onClose && onClose();
+    } catch (e) {
+      alert('Failed to complete with note');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -98,19 +124,46 @@ const DoctorAppointmentDetails = ({ appointment, onClose, onEdit, onStatusUpdate
               <div className="value">{appointment.notes || '—'}</div>
             </div>
           </div>
-        </div>
+      </div>
 
-        <div className="dialog-footer">
-          <button className="btn btn-outline" onClick={onEdit}>
-            <img src="/assets/figma-exports/appointment-edit-icon.svg" alt="Edit" />
-            Edit Appointment
-          </button>
-          <button className="btn btn-gradient" onClick={onClose}>Close</button>
-        </div>
+      <div className="dialog-footer">
+        <button className="btn btn-outline" onClick={onEdit}>
+          <img src="/assets/figma-exports/appointment-edit-icon.svg" alt="Edit" />
+          Edit Appointment
+        </button>
+        <button className="btn btn-gradient" onClick={onClose}>Close</button>
       </div>
     </div>
+
+    {showPrompt && (
+      <div className="appointment-modal-overlay">
+        <div className="appointment-modal">
+          <div className="dialog-header">
+            <h2>Add Consultation Note</h2>
+            <p>Optional note before completing appointment</p>
+          </div>
+          <div className="dialog-body">
+            <div className="row">
+              <div className="col" style={{ width: '100%' }}>
+                <textarea
+                  placeholder="Enter consultation note"
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="dialog-footer">
+            <button className="btn btn-outline" onClick={() => setShowPrompt(false)}>Cancel</button>
+            <button className="btn btn-danger" onClick={skipAndComplete} disabled={saving}>Skip & Complete</button>
+            <button className="btn btn-gradient" onClick={saveNoteAndComplete} disabled={saving}>Save Note & Complete</button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
   );
 };
 
 export default DoctorAppointmentDetails;
-
