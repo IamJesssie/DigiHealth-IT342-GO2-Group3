@@ -1,6 +1,6 @@
 # 📋 DIGIHEALTH PATIENT PWA IMPLEMENTATION CHECKLIST
 
-**Last Updated:** 2025-12-02
+**Last Updated:** 2025-12-04
 **Scope:** Patient-facing Progressive Web App (PWA) delivered via the existing `web/` codebase
 
 ---
@@ -12,36 +12,36 @@
 ---
 
 ## FR-1: Patient Registration (PWA)
-**Status:** ❌ NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Registration form (email/password) | ❌ NOT IMPLEMENTED | Wire to existing auth APIs |
+| Registration form (email/password) | ✅ IMPLEMENTED | Wired to `/api/auth/register-patient` |
 | Medical profile fields (age, gender, allergies, conditions) | ❌ NOT IMPLEMENTED | Capture and send to backend |
 | Confirmation email | ❌ NOT IMPLEMENTED | Trigger on successful registration |
 
 ---
 
 ## FR-2: Patient Login (PWA)
-**Status:** ❌ NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Login screen (email/password) | ❌ NOT IMPLEMENTED | Reuse auth client, store JWT |
+| Login screen (email/password) | ✅ IMPLEMENTED | Stores JWT in localStorage |
 | Google OAuth 2.0 login | ❌ NOT IMPLEMENTED | Optional enhancement |
-| JWT session handling | ❌ NOT IMPLEMENTED | Use existing auth context |
-| Redirect to patient dashboard | ❌ NOT IMPLEMENTED | Role-gated routes |
+| JWT session handling | ✅ IMPLEMENTED | Authorization: Bearer <token> |
+| Redirect to patient dashboard | ✅ IMPLEMENTED | Navigates after login |
 
 ---
 
 ## FR-5: Appointment Booking (Patient)
-**Status:** ❌ NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI + API)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Browse doctors (name/specialization) | ❌ NOT IMPLEMENTED | Basic list + search |
-| View open time slots | ❌ NOT IMPLEMENTED | Use `/api/doctors/me/available-slots` patterns |
-| Book appointment | ✅ IMPLEMENTED (API) | Connect booking button |
+| Browse doctors (name/specialization) | ✅ IMPLEMENTED | Basic list + search |
+| View open time slots | ✅ IMPLEMENTED | Doctor availability integrated |
+| Book appointment | ✅ IMPLEMENTED | API wired with JWT |
 | Booking notifications | ❌ NOT IMPLEMENTED | Email/SMS, in-app |
 
 ---
@@ -126,4 +126,3 @@
 3. Wire appointments list and booking flow to existing APIs.
 4. Enable PWA install: manifest + service worker + install prompt.
 5. Add print-friendly medical records and basic CSV export.
-

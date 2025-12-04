@@ -23,38 +23,48 @@ This document aligns functional requirements to the current repository implement
 - Security & Compliance
 
 ## FR-1: Patient Registration (Patient PWA)
-**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI + API)
 
 **Features:**
 - Email/password registration API | ✅ IMPLEMENTED
+- Patient endpoint `POST /api/auth/register-patient` | ✅ IMPLEMENTED
 - Google OAuth 2.0 registration | NOT IMPLEMENTED
-- Capture medical profile (age, gender, allergies, conditions) | NOT IMPLEMENTED
+- Capture medical profile (age, gender, allergies, conditions) | NOT IMPLEMENTED (client-only fields)
 - Registration confirmation email | NOT IMPLEMENTED
- 
+
 **Implementation Approach:**
-- PWA + Web chosen for patient app to accelerate delivery (no native Kotlin/Java required). Initial screens will be implemented under `web/` with mobile-first UI and installable via web manifest and service worker.
+- PWA under `mobile/Patient-PWA/` posts to backend `POST /api/auth/register-patient`, then logs in via `POST /api/auth/login`, stores `accessToken`, and normalizes backend `User` into the PWA `Patient` shape for UI.
 
 **References:**
-- `DigiHealth_Postman_Collection.json: Register Patient`
-- `backend` auth service and DTOs
+- `backend/src/main/java/com/digihealth/backend/controller/AuthController.java:33-37`
+- `backend/src/main/java/com/digihealth/backend/service/AuthService.java:43-57`
+- `backend/src/main/java/com/digihealth/backend/dto/RegisterDto.java:6-15, 58-64`
+- PWA: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:93-143`
 
 ---
 
 ## FR-2: Patient Login (Patient PWA)
-**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI + API)
 
 **Features:**
-- Email/password login API | NOT IMPLEMENTED
+- Email/password login API | ✅ IMPLEMENTED
+- JWT-based secure session | ✅ IMPLEMENTED
+- Redirect to patient dashboard (PWA UI) | ✅ IMPLEMENTED
 - Google OAuth 2.0 login | NOT IMPLEMENTED
-- JWT-based secure session | NOT IMPLEMENTED
-- Redirect to patient dashboard (PWA UI) | NOT IMPLEMENTED
 
 **Implementation Approach:**
-- Reuse existing auth flow in `web/src/auth/auth.js` and gate patient routes by role `ROLE_PATIENT`. Add `/patient/login`, `/patient/dashboard`, and `/patient/appointments` routes.
+- Patient login is implemented in `mobile/Patient-PWA/src/components/PatientLogin.tsx` using `fetch` to call `POST /api/auth/login`. On success, stores `accessToken` (JWT) and `user` in `localStorage`, then navigates to the dashboard.
+
+**Acceptance Criteria:**
+- Valid credentials return a JWT and current user payload.
+- Doctors must be approved to log in; deactivated users are blocked.
+- Token is attached to subsequent API calls via `Authorization: Bearer <token>`.
 
 **References:**
-- `DigiHealth_Postman_Collection.json: Patient Login`
-- `backend/src/main/java/com/digihealth/backend/security/JwtAuthenticationFilter.java`
+- PWA: `mobile/Patient-PWA/src/components/PatientLogin.tsx:22-51`
+- Controller: `backend/src/main/java/com/digihealth/backend/controller/AuthController.java:21-25`
+- Service: `backend/src/main/java/com/digihealth/backend/service/AuthService.java:125-176`
+- Security: `backend/src/main/java/com/digihealth/backend/security/JwtAuthenticationFilter.java`
 
 ---
 
@@ -110,16 +120,26 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-5: Appointment Booking (Patient PWA)
-**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
+**Status:** ✅ IMPLEMENTED (PWA UI + API)
 
 **Features:**
-- Browse doctors by name/specialization | NOT IMPLEMENTED
-- View open time slots | NOT IMPLEMENTED
+- Browse doctors by name/specialization | ✅ IMPLEMENTED
+- View open time slots | ✅ IMPLEMENTED
 - Book appointment (API) | ✅ IMPLEMENTED
 - Notifications on booking (email/SMS) | NOT IMPLEMENTED
 
+**Acceptance Criteria (API-level):**
+- Authenticated patient can `POST /api/appointments/book` with `doctorId`, `appointmentDate`, `appointmentTime`, `reason`, `symptoms`.
+- Only approved doctors are bookable.
+- Appointment is persisted and returned in the response.
+
+**Known Gaps:**
+- Booking notifications not implemented.
+- Cancellation/reschedule from patient PWA not implemented.
+
 **References:**
-- `DigiHealth_Postman_Collection.json: Patient Booking (POST /api/appointments/book)`
+- Controller: `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:57-106`
+- Entities: `backend/src/main/java/com/digihealth/backend/entity/Appointment.java`, `Patient.java`, `Doctor.java`
 
 ---
 
@@ -317,7 +337,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## Patient PWA FR-P1 to FR-P5
-**Status:** 🔴 NOT IMPLEMENTED (Planned)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (UI scaffold; backend integration pending)
 
 - FR-P1: Patient Dashboard — welcome, upcoming appointments, quick actions, notifications
 - FR-P2: My Appointments — upcoming/past/cancelled tabs, cancel/reschedule, reminders, calendar
@@ -326,9 +346,14 @@ This document aligns functional requirements to the current repository implement
 - FR-P5: Profile Management — personal/medical info edits, password, notification preferences, privacy, delete account
 
 #### FR-P1: Patient Dashboard
-**Status:** 🔴 NOT IMPLEMENTED (PWA)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
 
 **Description:** Personalized dashboard with upcoming appointments, quick actions, and health summary.
+**Acceptance Criteria (UI-level):**
+- Components render and navigate within `mobile/Patient-PWA`.
+- Data currently mocked; integration tasks will replace mocks with API.
+**References:**
+- PWA components: `mobile/Patient-PWA/src/components/PatientDashboard.tsx`, `PatientAppointments.tsx`, `PatientMedicalRecords.tsx`, `PatientDoctorSearch.tsx`, `PatientProfile.tsx`, `PatientBookAppointment.tsx`
 
 **Features:**
 - Welcome message
@@ -341,7 +366,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P2: My Appointments
-**Status:** 🔴 NOT IMPLEMENTED (PWA)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
 
 **Description:** View and manage appointments.
 
@@ -356,7 +381,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P3: Medical Records
-**Status:** 🔴 NOT IMPLEMENTED (PWA)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
 
 **Description:** View consultation history and medical notes.
 
@@ -370,7 +395,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P4: Doctor Profiles & Search
-**Status:** 🔴 NOT IMPLEMENTED (PWA)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
 
 **Description:** Comprehensive doctor search and profiles.
 
@@ -384,7 +409,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P5: Profile Management
-**Status:** 🔴 NOT IMPLEMENTED (PWA)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
 
 **Description:** Update personal and medical information.
 
