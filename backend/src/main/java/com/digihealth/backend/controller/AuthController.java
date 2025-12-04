@@ -29,4 +29,10 @@ public class AuthController {
         authService.registerDoctor(registerDto);
         return ResponseEntity.ok("Doctor registered successfully!");
     }
+
+    @PostMapping("/register-patient")
+    public ResponseEntity<?> registerPatient(@RequestBody RegisterDto registerDto) {
+        authService.registerUser(registerDto);
+        return ResponseEntity.ok("Patient registered successfully!");
+    }
 }

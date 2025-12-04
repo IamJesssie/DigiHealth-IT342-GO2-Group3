@@ -9,6 +9,7 @@ import com.digihealth.backend.entity.DoctorWorkDay;
 import com.digihealth.backend.entity.Role;
 import com.digihealth.backend.entity.User;
 import com.digihealth.backend.repository.DoctorRepository;
+import com.digihealth.backend.repository.PatientRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
@@ -26,14 +27,16 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
     private final DoctorWorkDayRepository doctorWorkDayRepository;
 
-        public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
+        public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PatientRepository patientRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
+        this.patientRepository = patientRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.authenticationManager = authenticationManager;
@@ -48,11 +51,16 @@ public class AuthService {
         User user = new User();
         user.setFullName(registerDto.getFullName());
         user.setEmail(registerDto.getEmail());
+        user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setRole(Role.PATIENT); // Default role for registration
         user.setIsActive(Boolean.TRUE);
 
         userRepository.save(user);
+
+        com.digihealth.backend.entity.Patient patient = new com.digihealth.backend.entity.Patient();
+        patient.setUser(user);
+        patientRepository.save(patient);
     }
 
     public void registerDoctor(RegisterDto registerDto) {

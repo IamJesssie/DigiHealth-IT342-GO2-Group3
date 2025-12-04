@@ -7,10 +7,13 @@ import com.digihealth.backend.entity.AppointmentStatus;
 import com.digihealth.backend.entity.User;
 import com.digihealth.backend.entity.Doctor;
 import com.digihealth.backend.entity.Patient;
+import com.digihealth.backend.entity.DayOfWeek;
+import com.digihealth.backend.entity.DoctorWorkDay;
 import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
+import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.AppointmentNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,9 @@ public class AppointmentController {
     @Autowired
     private AppointmentNotificationService appointmentNotificationService;
 
+    @Autowired
+    private DoctorWorkDayRepository doctorWorkDayRepository;
+
 
 
     /**
@@ -63,8 +69,8 @@ public class AppointmentController {
                 return ResponseEntity.badRequest().body("User not authenticated");
             }
 
-            UUID patientUserId = UUID.fromString((String) auth.getPrincipal());
-            User patientUser = userRepository.findById(patientUserId)
+            String email = auth.getName();
+            User patientUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Patient user not found"));
 
             // Get doctor user
@@ -75,7 +81,7 @@ public class AppointmentController {
                 return ResponseEntity.badRequest().body("Selected user is not a doctor");
             }
 
-            if (!doctorUser.getIsApproved()) {
+            if (!Boolean.TRUE.equals(doctorUser.getIsApproved())) {
                 return ResponseEntity.badRequest().body("Doctor is not approved yet");
             }
 
@@ -84,7 +90,7 @@ public class AppointmentController {
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
             // Get Patient entity linked to current user
-            Patient patient = patientRepository.findByUserId(patientUserId)
+            Patient patient = patientRepository.findByUserId(patientUser.getId())
                     .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
             // Create appointment
@@ -113,16 +119,82 @@ public class AppointmentController {
     public ResponseEntity<?> getMyAppointments() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            UUID doctorUserId = UUID.fromString((String) auth.getPrincipal());
+            String email = auth.getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
             // Get doctor entity for this user
-            Doctor doctor = doctorRepository.findByUserId(doctorUserId)
+            Doctor doctor = doctorRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
             List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
             return ResponseEntity.ok(appointments);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error retrieving appointments: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/patient/my")
+    public ResponseEntity<?> getMyPatientAppointments() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Patient patient = patientRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new RuntimeException("Patient profile not found"));
+
+            List<Appointment> appointments = appointmentRepository.findByPatient(patient);
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error retrieving appointments: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/doctors/{doctorId}/available-slots")
+    public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") java.time.LocalDate date) {
+        try {
+            User doctorUser = userRepository.findById(doctorId)
+                    .orElseThrow(() -> new RuntimeException("Doctor not found"));
+            if (!doctorUser.getRole().name().equals("DOCTOR")) {
+                return ResponseEntity.badRequest().body("User is not a doctor");
+            }
+            if (!Boolean.TRUE.equals(doctorUser.getIsApproved())) {
+                return ResponseEntity.badRequest().body("Doctor is not approved yet");
+            }
+
+            Doctor doctor = doctorRepository.findByUserId(doctorId)
+                    .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+            String abbr = date.getDayOfWeek().name().substring(0, 3);
+            DayOfWeek workDayEnum = DayOfWeek.valueOf(abbr);
+            DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
+                    .stream().findFirst().orElse(null);
+
+            String startStr = workDay != null && workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
+            String endStr = workDay != null && workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
+
+            java.time.LocalTime start = java.time.LocalTime.parse(startStr);
+            java.time.LocalTime end = java.time.LocalTime.parse(endStr);
+
+            List<Appointment> booked = appointmentRepository.findByDoctorAndAppointmentDate(doctor, date);
+            java.util.Set<java.time.LocalTime> bookedTimes = booked.stream()
+                    .map(Appointment::getAppointmentTime)
+                    .collect(java.util.stream.Collectors.toSet());
+
+            java.util.List<String> slots = new java.util.ArrayList<>();
+            java.time.LocalTime t = start;
+            while (!t.isAfter(end.minusMinutes(30))) {
+                if (!bookedTimes.contains(t)) {
+                    slots.add(String.format("%02d:%02d", t.getHour(), t.getMinute()));
+                }
+                t = t.plusMinutes(30);
+            }
+
+            return ResponseEntity.ok(slots);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error retrieving slots: " + e.getMessage());
         }
     }
 

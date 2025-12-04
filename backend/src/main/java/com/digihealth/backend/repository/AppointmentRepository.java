@@ -2,6 +2,7 @@ package com.digihealth.backend.repository;
 
 import com.digihealth.backend.entity.Appointment;
 import com.digihealth.backend.entity.Doctor;
+import com.digihealth.backend.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,5 @@ import java.util.UUID;
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
     List<Appointment> findByDoctorAndAppointmentDate(Doctor doctor, LocalDate date);
     List<Appointment> findByDoctor(Doctor doctor);
+    List<Appointment> findByPatient(Patient patient);
 }
