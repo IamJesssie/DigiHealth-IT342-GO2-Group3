@@ -60,9 +60,13 @@ const AdminDashboard = () => {
         apiClient.get('/api/admin/patients')
       ]);
 
-      setPendingDoctors(pendingResponse.data);
-      setAllDoctors([...approvedResponse.data, ...pendingResponse.data]);
-      setAllPatients(patientsResponse.data);
+      const pending = Array.isArray(pendingResponse?.data) ? pendingResponse.data : [];
+      const approved = Array.isArray(approvedResponse?.data) ? approvedResponse.data : [];
+      const patients = Array.isArray(patientsResponse?.data) ? patientsResponse.data : [];
+
+      setPendingDoctors(pending);
+      setAllDoctors([...(approved || []), ...(pending || [])]);
+      setAllPatients(patients);
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
       setError('Failed to load data. Please try again.');
@@ -127,16 +131,7 @@ const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
-  // Filter patients based on search term and status
-  const filteredPatients = allPatients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || patient.status.toLowerCase() === statusFilter.toLowerCase();
-    
-    return matchesSearch && matchesStatus;
-  });
+  // Keep patient filters in AdminPatients to avoid duplicate filtering and type issues
 
   const handleExportPatients = () => {
     console.log('Export patients data');

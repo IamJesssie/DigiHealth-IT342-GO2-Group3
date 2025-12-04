@@ -29,6 +29,39 @@ const AdminPatients = ({
   const statusFilter = setParentStatusFilter ? initialStatusFilter : internalStatusFilter;
   const setStatusFilter = setParentStatusFilter || setInternalStatusFilter;
 
+  // Normalize incoming patients when provided by parent (nested mode)
+  const safeCalculateAge = (birthDate) => {
+    if (!birthDate) return 'N/A';
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  useEffect(() => {
+    if (!initialPatients || !initialPatients.length) return;
+    const mapped = initialPatients.map(user => ({
+      id: user.id,
+      name: (
+        user.name || `${user.firstName || ''} ${user.lastName || user.fullName || ''}`.trim() || 'N/A'
+      ),
+      email: user.email,
+      phone: user.phoneNumber || user.phone || 'N/A',
+      age: safeCalculateAge(user.patient?.birthDate),
+      gender: user.patient?.gender || user.gender || 'N/A',
+      isActive: user.isActive !== undefined ? user.isActive : true,
+      status: user.status ? user.status : (user.isActive ? 'Active' : 'Inactive'),
+      lastVisit: user.lastVisit || 'N/A',
+      registeredDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
+      appointmentsCount: user.appointmentsCount || 0,
+    }));
+    setPatients(mapped);
+  }, [initialPatients]);
+
   // Authentication guard
   useEffect(() => {
     if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
@@ -133,9 +166,12 @@ const AdminPatients = ({
   };
 
   const filteredPatients = patients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || patient.status.toLowerCase() === statusFilter.toLowerCase();
+    const nameField = (patient && patient.name) ? patient.name : (patient && patient.fullName) ? patient.fullName : '';
+    const emailField = (patient && patient.email) ? patient.email : '';
+    const matchesSearch = nameField.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         emailField.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusField = (patient && patient.status) ? patient.status : (patient && patient.isActive ? 'Active' : 'Inactive');
+    const matchesStatus = statusFilter === 'all' || statusField.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
