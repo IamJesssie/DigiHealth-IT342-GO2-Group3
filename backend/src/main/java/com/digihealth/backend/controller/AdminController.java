@@ -16,10 +16,13 @@ import java.util.stream.Collectors;
 import java.time.LocalDate;
 import com.digihealth.backend.entity.AppointmentStatus;
 import com.digihealth.backend.entity.AdminSettings;
+import com.digihealth.backend.entity.AuditLog;
 import com.digihealth.backend.repository.AdminSettingsRepository;
+import com.digihealth.backend.repository.AuditLogRepository;
 
 @RestController
 @RequestMapping("/api/admin")
+@org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -30,6 +33,9 @@ public class AdminController {
 
     @Autowired
     private AdminSettingsRepository adminSettingsRepository;
+
+    @Autowired
+    private AuditLogRepository auditLogRepository;
 
     /**
      * Get all pending doctor approvals
@@ -73,6 +79,14 @@ public class AdminController {
         doctor.setIsApproved(true);
         userRepository.save(doctor);
 
+        AuditLog log = new AuditLog();
+        log.setOperation("APPROVE_DOCTOR");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(doctor.getId().toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
+
         return ResponseEntity.ok(new DoctorApprovalDto(
                 doctor.getId(),
                 doctor.getFullName(),
@@ -99,6 +113,14 @@ public class AdminController {
         doctor.setIsApproved(false);
         doctor.setIsActive(false);
         userRepository.save(doctor);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("REJECT_DOCTOR");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(doctor.getId().toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
 
         return ResponseEntity.ok(new DoctorApprovalDto(
                 doctor.getId(),
@@ -213,6 +235,14 @@ public class AdminController {
         user.setIsActive(false);
         userRepository.save(user);
 
+        AuditLog log = new AuditLog();
+        log.setOperation("DEACTIVATE_USER");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(id.toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
+
         return ResponseEntity.ok(Map.of(
                 "message", "User deactivated successfully",
                 "userId", id.toString(),
@@ -239,6 +269,14 @@ public class AdminController {
 
         user.setIsActive(true);
         userRepository.save(user);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("REACTIVATE_USER");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(id.toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
 
         return ResponseEntity.ok(Map.of(
                 "message", "User reactivated successfully",
