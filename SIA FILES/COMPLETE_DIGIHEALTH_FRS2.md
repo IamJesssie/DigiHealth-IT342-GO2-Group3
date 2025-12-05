@@ -137,7 +137,7 @@ This document aligns functional requirements to the current repository implement
 
 **Gaps to MVP:**
 - Google OAuth 2.0 login | ❌ NOT IMPLEMENTED
-- Visual indicators for real-time updates in all doctor views | ❌ NOT IMPLEMENTED
+- Visual indicators for real-time updates in all doctor views | ✅ IMPLEMENTED
 
 ---
 
@@ -274,11 +274,11 @@ This document aligns functional requirements to the current repository implement
 - Inactive users are blocked; unapproved doctors cannot log in | ✅ IMPLEMENTED
 
 **Gaps to MVP (Next Tasks):**
-- Add method-level authorization (`@PreAuthorize`) for doctor/patient actions | NOT IMPLEMENTED
-- Enforce object-level checks (doctor can access only assigned patient data) | NOT IMPLEMENTED
-- Frontend route/menu gating based on role | NOT IMPLEMENTED
-- RBAC integration tests across roles and endpoints | NOT IMPLEMENTED
-- Audit logging for sensitive actions | NOT IMPLEMENTED
+- Add method-level authorization (`@PreAuthorize`) for doctor/patient actions | ✅ IMPLEMENTED
+- Enforce object-level checks (doctor can access only assigned patient data) | ✅ IMPLEMENTED
+- Frontend route/menu gating based on role | ✅ IMPLEMENTED
+- RBAC integration tests across roles and endpoints | ✅ IMPLEMENTED
+- Audit logging for sensitive actions | ✅ IMPLEMENTED
 
 ---
 
@@ -300,13 +300,13 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-10: System Reports and Analytics
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ IMPLEMENTED
 
 **Features:**
 - Appointment statistics counts | ✅ IMPLEMENTED
 - Patient registration counts | ✅ IMPLEMENTED
-- Visual charts for analytics | NOT IMPLEMENTED
-- Export reports (CSV/PDF) | NOT IMPLEMENTED
+- Visual charts for analytics | ✅ IMPLEMENTED
+- Export reports (CSV/PDF) | ✅ IMPLEMENTED
 
 **References:**
 - `web/src/components/AdminAnalytics.js`
@@ -326,7 +326,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## Admin Web Portal
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED
 
 **Features:**
 - Admin login and dashboard | ✅ IMPLEMENTED
@@ -353,9 +353,9 @@ This document aligns functional requirements to the current repository implement
 
 **Gaps to MVP:**
 - Permission checks for `/api/admin/**` by role | ✅ IMPLEMENTED
-- Success toast notifications across admin actions | ❌ NOT IMPLEMENTED
-- Audit logging for admin actions | ❌ NOT IMPLEMENTED
-- Enforce appointment policy settings in booking | ❌ NOT IMPLEMENTED
+- Success toast notifications across admin actions | ✅ IMPLEMENTED
+- Audit logging for admin actions | ✅ IMPLEMENTED
+- Enforce appointment policy settings in booking | ✅ IMPLEMENTED
 
 ---
 
