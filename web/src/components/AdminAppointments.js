@@ -8,7 +8,7 @@ import './AdminAppointments.css';
 
 const AdminAppointments = ({ nested = false }) => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
+  const { currentUser, isAuthenticated, loading: authLoading, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [appointments, setAppointments] = useState([]);
@@ -69,7 +69,7 @@ const AdminAppointments = ({ nested = false }) => {
   useAppointmentUpdates(handleAppointmentUpdate);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
+    logout();
     navigate('/admin/login');
   };
 
@@ -83,11 +83,18 @@ const AdminAppointments = ({ nested = false }) => {
     console.log('Reschedule appointment:', appointmentId);
   };
 
+  const normalizeStatus = (s) => {
+    const val = (s || '').toString().toLowerCase();
+    if (val === 'scheduled') return 'pending';
+    return val;
+  };
+
   const filteredAppointments = appointments.filter(apt => {
-    const matchesSearch = apt.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || apt.status.toLowerCase() === selectedStatus;
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = (apt.patientName || '').toLowerCase().includes(term) ||
+                         (apt.doctorName || '').toLowerCase().includes(term) ||
+                         String(apt.id || '').toLowerCase().includes(term);
+    const matchesStatus = selectedStatus === 'all' || normalizeStatus(apt.status) === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
