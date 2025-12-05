@@ -24,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.UUID;
@@ -138,8 +140,12 @@ public class AppointmentController {
       DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
               .stream().findFirst().orElse(null);
 
-      String startStr = workDay != null && workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
-      String endStr = workDay != null && workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
+      if (workDay == null) {
+        return ResponseEntity.badRequest().body("Doctor does not work on the selected day");
+      }
+
+      String startStr = workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
+      String endStr = workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
       java.time.LocalTime start = java.time.LocalTime.parse(startStr);
       java.time.LocalTime end = java.time.LocalTime.parse(endStr);
 
@@ -239,8 +245,12 @@ public class AppointmentController {
             DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
                     .stream().findFirst().orElse(null);
 
-            String startStr = workDay != null && workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
-            String endStr = workDay != null && workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
+            if (workDay == null) {
+                return ResponseEntity.ok(java.util.Collections.emptyList());
+            }
+
+            String startStr = workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
+            String endStr = workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
 
             java.time.LocalTime start = java.time.LocalTime.parse(startStr);
             java.time.LocalTime end = java.time.LocalTime.parse(endStr);
@@ -265,6 +275,59 @@ public class AppointmentController {
             return ResponseEntity.ok(slots);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error retrieving slots: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get doctor's working days and hours
+     * GET /api/appointments/doctors/{doctorId}/work-days
+     * Response:
+     * {
+     *   "workDays": ["MON","TUE","WED"],
+     *   "hours": { "MON": {"start":"09:00","end":"17:00"}, ... },
+     *   "slotMinutes": 30
+     * }
+     */
+    @GetMapping("/doctors/{doctorId}/work-days")
+    @PreAuthorize("hasAnyRole('PATIENT','DOCTOR','ADMIN')")
+    public ResponseEntity<?> getDoctorWorkDays(@PathVariable UUID doctorId) {
+        try {
+            User doctorUser = userRepository.findById(doctorId)
+                    .orElseThrow(() -> new RuntimeException("Doctor not found"));
+            if (!doctorUser.getRole().name().equals("DOCTOR")) {
+                return ResponseEntity.badRequest().body("User is not a doctor");
+            }
+            if (!Boolean.TRUE.equals(doctorUser.getIsApproved())) {
+                return ResponseEntity.badRequest().body("Doctor is not approved yet");
+            }
+
+            Doctor doctor = doctorRepository.findByUserId(doctorId)
+                    .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+            java.util.List<DoctorWorkDay> days = doctorWorkDayRepository.findByDoctor(doctor);
+            java.util.List<String> workDays = days.stream()
+                    .map(d -> d.getWorkDay().name())
+                    .collect(Collectors.toList());
+
+            Map<String, Map<String, String>> hours = days.stream().collect(Collectors.toMap(
+                    d -> d.getWorkDay().name(),
+                    d -> Map.of(
+                            "start", d.getAvailableStartTime() != null ? d.getAvailableStartTime() : "09:00",
+                            "end", d.getAvailableEndTime() != null ? d.getAvailableEndTime() : "17:00"
+                    )
+            ));
+
+            AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
+            int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+
+            Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("workDays", workDays);
+            payload.put("hours", hours);
+            payload.put("slotMinutes", slotMinutes);
+
+            return ResponseEntity.ok(payload);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error retrieving work days: " + e.getMessage());
         }
     }
 
