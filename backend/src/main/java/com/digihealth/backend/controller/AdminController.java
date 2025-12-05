@@ -141,11 +141,11 @@ public class AdminController {
      * Get all appointments (admin view)
      * GET /api/admin/appointments
      */
-    @GetMapping("/appointments")
-    public ResponseEntity<List<Appointment>> getAllAppointments() {
-        List<Appointment> appointments = appointmentRepository.findAll();
-        return ResponseEntity.ok(appointments);
-    }
+  @GetMapping("/appointments")
+  public ResponseEntity<List<Appointment>> getAllAppointments() {
+    List<Appointment> appointments = appointmentRepository.findAll();
+    return ResponseEntity.ok(appointments);
+  }
 
     /**
      * Get all doctors (both approved and pending)
@@ -224,8 +224,8 @@ public class AdminController {
      * Reactivate a user account (doctor or patient only)
      * PUT /api/admin/users/{id}/reactivate
      */
-    @PutMapping("/users/{id}/reactivate")
-    public ResponseEntity<?> reactivateUser(@PathVariable UUID id) {
+  @PutMapping("/users/{id}/reactivate")
+  public ResponseEntity<?> reactivateUser(@PathVariable UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -245,14 +245,61 @@ public class AdminController {
                 "userId", id.toString(),
                 "status", "ACTIVE"
         ));
-    }
+  }
 
-    /**
-     * Get global admin settings (singleton ID=1)
-     * GET /api/admin/settings
-     */
-    @GetMapping("/settings")
-    public ResponseEntity<AdminSettings> getAdminSettings() {
+  /**
+   * System status monitoring
+   * GET /api/admin/system-status
+   */
+  @GetMapping("/system-status")
+  public ResponseEntity<java.util.Map<String, Object>> getSystemStatus() {
+    java.util.Map<String, Object> status = new java.util.HashMap<>();
+    try {
+      long uptimeMs = java.lang.management.ManagementFactory.getRuntimeMXBean().getUptime();
+      Runtime rt = Runtime.getRuntime();
+      long totalMem = rt.totalMemory();
+      long freeMem = rt.freeMemory();
+      long usedMem = totalMem - freeMem;
+
+      long totalDoctors = userRepository.findAll().stream().filter(u -> "DOCTOR".equals(u.getRole().name())).count();
+      long totalPatients = userRepository.findAll().stream().filter(u -> "PATIENT".equals(u.getRole().name())).count();
+      long scheduledAppointments = appointmentRepository.findAll().stream().filter(a -> a.getStatus() == AppointmentStatus.SCHEDULED || a.getStatus() == AppointmentStatus.CONFIRMED).count();
+      long completedAppointments = appointmentRepository.findAll().stream().filter(a -> a.getStatus() == AppointmentStatus.COMPLETED).count();
+
+      boolean dbOk = true;
+      try {
+        // simple check
+        userRepository.count();
+      } catch (Exception ex) {
+        dbOk = false;
+      }
+
+      AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
+
+      status.put("serverTime", java.time.ZonedDateTime.now().toString());
+      status.put("uptimeSeconds", uptimeMs / 1000);
+      status.put("memoryUsedBytes", usedMem);
+      status.put("memoryTotalBytes", totalMem);
+      status.put("databaseHealthy", dbOk);
+      status.put("maintenanceMode", settings != null && Boolean.TRUE.equals(settings.getMaintenanceMode()));
+      status.put("totalDoctors", totalDoctors);
+      status.put("totalPatients", totalPatients);
+      status.put("scheduledAppointments", scheduledAppointments);
+      status.put("completedAppointments", completedAppointments);
+
+      return ResponseEntity.ok(status);
+    } catch (Exception e) {
+      status.put("error", e.getMessage());
+      return ResponseEntity.ok(status);
+    }
+  }
+
+  /**
+   * Get global admin settings (singleton ID=1)
+   * GET /api/admin/settings
+   */
+  @GetMapping("/settings")
+  public ResponseEntity<AdminSettings> getAdminSettings() {
         return adminSettingsRepository.findById(1L)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

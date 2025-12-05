@@ -106,7 +106,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-4: Doctor Login and Schedule Management
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED
 
 **Description:** Doctors log in and manage schedules.
 
@@ -137,7 +137,6 @@ This document aligns functional requirements to the current repository implement
 
 **Gaps to MVP:**
 - Google OAuth 2.0 login | ❌ NOT IMPLEMENTED
-- Availability slot generation and conflict detection | ✅ IMPLEMENTED
 - Visual indicators for real-time updates in all doctor views | ❌ NOT IMPLEMENTED
 
 ---
@@ -284,17 +283,18 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-9: Administrator Management
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED
 
 **Features:**
-- Approve doctor accounts | ✅IMPLEMENTED
-- Deactivate/reactivate accounts | IMPLEMENTED
+- Approve doctor accounts | ✅ IMPLEMENTED
+- Deactivate/reactivate accounts | ✅ IMPLEMENTED
 - Configure clinic details | ✅ IMPLEMENTED
-- Enforce appointment policies in booking | NOT IMPLEMENTED
-- System status monitoring | NOT IMPLEMENTED
+- Enforce appointment policies in booking | ✅ IMPLEMENTED
+- System status monitoring | ✅ IMPLEMENTED
 
 **References:**
-- `backend/src/main/java/com/digihealth/backend/controller/AdminController.java:166–221`
+- `backend/src/main/java/com/digihealth/backend/controller/AdminController.java:166–221, 268–312`
+- `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:64–114, 159–204`
 - `web/src/components/AdminDashboardSettings.js`
 
 ---

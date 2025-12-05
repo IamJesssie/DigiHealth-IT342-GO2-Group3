@@ -14,6 +14,8 @@ import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
 import com.digihealth.backend.repository.DoctorWorkDayRepository;
+import com.digihealth.backend.repository.AdminSettingsRepository;
+import com.digihealth.backend.entity.AdminSettings;
 import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.AppointmentNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +47,11 @@ public class AppointmentController {
     @Autowired
     private AppointmentNotificationService appointmentNotificationService;
 
-    @Autowired
-    private DoctorWorkDayRepository doctorWorkDayRepository;
+  @Autowired
+  private DoctorWorkDayRepository doctorWorkDayRepository;
+
+  @Autowired
+  private AdminSettingsRepository adminSettingsRepository;
 
 
 
@@ -61,10 +66,10 @@ public class AppointmentController {
      *   "symptoms": "None"
      * }
      */
-    @PostMapping("/book")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> bookAppointment(@RequestBody AppointmentBookingDto bookingDto) {
-        try {
+  @PostMapping("/book")
+  @PreAuthorize("hasRole('PATIENT')")
+  public ResponseEntity<?> bookAppointment(@RequestBody AppointmentBookingDto bookingDto) {
+    try {
             // Get current user (patient)
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated()) {
@@ -95,23 +100,80 @@ public class AppointmentController {
             Patient patient = patientRepository.findByUserId(patientUser.getId())
                     .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
-            // Create appointment
-            Appointment appointment = new Appointment();
-            appointment.setPatient(patient);
-            appointment.setDoctor(doctor);
-            appointment.setAppointmentDate(bookingDto.getAppointmentDate());
-            appointment.setAppointmentTime(bookingDto.getAppointmentTime());
-            appointment.setNotes(bookingDto.getReason());
-            appointment.setSymptoms(bookingDto.getSymptoms());
-            appointment.setStatus(AppointmentStatus.SCHEDULED);
+      java.time.LocalDate today = java.time.LocalDate.now();
+      java.time.LocalDateTime now = java.time.LocalDateTime.now();
 
-            Appointment saved = appointmentRepository.save(appointment);
+      AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
+      boolean maintenanceMode = settings != null && Boolean.TRUE.equals(settings.getMaintenanceMode());
+      if (maintenanceMode) {
+        return ResponseEntity.badRequest().body("Booking is currently disabled (maintenance mode)");
+      }
 
-            return ResponseEntity.ok(saved);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error booking appointment: " + e.getMessage());
-        }
+      boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
+      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+      Integer maxAdvanceDays = settings != null && settings.getMaxAdvanceDays() != null ? settings.getMaxAdvanceDays() : 90;
+      Integer slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+      boolean autoConfirm = settings != null && Boolean.TRUE.equals(settings.getAutoConfirmAppointments());
+
+      java.time.LocalDate apptDate = bookingDto.getAppointmentDate();
+      java.time.LocalTime apptTime = bookingDto.getAppointmentTime();
+      java.time.LocalDateTime apptDateTime = java.time.LocalDateTime.of(apptDate, apptTime);
+
+      if (!allowSameDay && apptDate.equals(today)) {
+        return ResponseEntity.badRequest().body("Same-day booking is not allowed");
+      }
+
+      long hoursUntil = java.time.Duration.between(now, apptDateTime).toHours();
+      if (hoursUntil < minAdvanceHours) {
+        return ResponseEntity.badRequest().body("Booking must be at least " + minAdvanceHours + " hours in advance");
+      }
+
+      long daysUntil = java.time.Duration.between(now.toLocalDate().atStartOfDay(), apptDate.atStartOfDay()).toDays();
+      if (daysUntil > maxAdvanceDays) {
+        return ResponseEntity.badRequest().body("Booking cannot be made more than " + maxAdvanceDays + " days in advance");
+      }
+
+      String abbr = apptDate.getDayOfWeek().name().substring(0, 3);
+      DayOfWeek workDayEnum = DayOfWeek.valueOf(abbr);
+      DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
+              .stream().findFirst().orElse(null);
+
+      String startStr = workDay != null && workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
+      String endStr = workDay != null && workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
+      java.time.LocalTime start = java.time.LocalTime.parse(startStr);
+      java.time.LocalTime end = java.time.LocalTime.parse(endStr);
+
+      if (apptTime.isBefore(start) || !apptTime.isBefore(end)) {
+        return ResponseEntity.badRequest().body("Selected time is outside doctor's working hours");
+      }
+
+      int minute = apptTime.getMinute();
+      if (minute % slotMinutes != 0) {
+        return ResponseEntity.badRequest().body("Selected time is not aligned to " + slotMinutes + "-minute slots");
+      }
+
+      List<Appointment> existingOnDay = appointmentRepository.findByDoctorAndAppointmentDate(doctor, apptDate);
+      boolean timeTaken = existingOnDay.stream().anyMatch(a -> a.getAppointmentTime().equals(apptTime));
+      if (timeTaken) {
+        return ResponseEntity.badRequest().body("Time slot already booked");
+      }
+
+      Appointment appointment = new Appointment();
+      appointment.setPatient(patient);
+      appointment.setDoctor(doctor);
+      appointment.setAppointmentDate(apptDate);
+      appointment.setAppointmentTime(apptTime);
+      appointment.setNotes(bookingDto.getReason());
+      appointment.setSymptoms(bookingDto.getSymptoms());
+      appointment.setStatus(autoConfirm ? AppointmentStatus.CONFIRMED : AppointmentStatus.SCHEDULED);
+
+      Appointment saved = appointmentRepository.save(appointment);
+
+      return ResponseEntity.ok(saved);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Error booking appointment: " + e.getMessage());
     }
+  }
 
     /**
      * Get all appointments for current user (doctor)
@@ -158,8 +220,8 @@ public class AppointmentController {
 
     @GetMapping("/doctors/{doctorId}/available-slots")
     @PreAuthorize("hasAnyRole('PATIENT','DOCTOR')")
-    public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") java.time.LocalDate date) {
-        try {
+  public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") java.time.LocalDate date) {
+    try {
             User doctorUser = userRepository.findById(doctorId)
                     .orElseThrow(() -> new RuntimeException("Doctor not found"));
             if (!doctorUser.getRole().name().equals("DOCTOR")) {
@@ -188,14 +250,17 @@ public class AppointmentController {
                     .map(Appointment::getAppointmentTime)
                     .collect(java.util.stream.Collectors.toSet());
 
-            java.util.List<String> slots = new java.util.ArrayList<>();
-            java.time.LocalTime t = start;
-            while (!t.isAfter(end.minusMinutes(30))) {
-                if (!bookedTimes.contains(t)) {
-                    slots.add(String.format("%02d:%02d", t.getHour(), t.getMinute()));
-                }
-                t = t.plusMinutes(30);
-            }
+      AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
+      int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+
+      java.util.List<String> slots = new java.util.ArrayList<>();
+      java.time.LocalTime t = start;
+      while (!t.isAfter(end.minusMinutes(slotMinutes))) {
+        if (!bookedTimes.contains(t)) {
+          slots.add(String.format("%02d:%02d", t.getHour(), t.getMinute()));
+        }
+        t = t.plusMinutes(slotMinutes);
+      }
 
             return ResponseEntity.ok(slots);
         } catch (Exception e) {
