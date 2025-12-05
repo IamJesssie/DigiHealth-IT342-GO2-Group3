@@ -121,6 +121,7 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+
         <div className="appointments-table-card">
           <div className="appointment-header">
             <h3>My Appointments Today</h3>
