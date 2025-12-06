@@ -15,7 +15,6 @@ import com.digihealth.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
@@ -31,7 +30,6 @@ import java.util.Optional;
  * This runs only when the `local` or `dev` profile is active, or when seeding is explicitly enabled.
  */
 @Configuration
-@Profile({"local", "dev"})
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -41,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
     private final AdminSettingsRepository adminSettingsRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${digihealth.seed.demo-doctor.enabled:true}")
+    @Value("${digihealth.seed.demo-doctor.enabled:false}")
     private boolean seedDemoDoctorEnabled;
 
     public DataInitializer(

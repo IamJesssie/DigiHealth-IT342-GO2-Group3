@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-export const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+const envBase = process.env.REACT_APP_API_BASE_URL;
+const envPointsToLocal = envBase && (envBase.includes('localhost') || envBase.includes('127.0.0.1'));
+export const API_BASE_URL = (!envBase || (!isLocalHost && envPointsToLocal))
+  ? `http://${host}:8080`
+  : envBase;
 
 // Create a preconfigured Axios instance
 const apiClient = axios.create({
@@ -15,6 +20,7 @@ apiClient.interceptors.request.use(
     try {
       const token = localStorage.getItem('digihealth_jwt') || localStorage.getItem('adminToken');
       console.log('[API Client] ========== REQUEST INTERCEPTOR ==========');
+      console.log('[API Client] Base URL:', config.baseURL || API_BASE_URL);
       console.log('[API Client] Request URL:', config.url);
       console.log('[API Client] Request Method:', config.method);
       console.log('[API Client] Token in localStorage:', token ? 'YES (length=' + token.length + ')' : 'NO');
