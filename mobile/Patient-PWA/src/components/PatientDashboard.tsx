@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Calendar, Clock, User, Heart, Activity, FileText, Plus, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, User, Heart, Activity, FileText, Plus, ChevronRight, CheckCircle, ArrowRight, BookOpen, Stethoscope } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { toast } from 'sonner';
 
 interface PatientDashboardProps {
   patient: any;
@@ -12,37 +13,125 @@ interface PatientDashboardProps {
   onLogout: () => void;
 }
 
+interface Appointment {
+  id: string;
+  doctorName: string;
+  specialization: string;
+  date: string;
+  time: string;
+  type: string;
+  doctorImage: string;
+  status?: string;
+}
+
 export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashboardProps) {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'appointments' | 'records' | 'search' | 'profile'>('dashboard');
+  const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [hoveredStep, setHoveredStep] = useState<string | null>(null);
+  const [guideVisible, setGuideVisible] = useState(false);
 
-  // Mock data - will be replaced with real API calls
-  const upcomingAppointments = [
-    {
-      id: '1',
-      doctorName: 'Dr. Sarah Johnson',
-      specialization: 'Cardiologist',
-      date: '2024-12-05',
-      time: '10:00 AM',
-      type: 'Follow-up',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    },
-    {
-      id: '2',
-      doctorName: 'Dr. Michael Chen',
-      specialization: 'General Physician',
-      date: '2024-12-08',
-      time: '2:30 PM',
-      type: 'General Checkup',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-    },
-  ];
+  const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`;
 
-  const healthSummary = {
-    bloodPressure: '120/80',
-    heartRate: '72 bpm',
-    lastCheckup: '15 days ago',
-    pendingReports: 2,
+  useEffect(() => {
+    fetchUpcomingAppointments();
+    fetchRecentActivities();
+    // Check if user is new (no appointments yet)
+    const isNewUser = localStorage.getItem('isNewUser') === 'true';
+    if (isNewUser) {
+      setShowWelcomeGuide(true);
+      // Animate guide in after mount
+      setTimeout(() => setGuideVisible(true), 300);
+    } else {
+      setGuideVisible(true);
+    }
+  }, []);
+
+  const fetchRecentActivities = async () => {
+    // For now, return empty array since backend endpoint doesn't exist
+    // This can be implemented later when backend adds the endpoint
+    setRecentActivities([]);
+    
+    // Optional: If you want to show demo data for testing, uncomment below:
+    /*
+    if (upcomingAppointments.length > 0) {
+      // Only show demo activities for users with appointments (not new users)
+      const demoActivities = [
+        {
+          id: '1',
+          title: 'Appointment Completed',
+          description: 'Dr. Sarah Johnson - General Checkup',
+          type: 'appointment',
+          timestamp: '2 days ago'
+        },
+        {
+          id: '2', 
+          title: 'Medical Records Updated',
+          description: 'Lab results added by Dr. Michael Chen',
+          type: 'record',
+          timestamp: '5 days ago'
+        }
+      ];
+      setRecentActivities(demoActivities);
+    }
+    */
   };
+
+  const fetchUpcomingAppointments = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('accessToken');
+    try {
+      const res = await fetch(`${API_BASE}/api/appointments/patient/my`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error((payload && (payload.message || payload.error)) || 'Failed to load appointments');
+      }
+      const data = await res.json();
+      
+      // Filter for upcoming appointments (status not 'COMPLETED' or 'CANCELLED')
+      const upcoming = (data || [])
+        .filter((a: any) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED')
+        .slice(0, 3) // Show only next 3 appointments
+        .map((a: any) => ({
+          id: a.id,
+          doctorName: a.doctor?.user?.fullName || 'Dr. Unknown',
+          specialization: a.doctor?.specialization || 'General Physician',
+          date: a.appointmentDate,
+          time: a.appointmentTime,
+          type: a.reason || 'Consultation',
+          doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${a.doctor?.user?.fullName || 'Doctor'}`,
+          status: a.status,
+        }));
+      
+      setUpcomingAppointments(upcoming);
+      
+      // If user has appointments, they're not new anymore
+      if (upcoming.length > 0) {
+        localStorage.setItem('isNewUser', 'false');
+        setShowWelcomeGuide(false);
+      }
+    } catch (error: any) {
+      console.error('Error fetching appointments:', error);
+      toast.error(error.message || 'Failed to load appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const welcomeSteps = [
+    { id: 'profile', label: 'Complete your profile', icon: User, description: 'Add your medical history and emergency contacts' },
+    { id: 'book', label: 'Book your first appointment', icon: Calendar, description: 'Find a doctor and schedule a consultation' },
+    { id: 'records', label: 'View medical records', icon: FileText, description: 'Access your consultation history and prescriptions' },
+    { id: 'doctors', label: 'Find trusted doctors', icon: Stethoscope, description: 'Browse specialists and read patient reviews' },
+  ];
 
   const quickActions = [
     { id: 'book', label: 'Book Appointment', icon: Plus, color: 'from-blue-500 to-cyan-500' },
@@ -50,6 +139,24 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
     { id: 'records', label: 'Medical Records', icon: FileText, color: 'from-green-500 to-emerald-500' },
     { id: 'search', label: 'Find Doctors', icon: User, color: 'from-orange-500 to-red-500' },
   ];
+
+  const handleCompleteStep = (stepId: string) => {
+    setCompletedSteps([...completedSteps, stepId]);
+    if (stepId === 'book') {
+      onNavigate('search');
+    } else if (stepId === 'profile') {
+      onNavigate('patient-profile');
+    } else if (stepId === 'records') {
+      onNavigate('patient-records');
+    } else if (stepId === 'doctors') {
+      onNavigate('search');
+    }
+  };
+
+  const handleDismissWelcome = () => {
+    setShowWelcomeGuide(false);
+    localStorage.setItem('isNewUser', 'false');
+  };
 
   const handleNavigation = (screen: string) => {
     // Map bottom nav IDs to actual screen names
@@ -81,58 +188,153 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
       patient={patient}
       notificationCount={3}
     >
+      <style>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+      `}</style>
       <div className="p-4 space-y-6">
-        {/* Health Summary Card */}
-        <Card className="shadow-md" style={{
-          background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
-        }}>
-          <CardContent className="p-6 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-medium opacity-90">Health Summary</h3>
-                <p className="text-sm opacity-75">Last updated: Today</p>
-              </div>
-              <Heart className="h-8 w-8 opacity-80" />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Activity className="h-4 w-4" />
-                  <span className="text-xs opacity-90">Blood Pressure</span>
+        {/* Welcome Guide for New Users - Horizontal Compact */}
+        {showWelcomeGuide && (
+          <Card 
+            className={`shadow-lg border-blue-100 transition-all duration-500 ${
+              guideVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{
+              background: 'linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%)',
+              borderLeft: '4px solid #3b82f6'
+            }}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <span className="text-white">👋</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-blue-900">Get Started</h3>
+                    <p className="text-xs text-blue-700">Complete onboarding steps</p>
+                  </div>
                 </div>
-                <p className="text-xl font-semibold">{healthSummary.bloodPressure}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDismissWelcome}
+                  className="text-xs text-gray-500 hover:text-gray-700"
+                >
+                  Dismiss
+                </Button>
               </div>
               
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Heart className="h-4 w-4" />
-                  <span className="text-xs opacity-90">Heart Rate</span>
-                </div>
-                <p className="text-xl font-semibold">{healthSummary.heartRate}</p>
+              <div className="flex overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                {welcomeSteps.map((step) => {
+                  const Icon = step.icon;
+                  const isCompleted = completedSteps.includes(step.id);
+                  return (
+                    <button
+                      key={step.id}
+                      onClick={() => handleCompleteStep(step.id)}
+                      onMouseEnter={() => setHoveredStep(step.id)}
+                      onMouseLeave={() => setHoveredStep(null)}
+                      className={`flex-shrink-0 w-32 mx-1 flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
+                        isCompleted 
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' 
+                          : 'bg-white hover:shadow border border-gray-100'
+                      } ${hoveredStep === step.id && !isCompleted ? 'ring-1 ring-blue-200 scale-105' : ''}`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                        isCompleted 
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                          : 'bg-gradient-to-r from-blue-500 to-cyan-500'
+                      }`}>
+                        {isCompleted ? (
+                          <CheckCircle className="h-5 w-5 text-white" />
+                        ) : (
+                          <Icon className="h-5 w-5 text-white" />
+                        )}
+                      </div>
+                      <p className={`text-xs font-medium text-center leading-tight ${
+                        isCompleted ? 'text-green-700' : 'text-gray-800'
+                      }`}>
+                        {step.label}
+                      </p>
+                      {isCompleted && (
+                        <span className="text-[10px] text-green-600 mt-1">✓ Completed</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Health Summary Card - Only show for users with health data */}
+        {upcomingAppointments.length > 0 && (
+          <Card className="shadow-md" style={{
+            background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
+          }}>
+            <CardContent className="p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-medium opacity-90">Health Summary</h3>
+                  <p className="text-sm opacity-75">Last updated: Today</p>
+                </div>
+                <Heart className="h-8 w-8 opacity-80" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Activity className="h-4 w-4" />
+                    <span className="text-xs opacity-90">Blood Pressure</span>
+                  </div>
+                  <p className="text-xl font-semibold">120/80</p>
+                </div>
+                
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Heart className="h-4 w-4" />
+                    <span className="text-xs opacity-90">Heart Rate</span>
+                  </div>
+                  <p className="text-xl font-semibold">72 bpm</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div>
           <h3 className="font-semibold mb-3">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <button
                   key={action.id}
                   onClick={() => handleQuickAction(action.id)}
-                  className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                  className="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div 
-                    className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-gradient-to-br ${action.color}`}
-                  >
-                    <Icon className="h-6 w-6 text-white" />
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 bg-gradient-to-r ${action.color}`}>
+                    <Icon className="h-8 w-8 text-white" />
                   </div>
-                  <p className="text-sm font-medium text-left">{action.label}</p>
+                  <span className="text-sm font-medium">{action.label}</span>
                 </button>
               );
             })}
@@ -152,7 +354,16 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
             </Button>
           </div>
           
-          {upcomingAppointments.length > 0 ? (
+          {loading ? (
+            <Card className="shadow-sm">
+              <CardContent className="p-8 text-center">
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : upcomingAppointments.length > 0 ? (
             <div className="space-y-3">
               {upcomingAppointments.map((appointment) => (
                 <Card 
@@ -208,7 +419,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                   }}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Book Appointment
+                  Book Your First Appointment
                 </Button>
               </CardContent>
             </Card>
@@ -218,38 +429,59 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
         {/* Recent Activity */}
         <div>
           <h3 className="font-semibold mb-3">Recent Activity</h3>
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 pb-3 border-b last:border-0">
-                  <div className="w-2 h-2 rounded-full bg-green-500 mt-2" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Appointment Completed</p>
-                    <p className="text-xs text-muted-foreground">Dr. Sarah Johnson - General Checkup</p>
-                    <p className="text-xs text-muted-foreground mt-1">2 days ago</p>
-                  </div>
+          {recentActivities.length > 0 ? (
+            <Card className="shadow-sm animate-fadeIn">
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {recentActivities.slice(0, 3).map((activity, index) => (
+                    <div 
+                      key={activity.id || index}
+                      className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0"
+                      style={{
+                        animationDelay: `${index * 100}ms`,
+                        animation: 'slideIn 0.3s ease-out both'
+                      }}
+                    >
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        activity.type === 'appointment' ? 'bg-green-500' :
+                        activity.type === 'record' ? 'bg-blue-500' :
+                        activity.type === 'prescription' ? 'bg-orange-500' :
+                        'bg-purple-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">{activity.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {activity.timestamp || activity.date || 'Recently'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="flex items-start gap-3 pb-3 border-b last:border-0">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-2" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Medical Records Updated</p>
-                    <p className="text-xs text-muted-foreground">Lab results added by Dr. Michael Chen</p>
-                    <p className="text-xs text-muted-foreground mt-1">5 days ago</p>
-                  </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="shadow-sm">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-orange-500 mt-2" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Prescription Issued</p>
-                    <p className="text-xs text-muted-foreground">View your new prescription</p>
-                    <p className="text-xs text-muted-foreground mt-1">1 week ago</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-muted-foreground mb-2">No recent activity</p>
+                <p className="text-xs text-gray-500 mb-4">
+                  Your activity will appear here after you start using DigiHealth
+                </p>
+                <Button 
+                  variant="outline"
+                  onClick={() => onNavigate('search')}
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                >
+                  Start Exploring
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </PatientMobileLayout>
