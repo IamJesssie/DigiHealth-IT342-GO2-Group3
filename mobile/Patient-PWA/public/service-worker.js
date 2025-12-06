@@ -33,8 +33,8 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'Notification from DigiHealth',
-    icon: 'https://digihealth.vercel.app/logo192.png',
-    badge: 'https://digihealth.vercel.app/logo192.png',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
     vibrate: [200, 100, 200],
     data: { dateOfArrival: Date.now(), primaryKey: 1 }
   };
