@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
+import { Calendar, User, FileText, Filter, Search, ChevronDown, ChevronRight, Download, Printer, Share2, Plus, Stethoscope, Pill } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Calendar, FileText, Pill, Search, Download, Share2, ChevronRight, Filter } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { toast } from 'sonner';
 
@@ -15,10 +16,35 @@ interface PatientMedicalRecordsProps {
   onLogout: () => void;
 }
 
+interface MedicalRecord {
+  id: string;
+  date: string;
+  doctorName: string;
+  specialization: string;
+  doctorImage: string;
+  type: string;
+  chiefComplaint: string;
+  diagnosis: string;
+  prescription: Array<{ medicine: string; dosage: string; duration: string }>;
+  clinicalNotes: string;
+  followUp: string;
+  labResults?: Array<{ test: string; value: string; range: string }>;
+}
+
+
+
 export function PatientMedicalRecords({ patient, onNavigate, onLogout }: PatientMedicalRecordsProps) {
   const [currentScreen] = useState<'dashboard' | 'appointments' | 'records' | 'search' | 'profile'>('records');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`;
+
+  useEffect(() => {
+    fetchMedicalRecords();
+  }, []);
 
   const handleNavigation = (screen: string) => {
     // Map bottom nav IDs to actual screen names
@@ -34,58 +60,42 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
     onNavigate(mappedScreen);
   };
 
-  // Mock data
-  const medicalRecords = [
-    {
-      id: '1',
-      date: '2024-11-28',
-      doctorName: 'Dr. Emily Davis',
-      specialization: 'Dermatologist',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
-      type: 'Consultation',
-      chiefComplaint: 'Skin rash on forearm',
-      diagnosis: 'Contact Dermatitis',
-      prescription: [
-        { medicine: 'Hydrocortisone Cream 1%', dosage: 'Apply twice daily', duration: '7 days' },
-        { medicine: 'Cetirizine 10mg', dosage: 'Once daily at night', duration: '5 days' },
-      ],
-      clinicalNotes: 'Patient presented with red, itchy rash on left forearm. Likely allergic reaction to new soap. Advised to avoid irritants.',
-      followUp: 'Return in 1 week if symptoms persist',
-    },
-    {
-      id: '2',
-      date: '2024-11-15',
-      doctorName: 'Dr. Robert Wilson',
-      specialization: 'Orthopedic',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-      type: 'Follow-up',
-      chiefComplaint: 'Knee pain after exercise',
-      diagnosis: 'Mild Tendinitis',
-      prescription: [
-        { medicine: 'Ibuprofen 400mg', dosage: 'Twice daily after meals', duration: '10 days' },
-      ],
-      clinicalNotes: 'Patient reports improvement in knee pain. Advised to continue physiotherapy exercises and avoid high-impact activities.',
-      followUp: 'Follow-up in 2 weeks',
-    },
-    {
-      id: '3',
-      date: '2024-10-30',
-      doctorName: 'Dr. Sarah Johnson',
-      specialization: 'Cardiologist',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-      type: 'General Checkup',
-      chiefComplaint: 'Routine cardiac checkup',
-      diagnosis: 'Normal cardiac function',
-      prescription: [],
-      clinicalNotes: 'ECG normal. Blood pressure 118/76. Heart rate 68 bpm. Continue current lifestyle and medications.',
-      followUp: 'Annual checkup recommended',
-      labResults: [
-        { test: 'Total Cholesterol', value: '185 mg/dL', range: 'Normal' },
-        { test: 'HDL Cholesterol', value: '52 mg/dL', range: 'Normal' },
-        { test: 'LDL Cholesterol', value: '110 mg/dL', range: 'Normal' },
-      ],
-    },
-  ];
+  const fetchMedicalRecords = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('accessToken');
+    
+    // Always show empty for new users
+    const isNewUser = localStorage.getItem('isNewUser') === 'true';
+    if (isNewUser) {
+      setMedicalRecords([]);
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      // Try to fetch from backend endpoint if it exists
+      const res = await fetch(`${API_BASE}/api/medical-records/patient/my`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setMedicalRecords(data || []);
+      } else {
+        // If endpoint doesn't exist, show empty for all users
+        setMedicalRecords([]);
+      }
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+      // Show empty for all users when error occurs
+      setMedicalRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredRecords = medicalRecords.filter(record =>
     record.doctorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -283,7 +293,16 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
 
         {/* Records List */}
         <div className="space-y-3">
-          {filteredRecords.length > 0 ? (
+          {loading ? (
+            <Card className="shadow-sm">
+              <CardContent className="p-8 text-center">
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : filteredRecords.length > 0 ? (
             filteredRecords.map((record) => (
               <Sheet key={record.id}>
                 <SheetTrigger asChild>
@@ -328,10 +347,24 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
           ) : (
             <Card className="shadow-sm">
               <CardContent className="p-8 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                <p className="text-muted-foreground">
+                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-blue-500" />
+                </div>
+                <p className="text-muted-foreground mb-2">
                   {searchQuery ? 'No records found matching your search' : 'No medical records yet'}
                 </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  {searchQuery ? 'Try a different search term' : 'Your medical records will appear here after appointments'}
+                </p>
+                {!searchQuery && (
+                  <Button 
+                    onClick={() => onNavigate('search')}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Book Your First Appointment
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}
