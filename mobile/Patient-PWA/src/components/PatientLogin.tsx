@@ -62,6 +62,8 @@ export function PatientLogin({ onLogin, onRegister }: PatientLoginProps) {
         profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
       };
       localStorage.setItem('currentUser', JSON.stringify(patient));
+      // Existing users logging in are not new
+      localStorage.setItem('isNewUser', 'false');
       onLogin(patient);
       toast.success('Welcome back!');
     } catch (err) {

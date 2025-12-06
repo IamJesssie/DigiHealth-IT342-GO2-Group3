@@ -171,6 +171,8 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
         profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
       };
       localStorage.setItem('currentUser', JSON.stringify(patient));
+      // Mark user as new for welcome guide
+      localStorage.setItem('isNewUser', 'true');
       onRegister(patient);
       toast.success('Account created successfully!');
     } catch (err) {
