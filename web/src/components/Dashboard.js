@@ -50,11 +50,11 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [fetchSummary, fetchTodayAppointments]);
+  }, [setSummary, setTodayAppointments]);
 
   const handleAppointmentUpdate = useCallback(async () => {
     await Promise.all([fetchSummary(), fetchTodayAppointments()]);
-  }, [fetchSummary, fetchTodayAppointments]);
+  }, [setSummary, setTodayAppointments]);
 
   useAppointmentUpdates(handleAppointmentUpdate);
 
