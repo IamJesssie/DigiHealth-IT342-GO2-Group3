@@ -13,14 +13,8 @@ body {
 /* ------------------------- */
 .page-container {
   padding: 32px 24px;
-  width: 100%;
-  max-width: 1650px;
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 16px 12px;
-  }
+  width: 85%;
+  max-width: 1600px;
 }
 
 /* ------------------------- */
@@ -86,8 +80,7 @@ body {
   background-color: #ffffff;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
   border-left: 15px solid #4a90e2;
-  height: 40rem;
-  overflow-y: auto;
+  min-height: 500px;
 }
 
 /* ------------------------- */
@@ -380,17 +373,27 @@ tbody tr:last-child td {
 /* === Appointments Stylings === */
 
 .stats-tabs {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
   margin-top: 32px;
 }
 
 .stat-tab {
-  flex-grow: 1;
-  padding: 24px;
   background-color: white;
   border: 2px solid #e0e0e0;
   border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-tab:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
 
