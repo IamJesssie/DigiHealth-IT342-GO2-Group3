@@ -1,5 +1,11 @@
+/*
+*** Layout and Structure ***
+*/
+
+/* Main container for the entire header bar. Includes sticky positioning and visual styling. */
 .page-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   padding: 18px 26px;
@@ -7,18 +13,21 @@
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   background: linear-gradient(to bottom, #e0e0e0, #f7f9fb);
+  min-height: 45px;
 
   position: sticky;
   top: 0;
-  z-index: 1000; /* so it doesn’t get buried under other elements */
+  z-index: 1000;
 }
 
+/* Container for the logo image and header title text. */
 .header-logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* Gradient background for the logo icon. */
 .logo-background {
   background: linear-gradient(to bottom, #0093e9, #80d0c7);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -29,16 +38,18 @@
   justify-content: center;
 }
 
+/* Animation on hover for the logo background. */
 .logo-background:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .header-logo-container img {
-  width: 32px; /* Adjust size of icon itself */
+  width: 32px;
   height: 32px;
 }
 
+/* Header title styling. */
 .header-title-container h1 {
   font-size: 24px;
   color: #0288d1;
@@ -47,6 +58,7 @@
   font-weight: 600;
 }
 
+/* Header subtitle styling. */
 .header-title-container p {
   font-size: 14px;
   color: #606060;
@@ -54,11 +66,13 @@
   letter-spacing: 0.2px;
 }
 
+/* Main Navigation link container. */
 .header-nav {
   display: flex;
   gap: 8px;
 }
 
+/* Individual navigation link styling. */
 .nav-item {
   display: flex;
   align-items: center;
@@ -71,10 +85,12 @@
   transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Active state for navigation item. */
 .nav-item.active {
   position: relative;
 }
 
+/* Creates the blue underline bar for the active navigation item using a pseudo-element. */
 .nav-item.active::after {
   content: "";
   position: absolute;
@@ -82,10 +98,11 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: #0288d1; /* match your primary */
+  background: #0288d1;
   border-radius: 2px;
 }
 
+/* Hover effect for navigation links. */
 .nav-item:hover {
   background: linear-gradient(to bottom, #0093e9, #80d0c7);
   color: white;
@@ -96,12 +113,14 @@
   height: 16px;
 }
 
+/* Container for user profile, notification, and utility icons. */
 .header-user-container {
   display: flex;
   align-items: center;
   gap: 24px;
 }
 
+/* Notification icon wrapper. */
 .notification-icon {
   position: relative;
   cursor: pointer;
@@ -112,6 +131,7 @@
   height: 24px;
 }
 
+/* Notification count badge. */
 .notification-badge {
   position: absolute;
   top: -4px;
@@ -128,6 +148,7 @@
   animation: badgePulse 1.6s infinite ease-in-out;
 }
 
+/* Defines the pulsing animation for the notification badge. */
 @keyframes badgePulse {
   0% {
     transform: scale(1);
@@ -140,6 +161,7 @@
   }
 }
 
+/* Interactive container for the user's profile details. */
 .user-profile {
   display: flex;
   align-items: center;
@@ -150,11 +172,13 @@
   border-radius: 8px;
 }
 
+/* Hover effect for the user profile container. */
 .user-profile:hover {
   background: rgba(0, 0, 0, 0.04);
   transform: translateY(-1px);
 }
 
+/* Styling for the circular profile picture. */
 .profile-pic {
   width: 32px;
   height: 32px;
@@ -176,4 +200,45 @@
 .dropdown-icon {
   width: 16px;
   height: 16px;
+}
+
+/*
+*** Media Queries (Responsiveness) ***
+*/
+
+/* Adjustments for screens between 768px and 1024px. */
+@media (max-width: 768px) and (max-width: 1024px) {
+  /* Header adjustments for medium screens. */
+  .page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+  }
+
+  /* Navigation adjustments for medium screens, allowing wrap. */
+  .header-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  /* Logo container adjustments. */
+  .header-logo-container {
+    flex-grow: 0;
+    justify-content: flex-start;
+  }
+
+  /* User container display adjustments. */
+  .header-user-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* Explicitly hide user profile on smaller screens. */
+  .header-user-container {
+    display: none;
+  }
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import PageHeader from "./PageHeader";
+import "./PageStyling.css";
 
 const DashboardLayout = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const DashboardLayout = () => {
   return (
     <div className="dashboard-layout">
       <PageHeader activePage={getActivePage()} />
-      <main>
+      <main className="page-main">
         <Outlet /> {/* Routed components render here */}
       </main>
     </div>
