@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { Screen } from '../App';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -9,7 +10,7 @@ import { toast } from 'sonner';
 
 interface PatientDashboardProps {
   patient: any;
-  onNavigate: (screen: string, data?: any) => void;
+  onNavigate: (screen: Screen, data?: any) => void;
   onLogout: () => void;
 }
 
@@ -159,16 +160,15 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
   };
 
   const handleNavigation = (screen: string) => {
-    // Map bottom nav IDs to actual screen names
-    const screenMapping: { [key: string]: string } = {
-      'dashboard': 'dashboard',
-      'appointments': 'appointments',
-      'search': 'search',
-      'records': 'patient-records',
-      'profile': 'patient-profile',
+    const screenMapping: Record<string, Screen> = {
+      dashboard: 'dashboard',
+      appointments: 'appointments',
+      search: 'search',
+      records: 'patient-records',
+      profile: 'patient-profile',
     };
-    
-    const mappedScreen = screenMapping[screen] || screen;
+
+    const mappedScreen: Screen = screenMapping[screen] || (screen as Screen);
     setCurrentScreen(screen as any);
     onNavigate(mappedScreen);
   };
@@ -369,7 +369,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                 <Card 
                   key={appointment.id} 
                   className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => onNavigate('appointment-details', appointment)}
+                  onClick={() => onNavigate('appointments', appointment)}
                 >
                   <CardContent className="p-4">
                     <div className="flex gap-3">

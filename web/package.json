@@ -20,10 +20,12 @@
   },
   "scripts": {
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && set DISABLE_ESLINT_PLUGIN=true && node node_modules/react-scripts/scripts/start.js",
-    "build": "set NODE_OPTIONS=--openssl-legacy-provider && set DISABLE_ESLINT_PLUGIN=true && node node_modules/react-scripts/scripts/build.js",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "node node_modules/react-scripts/scripts/test.js",
     "eject": "react-scripts eject"
+    
   },
+  "homepage": ".",
   "browserslist": {
     "production": [
       ">0.2%",

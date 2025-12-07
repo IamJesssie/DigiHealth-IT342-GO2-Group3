@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Screen } from '../App';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -20,7 +21,7 @@ import {
 
 interface PatientAppointmentsProps {
   patient: any;
-  onNavigate: (screen: string, data?: any) => void;
+  onNavigate: (screen: Screen, data?: any) => void;
   onLogout: () => void;
 }
 
@@ -35,16 +36,15 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   const [error, setError] = useState<string | null>(null);
 
   const handleNavigation = (screen: string) => {
-    // Map bottom nav IDs to actual screen names
-    const screenMapping: { [key: string]: string } = {
-      'dashboard': 'dashboard',
-      'appointments': 'appointments',
-      'search': 'search',
-      'records': 'patient-records',
-      'profile': 'patient-profile',
+    const screenMapping: Record<string, Screen> = {
+      dashboard: 'dashboard',
+      appointments: 'appointments',
+      search: 'search',
+      records: 'patient-records',
+      profile: 'patient-profile',
     };
-    
-    const mappedScreen = screenMapping[screen] || screen;
+
+    const mappedScreen: Screen = screenMapping[screen] || (screen as Screen);
     onNavigate(mappedScreen);
   };
 
@@ -191,7 +191,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             <Button 
               variant="outline" 
               className="w-full"
-              onClick={() => onNavigate('record-details', appointment)}
+              onClick={() => onNavigate('patient-records', appointment)}
             >
               View Medical Notes
               <ChevronRight className="h-4 w-4 ml-2" />

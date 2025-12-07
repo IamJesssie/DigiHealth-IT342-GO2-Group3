@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Screen } from '../App';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -24,7 +25,7 @@ import {
 
 interface PatientProfileProps {
   patient: any;
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: Screen) => void;
   onLogout: () => void;
 }
 
@@ -34,16 +35,15 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
   const [activeSection, setActiveSection] = useState<'personal' | 'medical' | 'settings' | null>(null);
 
   const handleNavigation = (screen: string) => {
-    // Map bottom nav IDs to actual screen names
-    const screenMapping: { [key: string]: string } = {
-      'dashboard': 'dashboard',
-      'appointments': 'appointments',
-      'search': 'search',
-      'records': 'patient-records',
-      'profile': 'patient-profile',
+    const screenMapping: Record<string, Screen> = {
+      dashboard: 'dashboard',
+      appointments: 'appointments',
+      search: 'search',
+      records: 'patient-records',
+      profile: 'patient-profile',
     };
-    
-    const mappedScreen = screenMapping[screen] || screen;
+
+    const mappedScreen: Screen = screenMapping[screen] || (screen as Screen);
     onNavigate(mappedScreen);
   };
 

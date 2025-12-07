@@ -70,7 +70,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
       <form className="form-card login-card-override" onSubmit={handleLogin}>
         <p className="welcome-text">Welcome Back</p>
         <button type="button" className="google-btn">
-          <img alt="Google Icon" src="/assets/doctorlogin.svg" />
+          <img alt="Google Icon" src="/assets/DoctorLogin.svg" />
           Continue with Google
         </button>
         <div className="divider-container">

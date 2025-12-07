@@ -26,7 +26,7 @@ const AuthLayout = ({
             <img
               alt="DigiHealth Logo"
               className="logo-image"
-              src="/assets/icon.svg"
+              src="/assets/Icon.svg"
             />
           </div>
           <p className="header-subtitle">{subtitle}</p>

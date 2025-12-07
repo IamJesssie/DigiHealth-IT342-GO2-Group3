@@ -211,7 +211,7 @@ const AdminAnalytics = ({ nested = false }) => {
       subtitle: 'Scheduled'
     },
     {
-      icon: '/assets/Admin-assets/System Activity.svg',
+      icon: '/assets/Admin-assets/System-Activity.svg',
       label: 'System Activity',
       value: analyticsData.systemHealth.uptime,
       subtitle: 'Uptime'
