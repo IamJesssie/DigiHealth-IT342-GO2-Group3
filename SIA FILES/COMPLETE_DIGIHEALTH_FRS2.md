@@ -322,16 +322,21 @@ This document aligns functional requirements to the current repository implement
 - `web/src/components/AdminAnalytics.js`
 
 ## FR-11: Admin System Monitoring
-**Status:** 🔴 NOT IMPLEMENTED
+**Status:** ✅ IMPLEMENTED (Core system status)
 
 **Features:**
-- System status dashboard | NOT IMPLEMENTED
-- Database connection status | NOT IMPLEMENTED
-- API health checks | NOT IMPLEMENTED
-- Error logs viewing | NOT IMPLEMENTED
+- System status dashboard | ✅ IMPLEMENTED
+- Database connection status | ✅ IMPLEMENTED
+- Basic metrics: uptime, memory, users, appointments | ✅ IMPLEMENTED
+- Maintenance mode indicator | ✅ IMPLEMENTED
 
-**References:**
-- Planned per `First FRSv2.txt`
+**Implementation:**
+- Frontend: `web/src/components/AdminMonitoring.js`
+- Backend: `backend/src/main/java/com/digihealth/backend/controller/AdminController.java:292-333`
+
+**Code References:**
+- Route: `web/src/App.js:58-63`
+- Admin tabs include Monitoring: `web/src/components/AdminTabs.js:17-37`
 
 ---
 
@@ -432,6 +437,13 @@ This document aligns functional requirements to the current repository implement
 
 ---
 
+### Next Actions (Patient)
+- Implement patient cancel/reschedule wiring to backend `PUT /api/appointments/{id}/status`
+- Add ICS calendar export on appointment cards
+- Enable PWA install (manifest + service worker + install prompt)
+- Add notification preferences toggles in Profile
+- Implement offline fallback pages
+
 #### FR-P3: Medical Records
 **Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
 
@@ -480,7 +492,7 @@ This document aligns functional requirements to the current repository implement
 - Change password NOT IMPLEMENTED
 - Notification preferences NOT IMPLEMENTED
 - Privacy settings NOT IMPLEMENTED
-- Delete account
+- Delete account NOT IMPLEMENTED
 
 Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 
@@ -538,16 +550,15 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 - Real component paths and backend endpoints are referenced for traceability.
 # DigiHealth FRS2 – Implementation Status
 
-**Last Updated:** 2025-12-05
+**Last Updated:** 2025-12-10
 
-- Profile Management (API): IMPLEMENTED
+- Profile Management (API): PARTIALLY IMPLEMENTED
   - Endpoints:
     - `GET /api/users/me`, `PUT /api/users/me`
-    - `GET /api/profile/{id}`, `PUT /api/profile/{id}` (accepts `userId` or `patientId`)
-    - `DELETE /api/profile/{id}` deactivates the user account
+    - Admin-controlled deactivation: `PUT /api/admin/users/{id}/deactivate`, `PUT /api/admin/users/{id}/reactivate`
   - Notes:
-    - Dual-ID resolution in service for `{id}` to support both user and patient contexts
-    - Controller and service unit tests added; CSRF handling included in tests
+    - Patient-side account deletion is not implemented; deactivation is available via Admin
+    - Update PWA to add notification preferences and change password UI
 
 - Patient Registration (API): IMPLEMENTED
   - `POST /api/auth/register-patient`

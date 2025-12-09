@@ -67,7 +67,7 @@
 ## 👩‍💼 SYSTEM ADMINISTRATION
 
 ### FR-9: Administrator Management
-**Status:** ✅ **FULLY IMPLEMENTED** (Approvals, deactivation/reactivation with cascades, clinic settings, appointment policies; system monitoring pending)
+**Status:** ✅ **FULLY IMPLEMENTED** (Approvals, deactivation/reactivation with cascades, clinic settings, appointment policies; system monitoring implemented)
 
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
@@ -79,7 +79,7 @@
 | **Deactivate patient accounts** | ✅ **FULLY IMPLEMENTED** | Backend: Same endpoints handle patients; Frontend: handleTogglePatientStatus in AdminPatients.js; Cascades future appointments to CANCELLED; Blocks inactive user login |
 | **Configure clinic details** | ✅ **FULLY IMPLEMENTED** | Dynamic CRUD form + success toast + global branding integration | 
 | **Define appointment policies** | ✅ **FULLY IMPLEMENTED** | Settings persisted; enforcement in booking logic (slot alignment, advance rules) |
- | **System status monitoring** | ⚠️ **PARTIALLY IMPLEMENTED** | Hardcoded system uptime (needs real monitoring) |
+| **System status monitoring** | ✅ **FULLY IMPLEMENTED** | Admin Monitoring page consumes `/api/admin/system-status` and shows uptime/memory/DB/users/appointments |
 
 ---
 
@@ -97,15 +97,15 @@
 
 ---
 
-### FR-12: Admin System Monitoring
-**Status:** ❌ **NOT IMPLEMENTED** (Needs to be developed)
+### FR-11: Admin System Monitoring
+**Status:** ✅ **FULLY IMPLEMENTED** (Core system status)
 
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
-| System status dashboard | ❌ NOT IMPLEMENTED | Should show overall system health |
-| Database connection status | ❌ NOT IMPLEMENTED | Need to implement health checks |
-| API health check functionality | ❌ NOT IMPLEMENTED | Should monitor API endpoints |
-| Error logs viewing | ❌ NOT IMPLEMENTED | Missing error logging and viewing interface |
+| System status dashboard | ✅ FULLY IMPLEMENTED | AdminMonitoring.js displays core metrics |
+| Database connection status | ✅ FULLY IMPLEMENTED | `databaseHealthy` from backend status endpoint |
+| API/system uptime & memory | ✅ FULLY IMPLEMENTED | Uptime seconds and memory bytes rendered |
+| Error logs viewing | ❌ NOT IMPLEMENTED | Planned follow-up UI (audit/logs)
 
 ---
 

@@ -119,7 +119,7 @@
 ---
 
 ## FR-P5: Profile Management
-**Status:** ✅ IMPLEMENTED (API) / ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (API GET/PUT) / ❌ NOT IMPLEMENTED (PWA deletion)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -127,7 +127,7 @@
 | Update medical profile | ✅ IMPLEMENTED (API) | `/api/users/me` or `/api/profile/{id}` |
 | Change password | ❌ NOT IMPLEMENTED | Reuse existing flow |
 | Notification preferences | ❌ NOT IMPLEMENTED | UI toggles |
-| Delete account | ✅ IMPLEMENTED (API) | `/api/profile/{id}` DELETE (deactivate) |
+| Delete account | ❌ NOT IMPLEMENTED | Patient-side deletion not available; Admin can deactivate via `/api/admin/users/{id}/deactivate` |
 
 ---
 
