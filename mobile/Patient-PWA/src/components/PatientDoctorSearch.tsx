@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Search, Star, MapPin, Clock, ChevronRight, Filter, Calendar as CalendarIcon } from 'lucide-react';
+import { Search, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface PatientDoctorSearchProps {
@@ -56,17 +56,18 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
           throw new Error((payload && (payload.message || payload.error)) || 'Failed to load doctors');
         }
         const data = await res.json();
-        const mapped = (data || []).map((u: any) => ({
-          id: u.id,
-          name: u.fullName || 'Doctor',
-          specialization: u.specialization || 'General Physician',
-          rating: 4.8,
-          reviewCount: 0,
-          experience: '10 years',
-          location: 'Clinic',
-          nextAvailable: new Date().toISOString().slice(0, 10),
-          image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || 'Doctor')}`,
-        }));
+        const mapped = (data || []).map((u: any) => {
+          const exp = typeof u.experienceYears === 'number' && u.experienceYears > 0 ? `${u.experienceYears} years` : undefined;
+          const loc = u.hospitalAffiliation || u.addressCity || undefined;
+          return {
+            id: u.id,
+            name: u.fullName || 'Doctor',
+            specialization: u.specialization || 'General Physician',
+            experience: exp,
+            location: loc,
+            image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || 'Doctor')}`,
+          };
+        });
         setDoctors(mapped);
       } catch (e: any) {
         setError(e.message);
@@ -77,7 +78,7 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
     fetchDoctors();
   }, []);
 
-  const specializations = ['All', 'Cardiologist', 'General Physician', 'Dermatologist', 'Orthopedic', 'Pediatrician'];
+  const specializations = ['All', 'General Physician', 'Cardiologist', 'Dermatologist', 'Orthopedic', 'Pediatrician', 'Neurologist'];
 
   const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch = doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,31 +174,22 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
                         <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />
                       </div>
                       
-                      <div className="flex items-center gap-1 mb-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{doctor.rating}</span>
-                          <span className="text-sm text-muted-foreground">({doctor.reviewCount} reviews)</span>
-                        </div>
-                      </div>
+                      <div className="flex items-center gap-1 mb-2" />
                       
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{doctor.experience} experience</span>
-                        </div>
+                        {doctor.experience && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{doctor.experience} experience</span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           <span className="truncate">{doctor.location}</span>
                         </div>
                       </div>
                       
-                      <div className="mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          <CalendarIcon className="h-3 w-3 mr-1" />
-                          Next: {new Date(doctor.nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </Badge>
-                      </div>
+                      <div className="mt-2" />
                     </div>
                   </div>
                 </CardContent>

@@ -29,6 +29,8 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
   const [workDays, setWorkDays] = useState<string[]>([]);
   const [dayHours, setDayHours] = useState<Record<string, { start: string; end: string }>>({});
   const [slotMinutes, setSlotMinutes] = useState<number>(30);
+  const [minAdvanceHours, setMinAdvanceHours] = useState<number>(0);
+  const [allowSameDay, setAllowSameDay] = useState<boolean>(true);
 
   const appointmentTypes = [
     { value: 'general', label: 'General Checkup' },
@@ -45,7 +47,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
       const token = localStorage.getItem('accessToken');
       setIsLoading(true);
       try {
-        const dateStr = selectedDate.toISOString().slice(0, 10);
+        const dateStr = formatLocalDateYYYYMMDD(selectedDate);
         const res = await fetch(`${API_BASE}/api/appointments/doctors/${doctor.id}/available-slots?date=${dateStr}`, {
           headers: {
             'Content-Type': 'application/json',
@@ -66,7 +68,27 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
             const endDate = new Date(selectedDate);
             endDate.setHours(endH, endM, 0, 0);
             const slots: string[] = [];
-            const cur = new Date(startDate);
+            let cur = new Date(startDate);
+            const today = new Date();
+            const isSameDay = selectedDate.toDateString() === new Date().toDateString();
+            if (isSameDay && !allowSameDay) {
+              setTimeSlots([]);
+              return;
+            }
+            if (isSameDay) {
+              const earliest = new Date(today.getTime() + Math.max(0, minAdvanceHours) * 60 * 60 * 1000);
+              if (earliest > cur) {
+                const remainder = (earliest.getMinutes() % slotMinutes);
+                if (remainder !== 0) {
+                  earliest.setMinutes(earliest.getMinutes() + (slotMinutes - remainder));
+                }
+                cur = earliest;
+              }
+            }
+            const startRemainder = cur.getMinutes() % slotMinutes;
+            if (startRemainder !== 0) {
+              cur.setMinutes(cur.getMinutes() + (slotMinutes - startRemainder));
+            }
             while (cur.getTime() <= endDate.getTime() - slotMinutes * 60 * 1000) {
               const hh = String(cur.getHours()).padStart(2, '0');
               const mm = String(cur.getMinutes()).padStart(2, '0');
@@ -79,7 +101,27 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
           return;
         }
         const data = await res.json();
-        setTimeSlots(Array.isArray(data) ? data : []);
+        const raw = Array.isArray(data) ? data : [];
+        const isToday = selectedDate.toDateString() === new Date().toDateString();
+        let filtered = raw;
+        if (isToday) {
+          if (!allowSameDay) {
+            filtered = [];
+          } else {
+            const now = new Date();
+            const earliest = new Date(now.getTime() + Math.max(0, minAdvanceHours) * 60 * 60 * 1000);
+            // Round earliest up to slot boundary
+            const rem = earliest.getMinutes() % slotMinutes;
+            if (rem !== 0) earliest.setMinutes(earliest.getMinutes() + (slotMinutes - rem));
+            const toMinutes = (hhmm: string) => {
+              const [h, m] = hhmm.split(":").map((s) => parseInt(s, 10));
+              return h * 60 + m;
+            };
+            const earliestMinutes = earliest.getHours() * 60 + earliest.getMinutes();
+            filtered = raw.filter((t) => toMinutes(t) >= earliestMinutes);
+          }
+        }
+        setTimeSlots(filtered);
       } catch (e: any) {
         toast.error(e.message);
       } finally {
@@ -119,6 +161,12 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
         setWorkDays(days);
         setDayHours(normalizedHours);
         setSlotMinutes(Number(payload?.slotMinutes || 30));
+        if (typeof payload?.minAdvanceHours === 'number') {
+          setMinAdvanceHours(Number(payload.minAdvanceHours));
+        }
+        if (typeof payload?.allowSameDayBooking === 'boolean') {
+          setAllowSameDay(Boolean(payload.allowSameDayBooking));
+        }
       } catch {
         setWorkDays([]);
         setDayHours({});
@@ -138,7 +186,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
     const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
     const token = localStorage.getItem('accessToken');
     try {
-      const dateStr = selectedDate.toISOString().slice(0, 10);
+      const dateStr = formatLocalDateYYYYMMDD(selectedDate);
       const payload = {
         doctorId: doctor.id,
         appointmentDate: dateStr,
@@ -257,7 +305,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
                         onClick={() => setSelectedTime(time)}
                         className={selectedTime === time ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : ''}
                       >
-                        {time}
+                        {formatTime12h(time)}
                       </Button>
                     ))}
                   </div>
@@ -385,7 +433,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <p className="font-medium">{selectedTime}</p>
+                    <p className="font-medium">{selectedTime ? formatTime12h(selectedTime) : ''}</p>
                   </div>
                 </div>
 
@@ -435,3 +483,13 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
     </div>
   );
 }
+const formatLocalDateYYYYMMDD = (d: Date) => d.toLocaleDateString('en-CA');
+  const formatTime12h = (hhmm: string) => {
+    const [hStr, mStr] = hhmm.split(":");
+    let h = parseInt(hStr || "0", 10);
+    const m = parseInt(mStr || "0", 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const mm = String(m).padStart(2, "0");
+    return `${h12}:${mm} ${ampm}`;
+  };

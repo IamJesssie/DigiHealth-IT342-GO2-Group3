@@ -29,6 +29,8 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   const [currentScreen] = useState<'dashboard' | 'appointments' | 'records' | 'search' | 'profile'>('appointments');
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [reloadFlag, setReloadFlag] = useState<number>(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
   const [pastAppointments, setPastAppointments] = useState<any[]>([]);
   const [cancelledAppointments, setCancelledAppointments] = useState<any[]>([]);
@@ -48,8 +50,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
     onNavigate(mappedScreen);
   };
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
+  const fetchAppointments = async () => {
       setLoading(true);
       setError(null);
       const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
@@ -75,13 +76,14 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           time: a.appointmentTime,
           type: 'Consultation',
           status: a.status || 'Scheduled',
-          location: 'Clinic',
+          location: a.doctor?.hospitalAffiliation || 'Clinic',
+          reason: a.notes || a.symptoms || '',
           doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.doctor?.user?.fullName || 'Doctor')}`,
         }));
-        const now = new Date();
-        const upcoming = mapped.filter((m: any) => new Date(m.date) >= new Date(now.toISOString().slice(0,10)) && m.status !== 'Cancelled');
-        const past = mapped.filter((m: any) => new Date(m.date) < new Date(now.toISOString().slice(0,10)) && m.status === 'Completed');
-        const cancelled = mapped.filter((m: any) => m.status === 'Cancelled');
+        const todayStr = new Date().toLocaleDateString('en-CA');
+        const upcoming = mapped.filter((m: any) => m.date >= todayStr && m.status !== 'Cancelled' && m.status !== 'CANCELLED' && m.status !== 'COMPLETED');
+        const past = mapped.filter((m: any) => m.date < todayStr && (m.status === 'Completed' || m.status === 'COMPLETED'));
+        const cancelled = mapped.filter((m: any) => m.status === 'Cancelled' || m.status === 'CANCELLED');
         setUpcomingAppointments(upcoming);
         setPastAppointments(past);
         setCancelledAppointments(cancelled);
@@ -90,9 +92,8 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
       } finally {
         setLoading(false);
       }
-    };
-    fetchAppointments();
-  }, []);
+  };
+  useEffect(() => { fetchAppointments(); }, [reloadFlag]);
 
   const handleCancelAppointment = (appointment: any) => {
     setSelectedAppointment(appointment);
@@ -100,10 +101,32 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   };
 
   const confirmCancelAppointment = () => {
-    // Simulate cancellation
-    toast.success('Appointment cancelled successfully');
-    setShowCancelDialog(false);
-    setSelectedAppointment(null);
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    const id = selectedAppointment?.id || selectedAppointment?.appointmentId;
+    if (!id) { setShowCancelDialog(false); return; }
+    fetch(`${API_BASE}/api/appointments/${id}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ status: 'CANCELLED', reason: cancelReason })
+    }).then(async (res) => {
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error((payload && (payload.message || payload.error)) || 'Failed to cancel');
+        return;
+      }
+      toast.success('Appointment cancelled successfully');
+      setShowCancelDialog(false);
+      setSelectedAppointment(null);
+      setCancelReason('');
+      setReloadFlag(Date.now());
+    }).catch(() => {
+      toast.error('Network error cancelling appointment');
+    });
   };
 
   const handleReschedule = (appointment: any) => {
@@ -112,12 +135,13 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   };
 
   const renderAppointmentCard = (appointment: any, showActions: boolean = true) => {
-    const statusColors = {
-      Confirmed: 'bg-green-100 text-green-700',
-      Pending: 'bg-yellow-100 text-yellow-700',
-      Completed: 'bg-blue-100 text-blue-700',
-      Cancelled: 'bg-red-100 text-red-700',
+    const statusColors: Record<string,string> = {
+      confirmed: 'bg-green-100 text-green-700',
+      pending: 'bg-yellow-100 text-yellow-700',
+      completed: 'bg-blue-100 text-blue-700',
+      cancelled: 'bg-red-100 text-red-700',
     };
+    const statusKey = String(appointment.status || '').toLowerCase();
 
     return (
       <Card key={appointment.id} className="shadow-sm">
@@ -134,7 +158,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
                   <p className="font-semibold">{appointment.doctorName}</p>
                   <p className="text-sm text-muted-foreground">{appointment.specialization}</p>
                 </div>
-                <Badge className={statusColors[appointment.status as keyof typeof statusColors]}>
+              <Badge className={statusColors[statusKey] || 'bg-gray-100 text-gray-700'}>
                   {appointment.status}
                 </Badge>
               </div>
@@ -155,7 +179,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>{appointment.time}</span>
+              <span>{formatTime12h(appointment.time)}</span>
             </div>
             
             {appointment.location && (
@@ -166,7 +190,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             )}
           </div>
 
-          {showActions && appointment.status === 'Confirmed' && (
+          {showActions && (appointment.status === 'Confirmed' || appointment.status === 'CONFIRMED') && (
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
@@ -203,9 +227,20 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
               Cancelled by {appointment.cancelledBy} on {new Date(appointment.cancelledAt).toLocaleDateString()}
             </div>
           )}
-        </CardContent>
+      </CardContent>
       </Card>
     );
+  };
+
+  const formatTime12h = (time: string) => {
+    try {
+      const [h, m] = (time || '').split(':');
+      const hh = parseInt(h || '0', 10);
+      const mm = parseInt(m || '0', 10);
+      const ampm = hh >= 12 ? 'PM' : 'AM';
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+    } catch { return time; }
   };
 
   return (
@@ -301,27 +336,37 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel your appointment with {selectedAppointment?.doctorName} on{' '}
-              {selectedAppointment && new Date(selectedAppointment.date).toLocaleDateString()}?
-              <br /><br />
-              This action cannot be undone. Please note our cancellation policy requires 24 hours notice.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmCancelAppointment}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Yes, Cancel
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to cancel your appointment with {selectedAppointment?.doctorName} on{' '}
+                  {selectedAppointment && new Date(selectedAppointment.date).toLocaleDateString()}?
+                  <br /><br />
+                  Please provide a reason for cancellation (optional):
+                  <br />
+                  <textarea
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder="Reason for cancellation"
+                    className="w-full mt-2 border rounded p-2"
+                    rows={3}
+                  />
+                  <br /><br />
+                  This action cannot be undone. Please note our cancellation policy requires 24 hours notice.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={confirmCancelAppointment}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Yes, Cancel
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
     </PatientMobileLayout>
   );
 }

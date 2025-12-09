@@ -23,6 +23,8 @@ interface Appointment {
   type: string;
   doctorImage: string;
   status?: string;
+  location?: string;
+  reason?: string;
 }
 
 export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashboardProps) {
@@ -107,9 +109,11 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
           specialization: a.doctor?.specialization || 'General Physician',
           date: a.appointmentDate,
           time: a.appointmentTime,
-          type: a.reason || 'Consultation',
+          type: 'Consultation',
           doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${a.doctor?.user?.fullName || 'Doctor'}`,
           status: a.status,
+          location: a.doctor?.hospitalAffiliation || 'Clinic',
+          reason: a.notes || a.symptoms || '',
         }));
       
       setUpcomingAppointments(upcoming);
@@ -396,9 +400,14 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            <span>{appointment.time}</span>
+                            <span>{formatTime12h(appointment.time)}</span>
                           </div>
                         </div>
+                        {appointment.reason && (
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            <span className="font-medium">Reason:</span> {appointment.reason}
+                          </div>
+                        )}
                       </div>
                       
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -486,4 +495,14 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
       </div>
     </PatientMobileLayout>
   );
+}
+const formatTime12h = (time: string) => {
+  try {
+    const [h, m] = (time || '').split(':');
+    const hh = parseInt(h || '0', 10);
+    const mm = parseInt(m || '0', 10);
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const h12 = hh % 12 === 0 ? 12 : hh % 12;
+    return `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+  } catch { return time; }
 }
