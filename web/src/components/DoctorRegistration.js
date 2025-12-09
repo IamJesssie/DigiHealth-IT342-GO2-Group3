@@ -34,6 +34,8 @@ const DoctorRegistration = () => {
       formData.specialization &&
       formData.licenseNumber &&
       formData.phoneNumber &&
+      (formData.experienceYears !== undefined && formData.experienceYears !== "") &&
+      formData.hospitalAffiliation &&
       formData.workDays &&
       formData.workDays.length > 0
     );

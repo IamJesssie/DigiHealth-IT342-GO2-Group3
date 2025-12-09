@@ -15,8 +15,7 @@ This document aligns functional requirements to the current repository implement
 - FR-8: Role-Based Access Control
 - FR-9: Administrator Management
 - FR-10: System Reports and Analytics
-- FR-11: Reserved (Not Defined)
-- FR-12: Admin System Monitoring
+- FR-11: Admin System Monitoring
 - Admin Web Portal
 - Patient Mobile FR-P1 to FR-P5
 - Real-Time Updates & Notifications
@@ -476,11 +475,11 @@ This document aligns functional requirements to the current repository implement
 **Description:** Update personal and medical information.
 
 **Features:**
-- Edit personal info
-- Update medical profile
-- Change password
-- Notification preferences
-- Privacy settings
+- Edit personal info ✅ IMPLEMENTED
+- Update medical profile ✅ IMPLEMENTED
+- Change password NOT IMPLEMENTED
+- Notification preferences NOT IMPLEMENTED
+- Privacy settings NOT IMPLEMENTED
 - Delete account
 
 Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
@@ -512,7 +511,7 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 
 **Gaps:**
 - Role-based restriction for `/api/admin/**` | ✅ IMPLEMENTED
-- Google OAuth 2.0 integration | ❌ NOT IMPLEMENTED
+- Google OAuth 2.0 integration | ✅ IMPLEMENTED
 - Audit logging for sensitive actions | ❌ NOT IMPLEMENTED
 - Consistent error handling and input validation across endpoints | ❌ NOT IMPLEMENTED
 

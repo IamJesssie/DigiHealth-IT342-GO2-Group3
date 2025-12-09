@@ -4,6 +4,7 @@ import apiClient from "../api/client";
 import { useAuth } from "../auth/auth";
 import { PageWrapper, PageMessage, PageFolder } from "./PageComponents";
 import { useAppointmentUpdates } from "../hooks/useAppointmentUpdates";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -16,6 +17,7 @@ const Dashboard = () => {
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const DASHBOARD_SUMMARY_URL = "/api/dashboard/summary";
   const TODAY_APPOINTMENTS_URL = "/api/appointments/today";
@@ -125,9 +127,12 @@ const Dashboard = () => {
         <div className="appointments-table-card">
           <div className="appointment-header">
             <h3>My Appointments Today</h3>
-            <a href="#" className="view-all-btn">
+            <button
+              className="view-all-btn"
+              onClick={() => navigate("/appointments")}
+            >
               View All
-            </a>
+            </button>
           </div>
           <table className="page-table">
             <thead>

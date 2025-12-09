@@ -141,11 +141,12 @@ export const RegistrationStep2 = ({
         <option value="" disabled>
           Select your specialization
         </option>
-        <option value="General Practitioner">General Practitioner</option>
-        <option value="Cardiology">Cardiology</option>
-        <option value="Dermatology">Dermatology</option>
-        <option value="Pediatrics">Pediatrics</option>
-        <option value="Neurology">Neurology</option>
+        <option value="General Physician">General Physician</option>
+        <option value="Cardiologist">Cardiologist</option>
+        <option value="Dermatologist">Dermatologist</option>
+        <option value="Orthopedic">Orthopedic</option>
+        <option value="Pediatrician">Pediatrician</option>
+        <option value="Neurologist">Neurologist</option>
       </select>
 
       <label>Medical License Number *</label>
@@ -169,6 +170,38 @@ export const RegistrationStep2 = ({
             phoneNumber: formatPHPhone(e.target.value),
           })
         }
+      />
+
+      <label>Years of Experience *</label>
+      <input
+        type="number"
+        min="0"
+        placeholder="e.g., 5"
+        value={formData.experienceYears ?? ""}
+        onChange={(e) =>
+          setFormData({ ...formData, experienceYears: e.target.value ? parseInt(e.target.value, 10) : undefined })
+        }
+      />
+
+      <label>Hospital/Clinic Affiliation *</label>
+      <input
+        type="text"
+        placeholder="e.g., St. Luke's Medical Center"
+        value={formData.hospitalAffiliation || ""}
+        onChange={(e) =>
+          setFormData({ ...formData, hospitalAffiliation: e.target.value })
+        }
+      />
+
+      <label>Professional Bio (optional)</label>
+      <textarea
+        placeholder="Brief summary of your qualifications, specialties, and care philosophy"
+        value={formData.bio || ""}
+        onChange={(e) =>
+          setFormData({ ...formData, bio: e.target.value })
+        }
+        rows={4}
+        style={{ resize: 'vertical' }}
       />
     </StepLayout>
   );
