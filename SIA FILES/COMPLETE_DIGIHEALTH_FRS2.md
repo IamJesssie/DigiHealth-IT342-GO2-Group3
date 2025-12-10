@@ -492,12 +492,13 @@ This document aligns functional requirements to the current repository implement
 **Description:** Update personal and medical information.
 
 **Features:**
-- Edit personal info ✅ IMPLEMENTED
-- Update medical profile ✅ IMPLEMENTED
-- Change password NOT IMPLEMENTED
-- Notification preferences NOT IMPLEMENTED
-- Privacy settings NOT IMPLEMENTED
-- Delete account NOT IMPLEMENTED
+- Edit personal info | ✅ IMPLEMENTED
+- Update medical profile | ✅ IMPLEMENTED
+- Profile Picture Upload | ✅ IMPLEMENTED
+- Change password | ✅ IMPLEMENTED
+- Notification preferences | NOT IMPLEMENTED
+- Privacy settings | NOT IMPLEMENTED
+- Delete account | NOT IMPLEMENTED
 
 Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 
@@ -542,6 +543,7 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 - Role-based restriction for `/api/admin/**` | ✅ IMPLEMENTED
 - Google OAuth 2.0 integration | ✅ IMPLEMENTED
 - Audit logging for sensitive actions | ✅ IMPLEMENTED
+- HIPAA-compliant patient data views (Admin) | ✅ IMPLEMENTED
 - Consistent error handling and input validation across endpoints | ❌ NOT IMPLEMENTED
 
 ---
@@ -569,13 +571,15 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 
 **Last Updated:** 2025-12-10
 
-- Profile Management (API): PARTIALLY IMPLEMENTED
+- Profile Management (API): IMPLEMENTED
   - Endpoints:
     - `GET /api/users/me`, `PUT /api/users/me`
+    - `POST /api/users/me/profile-image` (Image Upload)
+    - `POST /api/users/change-password` (Change Password)
     - Admin-controlled deactivation: `PUT /api/admin/users/{id}/deactivate`, `PUT /api/admin/users/{id}/reactivate`
   - Notes:
     - Patient-side account deletion is not implemented; deactivation is available via Admin
-    - Update PWA to add notification preferences and change password UI
+    - PWA updated with profile image upload and password change (crash fixed)
 
 - Patient Registration (API): IMPLEMENTED
   - `POST /api/auth/register-patient`
