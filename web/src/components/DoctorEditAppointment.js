@@ -125,8 +125,12 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
           </div>
 
           <div className="form-group">
-            <label>Notes</label>
-            <textarea placeholder="Add any additional notes or instructions..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <label>{status === 'CANCELLED' ? 'Reason for Cancelling' : 'Notes'}</label>
+            <textarea 
+              placeholder={status === 'CANCELLED' ? "Enter reason for cancellation..." : "Add any additional notes or instructions..."} 
+              value={notes} 
+              onChange={(e) => setNotes(e.target.value)} 
+            />
           </div>
         </div>
 
