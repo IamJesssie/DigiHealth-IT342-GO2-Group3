@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 import { Home, Calendar, FileText, Search, User, Bell } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { useNotificationContext } from '../context/NotificationContext';
+import { NotificationsDialog } from './NotificationsDialog';
 
 interface PatientMobileLayoutProps {
   children: ReactNode;
@@ -9,6 +11,7 @@ interface PatientMobileLayoutProps {
   onNavigate: (screen: string) => void;
   patient: any;
   notificationCount?: number;
+  onNotificationClick?: () => void;
 }
 
 export function PatientMobileLayout({ 
@@ -16,9 +19,10 @@ export function PatientMobileLayout({
   currentScreen, 
   onNavigate, 
   patient,
-  notificationCount = 0 
 }: PatientMobileLayoutProps) {
   
+  const { unreadCount, showNotifications, setShowNotifications, notifications, markAllAsRead } = useNotificationContext();
+
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Home' },
     { id: 'appointments', icon: Calendar, label: 'Appointments' },
@@ -45,22 +49,29 @@ export function PatientMobileLayout({
           
           <button 
             className="relative p-2 hover:bg-gray-100 rounded-full"
-            onClick={() => {/* Handle notifications */}}
+            onClick={() => setShowNotifications(true)}
           >
             <Bell className="h-6 w-6 text-gray-600" />
-            {notificationCount > 0 && (
+            {unreadCount > 0 && (
               <Badge 
                 className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
                 style={{
                   background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
                 }}
               >
-                {notificationCount}
+                {unreadCount}
               </Badge>
             )}
           </button>
         </div>
       </header>
+
+      <NotificationsDialog 
+        open={showNotifications} 
+        onOpenChange={setShowNotifications}
+        notifications={notifications}
+        onMarkAllAsRead={markAllAsRead}
+      />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pb-20">
