@@ -7,23 +7,28 @@ services:
     envVars:
       - key: PORT
         value: 8080
-      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-        value: org.postgresql.Driver
-      - key: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
-        value: org.hibernate.dialect.PostgreSQLDialect
-      - key: SPRING_DATASOURCE_USERNAME
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        fromDatabase:
+          name: digihealth-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: digihealth-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: digihealth-db
+          property: database
+      - key: DB_USER
         fromDatabase:
           name: digihealth-db
           property: user
-      - key: SPRING_DATASOURCE_PASSWORD
+      - key: DB_PASSWORD
         fromDatabase:
           name: digihealth-db
           property: password
-
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: digihealth-db
-          property: connectionString
       - key: JWT_SECRET
         generateValue: true
 
