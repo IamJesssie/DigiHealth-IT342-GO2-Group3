@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { toast } from 'sonner';
+import { useNotifications, Notification } from '../hooks/useNotifications';
 
 interface PatientMedicalRecordsProps {
   patient: any;
@@ -42,6 +43,20 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
   const [loading, setLoading] = useState(true);
 
   const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`;
+
+  // Real-time notifications for medical records updates
+  useNotifications((notification: Notification) => {
+    console.log('Received notification:', notification);
+    // Refresh medical records when a new note is added or appointment is completed
+    if (notification.type === 'APPOINTMENT_COMPLETED' || 
+        notification.message?.toLowerCase().includes('medical') ||
+        notification.message?.toLowerCase().includes('note') ||
+        notification.message?.toLowerCase().includes('record')) {
+      console.log('Medical record update detected, refreshing...');
+      fetchMedicalRecords();
+      toast.info('New medical record available');
+    }
+  });
 
   useEffect(() => {
     fetchMedicalRecords();
@@ -83,7 +98,20 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
       
       if (res.ok) {
         const data = await res.json();
-        setMedicalRecords(data || []);
+        console.log('Medical records raw data:', data);
+        
+        // Handle both array response and object with records property
+        if (Array.isArray(data)) {
+          setMedicalRecords(data);
+        } else if (data && Array.isArray(data.records)) {
+          setMedicalRecords(data.records);
+        } else if (data && data.message) {
+          // Backend returned empty with message
+          setMedicalRecords([]);
+          console.log(data.message);
+        } else {
+          setMedicalRecords([]);
+        }
       } else {
         // If endpoint doesn't exist, show empty for all users
         setMedicalRecords([]);

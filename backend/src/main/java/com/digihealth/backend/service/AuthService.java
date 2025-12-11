@@ -5,6 +5,7 @@ import com.digihealth.backend.dto.LoginRequest;
 import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
 import com.digihealth.backend.dto.RegisterPatientDto;
+import com.digihealth.backend.dto.UserResponse;
 import com.digihealth.backend.entity.Doctor;
 import com.digihealth.backend.entity.DayOfWeek;
 import com.digihealth.backend.entity.DoctorWorkDay;
@@ -96,8 +97,10 @@ public class AuthService {
         }
 
         String token = tokenProvider.generateTokenFromUser(user);
-        return new LoginResponse(token, user);
+        UserResponse userResponse = convertToUserResponse(user);
+        return new LoginResponse(token, userResponse);
     }
+
     public void registerUser(com.digihealth.backend.dto.RegisterPatientDto registerDto) {
         String emailNorm = normalizeEmail(registerDto.getEmail());
         if (emailNorm == null || emailNorm.isEmpty()) {
@@ -253,8 +256,7 @@ public class AuthService {
             }
         }
         doctorWorkDayRepository.saveAll(workDays);
-        }
-    
+    }
 
     public LoginResponse login(LoginRequest loginRequest) {
         // Defensive null check to avoid 500s on malformed/missing body
@@ -308,11 +310,30 @@ public class AuthService {
                 + token.substring(0, Math.min(50, token.length())));
         System.out.println("[AuthService.login] Token should contain UUID: " + user.getId());
 
-        return new LoginResponse(token, user);
+        UserResponse userResponse = convertToUserResponse(user);
+        return new LoginResponse(token, userResponse);
     }
 
     private String normalizeEmail(String email) {
         if (email == null) return null;
         return email.trim().toLowerCase();
+    }
+
+    /**
+     * Convert User entity to UserResponse DTO, excluding sensitive fields like password.
+     */
+    private UserResponse convertToUserResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getProfileImageUrl(),
+                user.getSpecialization(),
+                user.getLicenseNumber(),
+                user.getRole() != null ? user.getRole().toString() : null,
+                user.getIsActive(),
+                user.getIsApproved()
+        );
     }
 }

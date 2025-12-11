@@ -7,6 +7,7 @@ import { Badge } from './ui/badge';
 import { Calendar, Clock, User, Heart, Activity, FileText, Plus, ChevronRight, CheckCircle, ArrowRight, BookOpen, Stethoscope } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { toast } from 'sonner';
+import { useNotifications, Notification } from '../hooks/useNotifications';
 
 interface PatientDashboardProps {
   patient: any;
@@ -39,9 +40,38 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
 
   const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`;
 
+  // Real-time notifications for appointment updates on dashboard
+  useNotifications((notification: Notification) => {
+    console.log('Dashboard received notification:', notification);
+    
+    // Refresh data when appointments change
+    if (notification.type?.startsWith('APPOINTMENT_')) {
+      console.log('Appointment update detected on dashboard, refreshing...');
+      fetchUpcomingAppointments();
+      fetchRecentActivities();
+      
+      // Show toast notification with detailed message
+      if (notification.type === 'APPOINTMENT_CANCELLED') {
+        toast.error(notification.message || 'Appointment cancelled', {
+          duration: 6000,
+          description: 'Check your appointments for details'
+        });
+      } else if (notification.type === 'APPOINTMENT_CONFIRMED') {
+        toast.success('Appointment confirmed!');
+      } else if (notification.type === 'APPOINTMENT_RESCHEDULED') {
+        toast.info(notification.message || 'Appointment rescheduled');
+      } else if (notification.type === 'APPOINTMENT_COMPLETED') {
+        toast.success('Appointment completed', {
+          description: 'Medical records are now available'
+        });
+      }
+    }
+  });
+
   useEffect(() => {
     fetchUpcomingAppointments();
     fetchRecentActivities();
+    fetchUnreadNotifications();
     // Check if user is new (no appointments yet)
     const isNewUser = localStorage.getItem('isNewUser') === 'true';
     if (isNewUser) {
@@ -52,6 +82,30 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
       setGuideVisible(true);
     }
   }, []);
+
+  const fetchUnreadNotifications = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/notifications/unread`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const notifications = await res.json();
+        // Process unread notifications (can show toast or update UI)
+        if (notifications && notifications.length > 0) {
+          console.log(`You have ${notifications.length} unread notification(s)`);
+          // Optionally: toast.info(`You have ${notifications.length} unread notification(s)`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
   const fetchRecentActivities = async () => {
     const token = localStorage.getItem('accessToken');

@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Calendar as CalendarIcon, Clock, MapPin, Phone, Video, X, RefreshCw, ChevronRight, Plus } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { toast } from 'sonner';
+import { useNotifications, Notification } from '../hooks/useNotifications';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,6 +59,66 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
     onNavigate(mappedScreen);
   };
 
+  // Real-time notifications for appointment updates
+  useNotifications((notification: Notification) => {
+    console.log('Received notification:', notification);
+    // Refresh appointments when status changes
+    if (notification.type?.startsWith('APPOINTMENT_')) {
+      console.log('Appointment update detected, refreshing...');
+      setReloadFlag(Date.now());
+      
+      // Show toast notification with detailed message
+      if (notification.type === 'APPOINTMENT_CONFIRMED') {
+        toast.success('Appointment confirmed!');
+      } else if (notification.type === 'APPOINTMENT_CANCELLED') {
+        // Show detailed cancellation message
+        toast.error(notification.message || 'Appointment cancelled', {
+          duration: 6000,
+          description: 'Please book a new appointment or contact the clinic for more information.'
+        });
+      } else if (notification.type === 'APPOINTMENT_RESCHEDULED') {
+        toast.info(notification.message || 'Appointment rescheduled', {
+          duration: 5000
+        });
+      } else if (notification.type === 'APPOINTMENT_COMPLETED') {
+        toast.success('Appointment completed', {
+          description: 'Medical records are now available'
+        });
+      }
+    }
+  });
+
+  const fetchUnreadNotifications = async () => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/notifications/unread`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const notifications = await res.json();
+        // Process unread notifications - if appointment status changed, re-fetch
+        if (notifications && notifications.length > 0) {
+          const hasAppointmentUpdate = notifications.some((n: any) => 
+            n.type && n.type.startsWith('APPOINTMENT_')
+          );
+          if (hasAppointmentUpdate) {
+            console.log('Appointment status changed, refreshing...');
+            setReloadFlag(Date.now());
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
   const fetchAppointments = async () => {
     setLoading(true);
     setError(null);
@@ -87,12 +148,19 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
         status: a.status || 'Scheduled',
         location: a.doctor?.hospitalAffiliation || 'Clinic',
         reason: a.notes || a.symptoms || '',
-        doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.doctor?.user?.fullName || 'Doctor')}`,
+        doctorImage: a.doctor?.user?.profileImageUrl || '/assets/default-doctor-avatar.svg',
       }));
-      const todayStr = new Date().toLocaleDateString('en-CA');
-      const upcoming = mapped.filter((m: any) => m.date >= todayStr && m.status !== 'Cancelled' && m.status !== 'CANCELLED' && m.status !== 'COMPLETED');
-      const past = mapped.filter((m: any) => m.date < todayStr && (m.status === 'Completed' || m.status === 'COMPLETED'));
-      const cancelled = mapped.filter((m: any) => m.status === 'Cancelled' || m.status === 'CANCELLED');
+      
+      // Filter by status: CONFIRMED = Upcoming, COMPLETED = Past, CANCELLED = Cancelled
+      const upcoming = mapped.filter((m: any) => 
+        (m.status === 'CONFIRMED' || m.status === 'Confirmed' || m.status === 'SCHEDULED' || m.status === 'Scheduled')
+      );
+      const past = mapped.filter((m: any) => 
+        (m.status === 'COMPLETED' || m.status === 'Completed')
+      );
+      const cancelled = mapped.filter((m: any) => 
+        (m.status === 'CANCELLED' || m.status === 'Cancelled')
+      );
       setUpcomingAppointments(upcoming);
       setPastAppointments(past);
       setCancelledAppointments(cancelled);
@@ -102,7 +170,10 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
       setLoading(false);
     }
   };
-  useEffect(() => { fetchAppointments(); }, [reloadFlag]);
+  useEffect(() => { 
+    fetchAppointments(); 
+    fetchUnreadNotifications();
+  }, [reloadFlag]);
 
   const handleCancelAppointment = (appointment: any) => {
     setSelectedAppointment(appointment);
@@ -324,7 +395,12 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             )}
           </div>
 
-          {showActions && (appointment.status === 'Confirmed' || appointment.status === 'CONFIRMED') && (
+          {showActions && (
+            appointment.status === 'Confirmed' || 
+            appointment.status === 'CONFIRMED' || 
+            appointment.status === 'Scheduled' || 
+            appointment.status === 'SCHEDULED'
+          ) && (
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -345,7 +421,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             </div>
           )}
 
-          {appointment.status === 'Completed' && (
+          {(appointment.status === 'Completed' || appointment.status === 'COMPLETED') && (
             <Button
               variant="outline"
               className="w-full"

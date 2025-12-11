@@ -1,14 +1,12 @@
 package com.digihealth.backend.dto;
 
-import com.digihealth.backend.entity.User;
-
 public class LoginResponse {
     private String accessToken;
-    private User user;
+    private UserResponse user;
 
     public LoginResponse() {}
 
-    public LoginResponse(String accessToken, User user) {
+    public LoginResponse(String accessToken, UserResponse user) {
         this.accessToken = accessToken;
         this.user = user;
     }
@@ -21,11 +19,11 @@ public class LoginResponse {
         this.accessToken = accessToken;
     }
 
-    public User getUser() {
+    public UserResponse getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserResponse user) {
         this.user = user;
     }
 }

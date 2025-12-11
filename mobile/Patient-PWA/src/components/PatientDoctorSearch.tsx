@@ -59,13 +59,15 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
         const mapped = (data || []).map((u: any) => {
           const exp = typeof u.experienceYears === 'number' && u.experienceYears > 0 ? `${u.experienceYears} years` : undefined;
           const loc = u.hospitalAffiliation || u.addressCity || undefined;
+          // Use actual profile image if available, otherwise use placeholder SVG
+          const profileImage = u.profileImageUrl || '/assets/default-doctor-avatar.svg';
           return {
             id: u.id,
             name: u.fullName || 'Doctor',
             specialization: u.specialization || 'General Physician',
             experience: exp,
             location: loc,
-            image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || 'Doctor')}`,
+            image: profileImage,
           };
         });
         setDoctors(mapped);

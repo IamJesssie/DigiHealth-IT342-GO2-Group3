@@ -443,6 +443,18 @@ public class AppointmentController {
             if (appointment.getPatient() == null || !appointment.getPatient().getUser().getId().equals(patientUser.getId())) {
                 return ResponseEntity.status(403).body("Access denied: can only reschedule your own appointment");
             }
+            
+            // Check if appointment is at least 2 hours away
+            java.time.LocalDateTime currentAppointmentDateTime = java.time.LocalDateTime.of(
+                appointment.getAppointmentDate(), 
+                appointment.getAppointmentTime()
+            );
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            long hoursUntilAppointment = java.time.Duration.between(now, currentAppointmentDateTime).toHours();
+            
+            if (hoursUntilAppointment < 2) {
+                return ResponseEntity.badRequest().body("Appointments can only be rescheduled up to 2 hours before the scheduled time");
+            }
 
             if (req.getAppointmentDate() == null || req.getAppointmentTime() == null) {
                 return ResponseEntity.badRequest().body("appointmentDate and appointmentTime are required");
@@ -462,7 +474,6 @@ public class AppointmentController {
             int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
 
             java.time.LocalDate today = java.time.LocalDate.now();
-            java.time.LocalDateTime now = java.time.LocalDateTime.now();
             java.time.LocalDateTime newDateTime = java.time.LocalDateTime.of(newDate, newTime);
 
             if (!allowSameDay && newDate.equals(today)) {
@@ -552,6 +563,7 @@ public class AppointmentController {
                         m.put("hospitalAffiliation", d.getHospitalAffiliation());
                         String city = d.getAddress() != null ? d.getAddress().getCity() : null;
                         m.put("addressCity", city);
+                        m.put("profileImageUrl", d.getUser().getProfileImageUrl());
                         return m;
                     })
                     .collect(java.util.stream.Collectors.toList());

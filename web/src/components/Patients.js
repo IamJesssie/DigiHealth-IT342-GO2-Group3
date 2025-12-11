@@ -529,12 +529,14 @@ const Patients = () => {
                   <div className="rte-toolbar">
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        const currentText = noteForm.noteText || '';
+                        const soapTemplate = '\n\nSubjective:\nObjective:\nAssessment:\nPlan:';
                         setNoteForm({
                           ...noteForm,
-                          noteText: `${noteForm.noteText}\n\nSubjective:\nObjective:\nAssessment:\nPlan:`,
-                        })
-                      }
+                          noteText: currentText + soapTemplate,
+                        });
+                      }}
                     >
                       Insert SOAP
                     </button>

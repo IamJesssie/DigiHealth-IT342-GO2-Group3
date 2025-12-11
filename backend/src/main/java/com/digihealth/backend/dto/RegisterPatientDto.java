@@ -1,6 +1,7 @@
 package com.digihealth.backend.dto;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class RegisterPatientDto {
     private String fullName;
@@ -8,6 +9,7 @@ public class RegisterPatientDto {
     private String password;
     private String phoneNumber;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
     private String gender;
     private String bloodType;

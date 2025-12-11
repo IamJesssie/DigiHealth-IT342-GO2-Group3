@@ -50,20 +50,11 @@ public class NotificationService {
     }
 
     public void notifyNewPatient(Patient patient) {
-        // Notify all doctors about new patient registration (optional, can be spammy but requested)
-        List<Doctor> doctors = doctorRepository.findAll();
-        for (Doctor doctor : doctors) {
-            if (doctor.getUser() != null && Boolean.TRUE.equals(doctor.getUser().getIsApproved())) {
-                createAndSend(
-                        doctor.getUser().getEmail(),
-                        "New Patient Registered",
-                        "New patient " + patient.getUser().getFullName() + " has registered.",
-                        "PATIENT_NEW",
-                        null,
-                        null
-                );
-            }
-        }
+        // Only notify doctors if patient has an appointment with them
+        // Otherwise skip notification to avoid spam
+        // Note: This will be called after patient registration, so likely no appointments yet
+        // Consider removing this call from registration, or defer until first appointment booking
+        log.info("New patient {} registered. Notification deferred until appointment booking.", patient.getUser().getFullName());
     }
 
     public void notifyNewAppointment(Appointment appointment) {
@@ -83,29 +74,56 @@ public class NotificationService {
     }
 
     public void notifyAppointmentStatusChange(Appointment appointment) {
-        // Notify Patient
+        // Notify Patient - ALL status changes should notify patient
         String patientEmail = appointment.getPatient().getUser().getEmail();
+        String patientName = appointment.getPatient().getUser().getFullName();
+        String doctorName = appointment.getDoctor().getUser().getFullName();
+        
+        // Create patient notification with contextual message
+        String patientMessage;
+        String notificationType = "APPOINTMENT_" + appointment.getStatus();
+        
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            patientMessage = "Your appointment with Dr. " + doctorName + " on " + 
+                           appointment.getAppointmentDate() + " at " + appointment.getAppointmentTime() + 
+                           " has been cancelled.";
+            if (appointment.getNotes() != null && !appointment.getNotes().isEmpty()) {
+                patientMessage += " Reason: " + appointment.getNotes();
+            }
+        } else if (appointment.getStatus() == AppointmentStatus.CONFIRMED) {
+            patientMessage = "Your appointment with Dr. " + doctorName + " on " + 
+                           appointment.getAppointmentDate() + " at " + appointment.getAppointmentTime() + 
+                           " has been confirmed.";
+        } else if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            patientMessage = "Your appointment with Dr. " + doctorName + " has been completed. " +
+                           "Medical records are now available.";
+        } else {
+            patientMessage = "Your appointment status is now: " + appointment.getStatus();
+        }
+        
         createAndSend(
                 patientEmail,
                 "Appointment Updated",
-                "Your appointment status is now: " + appointment.getStatus(),
-                "APPOINTMENT_" + appointment.getStatus(),
+                patientMessage,
+                notificationType,
                 appointment.getAppointmentId().toString(),
                 appointment.getAppointmentDate().toString()
         );
 
-        // Notify Doctor if Cancelled or Confirmed (if not already notified by new)
+        // Notify Doctor if Cancelled (patient initiated) or Completed
         String doctorEmail = appointment.getDoctor().getUser().getEmail();
-        if (appointment.getStatus() == AppointmentStatus.CANCELLED || appointment.getStatus() == AppointmentStatus.CONFIRMED) {
-            String message = "Appointment with " + appointment.getPatient().getUser().getFullName() + " is " + appointment.getStatus();
-            if (appointment.getStatus() == AppointmentStatus.CANCELLED && appointment.getNotes() != null && !appointment.getNotes().isEmpty()) {
-                message += ". " + appointment.getNotes();
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            String message = "Appointment with " + patientName + " on " + 
+                           appointment.getAppointmentDate() + " at " + appointment.getAppointmentTime() + 
+                           " is " + appointment.getStatus();
+            if (appointment.getNotes() != null && !appointment.getNotes().isEmpty()) {
+                message += ". Reason: " + appointment.getNotes();
             }
              createAndSend(
                 doctorEmail,
                 "Appointment " + appointment.getStatus(),
                 message,
-                "APPOINTMENT_" + appointment.getStatus(),
+                notificationType,
                 appointment.getAppointmentId().toString(),
                 appointment.getAppointmentDate().toString()
             );

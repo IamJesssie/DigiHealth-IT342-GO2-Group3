@@ -15,4 +15,5 @@ import java.util.UUID;
 public interface MedicalNoteRepository extends JpaRepository<MedicalNote, UUID> {
     List<MedicalNote> findByPatientAndDoctorOrderByCreatedAtDesc(Patient patient, Doctor doctor);
     Page<MedicalNote> findByPatientAndDoctor(Patient patient, Doctor doctor, Pageable pageable);
+    List<MedicalNote> findByPatientOrderByCreatedAtDesc(Patient patient);
 }
