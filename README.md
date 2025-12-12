@@ -7,9 +7,11 @@ MVP version of a digital clinic management system that enables patients to book 
 ## Tech Stack Used
 - **Backend**: Spring Boot 2.7+, MySQL 8.0+, Google OAuth 2.0
 - **Web Frontend**: React 18+, Tailwind CSS, Chart.js
-- **Mobile**: Kotlin for Android
-- **Database**: MySQL
-- **Hosting**: Railway/Heroku (Free Tier)
+- **Mobile**: PWA using TypeScript, React, Tailwind CSS
+- **Database**: MySQL 8.0+ / PostgreSQL 13+
+- **Version Control**: Git & GitHub
+- **CI/CD**: GitHub Actions
+- **Hosting**: Render/Vercel (Free Tier)
 
 ## Setup & Run Instructions
 
@@ -176,52 +178,79 @@ npm run eject  # Eject from Create React App (irreversible)
 - **Module not found**: Run `npm install` again
 - **CORS errors**: Ensure backend allows requests from localhost:3000
 
-### Mobile App Setup (Android Kotlin)
 
-#### 1. Pre-installation
-- Install Android Studio Arctic Fox or higher
-- Ensure Android SDK API 21+ is installed
-- Set up Android emulator or connect physical device
+### Patient Mobile App (PWA & Android)
 
-#### 2. Setup Instructions
-1. **Open Project in Android Studio**:
-   - Launch Android Studio
-   - Select "Open" and navigate to `mobile/` directory
-   - Wait for Gradle sync to complete
+#### 1. Patient PWA (Progressive Web App)
+- **Directory:** `mobile/Patient-PWA`
+- **Tech:** React, TypeScript, Tailwind CSS, Vite
 
-2. **Configure API Endpoints**:
-   - Open `app/build.gradle` or configuration files
-   - Update base URL to match your backend deployment
-   - Example: `BASE_URL = "http://10.0.2.2:8080/api"` (for emulator)
+**Development Setup:**
+```bash
+cd mobile/Patient-PWA
+npm install
+npm run dev
+# or for production build
+npm run build
+# or use
+node node_modules/vite/bin/vite.js build
+```
+- App runs at: `http://localhost:5173` (default)
 
-3. **Build and Run**:
-   ```bash
-   # In Android Studio terminal
-   ./gradlew build
-   ./gradlew installDebug
-   ```
+**Deployment:**
+- Hosted on Vercel: [Patient PWA - https://digihealth-patient.vercel.app/](https://digihealth-patient.vercel.app/)
+- Push to `main` branch auto-deploys to Vercel.
 
-4. **Run on Device/Emulator**:
-   - Click "Run" button in Android Studio
-   - Select target device/emulator
-   - Wait for installation and launch
+#### 3. Database Setup
+- **MySQL 8+** required.
+- Default credentials in `backend/src/main/resources/application.properties`:
+   - DB: `digihealth`
+   - User: `digihealth`
+   - Password: `digihealth123`
+- To preserve data between restarts, ensure `spring.jpa.hibernate.ddl-auto=update` (not `create`).
 
-#### 3. Verify Mobile Installation
-- App should launch on device/emulator
-- Check logs in Android Studio for any errors
-- Test basic functionality like login/registration
+#### 4. Backend (Spring Boot)
+- **Directory:** `backend/`
+- **Run locally:**
+```bash
+cd backend
+mvn clean install
+mvn spring-boot:run
+```
+- Hosted on Render: [Doctor/Admin Dashboard - https://digi-health-sandy.vercel.app/](https://digi-health-sandy.vercel.app/)
+- Push to `main` branch auto-deploys backend to Render.
 
-#### 4. Common Issues & Solutions
-- **Gradle sync failed**: Update Gradle version in `gradle/wrapper/gradle-wrapper.properties`
-- **Emulator not connecting**: Use `10.0.2.2` as localhost for emulator
-- **Build fails**: Clean project and rebuild (`Build > Clean Project`)
+#### 5. Web Dashboard (React)
+- **Directory:** `web/`
+- **Run locally:**
+```bash
+cd web
+npm install
+npm run start
+```
+- Hosted on Vercel: [Doctor/Admin Dashboard - https://digi-health-sandy.vercel.app/](https://digi-health-sandy.vercel.app/)
+
+#### 6. Common Run Commands
+- **Start all locally:**
+   1. Start MySQL
+   2. Start backend: `cd backend && mvn spring-boot:run`
+   3. Start Patient PWA: `cd mobile/Patient-PWA && npm run dev`
+   4. Start Web Dashboard: `cd web && npm start`
+
+#### 7. Deployment/Hosting
+- **Frontend (PWA & Web):** Vercel (auto-deploy on push to `main`)
+- **Backend:** Render (auto-deploy on push to `main`)
+- **Database:** Self-hosted MySQL (ensure credentials match in backend config)
+
+---
+
 
 ### Development Workflow
 
 #### Running All Components Together
 1. **Start Database**: Ensure MySQL is running
 2. **Start Backend**: `cd backend && mvn spring-boot:run`
-3. **Start Web**: `cd web && npm start` (in new terminal)
+3. **Start Web**: `cd web && npm run start` (in new terminal)
 4. **Start Mobile**: Use Android Studio to run mobile app
 
 #### Testing the Integration
@@ -248,9 +277,11 @@ npm run eject  # Eject from Create React App (irreversible)
 - Serve using Nginx or Apache
 - Configure environment variables
 
-#### Mobile Deployment
-- Generate signed APK/AAB
-- Configure production API endpoints
+#### Mobile Deployment (Android)
+- Generate signed APK/AAB in Android Studio (Build > Generate Signed Bundle/APK)
+- Configure production API endpoints in your app/build.gradle or config files (use deployed backend URL)
+- Test the signed APK/AAB on a real device
+- (Optional) Upload to Google Play Store following Play Store guidelines
 
 ## Team Members
 - **Jessie Noel Lapure** - Project Manager / Full Stack Developer - jessienoel.lapure@cit.edu | [Iamjesssie](https://github.com/IamJesssie)
@@ -259,7 +290,8 @@ npm run eject  # Eject from Create React App (irreversible)
 - **Matthew Rimar Martus** - Full Stack Developer - matthewrimar.martus@cit.edu | [Mr-cmd-pip](https://github.com/Mr-cmd-pip)
 
 ## Deployed Link
-[Will be added after deployment]
+Patient PWA - https://digihealth-patient.vercel.app/
+Doctor/Admin Dashboard - https://digi-health-sandy.vercel.app/
 =======
 # DigiHealth-IT342-GO2-Group3
 MVP version of a digital clinic management system that enables patients to book appointments via mobile app and allows clinic staff to manage appointments and patient records through a web dashboard.

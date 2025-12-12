@@ -9,6 +9,7 @@ public class TodayAppointmentDto {
     private String patientName;
     private String type;
     private String status;
+    private String appointmentDate;
 
     // Explicit setters for tests
     public void setId(String id) {
@@ -29,5 +30,9 @@ public class TodayAppointmentDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setAppointmentDate(String appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
 }

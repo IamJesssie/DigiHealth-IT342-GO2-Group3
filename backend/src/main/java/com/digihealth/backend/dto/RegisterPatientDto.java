@@ -11,6 +11,7 @@ public class RegisterPatientDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
+    private Integer age;
     private String gender;
     private String bloodType;
     private String allergies;
@@ -35,6 +36,8 @@ public class RegisterPatientDto {
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+    public Integer getAge() { return age; }
+    public void setAge(Integer age) { this.age = age; }
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
     public String getBloodType() { return bloodType; }

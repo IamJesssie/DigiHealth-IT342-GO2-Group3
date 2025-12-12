@@ -92,6 +92,27 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
+    public List<TodayAppointmentDto> getUpcomingAppointmentsForCurrentDoctor() {
+        Doctor doctor = getCurrentDoctorOrNull();
+        LocalDate today = LocalDate.now();
+
+        if (doctor == null) {
+            return List.of();
+        }
+
+        return appointmentRepository.findByDoctor(doctor).stream()
+                .filter(app -> !app.getAppointmentDate().isBefore(today))
+                .sorted((a1, a2) -> {
+                    int dateComparison = a1.getAppointmentDate().compareTo(a2.getAppointmentDate());
+                    if (dateComparison != 0) {
+                        return dateComparison;
+                    }
+                    return a1.getAppointmentTime().compareTo(a2.getAppointmentTime());
+                })
+                .map(this::toTodayAppointmentDto)
+                .collect(Collectors.toList());
+    }
+
     private TodayAppointmentDto toTodayAppointmentDto(Appointment appointment) {
         TodayAppointmentDto dto = new TodayAppointmentDto();
         dto.setId(appointment.getAppointmentId().toString());
@@ -99,8 +120,9 @@ public class DashboardService {
         User pUser = appointment.getPatient() != null ? appointment.getPatient().getUser() : null;
         String pName = pUser != null ? pUser.getFullName() : ("Patient " + appointment.getPatient().getPatientId().toString().substring(0,8));
         dto.setPatientName(pName);
-        dto.setType("Consultation");
+        dto.setType(appointment.getAppointmentType() != null ? appointment.getAppointmentType() : "Consultation");
         dto.setStatus(appointment.getStatus().name());
+        dto.setAppointmentDate(appointment.getAppointmentDate().toString());
         return dto;
     }
 

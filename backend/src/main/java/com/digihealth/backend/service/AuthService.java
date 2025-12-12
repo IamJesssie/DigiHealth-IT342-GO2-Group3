@@ -141,6 +141,9 @@ public class AuthService {
                 patient.setAge(computedAge);
             } catch (Exception ignored) {
             }
+        } else if (registerDto.getAge() != null && registerDto.getAge() > 0) {
+            // If birthDate is not provided but age is, use the provided age
+            patient.setAge(registerDto.getAge());
         }
         if (registerDto.getGender() != null) {
             String g = registerDto.getGender().trim().toUpperCase();

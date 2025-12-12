@@ -43,11 +43,25 @@ const Appointments = () => {
 
   useEffect(() => {
     if (location.state && appointments.length > 0) {
-      const { date, appointmentId } = location.state;
-      if (date) {
-        const parts = date.split('-');
-        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        setSelectedDate(d);
+      const { date, appointmentId, selectedDate: navSelectedDate } = location.state;
+      // Handle selectedDate from dashboard navigation or date from notification
+      const dateToUse = navSelectedDate || date;
+      if (dateToUse) {
+        try {
+          let d;
+          if (typeof dateToUse === 'string') {
+            // Handle ISO date string or YYYY-MM-DD format
+            if (dateToUse.includes('T')) {
+              d = new Date(dateToUse);
+            } else {
+              const parts = dateToUse.split('-');
+              d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            }
+            setSelectedDate(d);
+          }
+        } catch (err) {
+          console.error('Error parsing date:', err);
+        }
       }
       if (appointmentId) {
         const appt = appointments.find(a => (a.appointmentId === appointmentId || a.id === appointmentId));

@@ -47,6 +47,9 @@ public class Appointment {
     @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
+    @Column(nullable = true, length = 50)
+    private String appointmentType;
+
     @Column(columnDefinition = "TEXT")
     private String notes;
 

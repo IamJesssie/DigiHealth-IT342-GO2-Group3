@@ -36,10 +36,13 @@ public class NotificationService {
         notification.setRelatedEntityId(relatedEntityId);
         notification.setRelatedEntityDate(relatedEntityDate);
         notificationRepository.save(notification);
+        
+        log.info("Saved notification to DB for {}: title={}, type={}", recipientEmail, title, type);
 
         // 2. Send via WebSocket
         try {
             messagingTemplate.convertAndSendToUser(recipientEmail, "/queue/notifications", notification);
+            log.info("Sent WebSocket notification to {}", recipientEmail);
         } catch (Exception e) {
             log.error("Failed to send WebSocket notification to {}: {}", recipientEmail, e.getMessage());
         }
@@ -79,6 +82,9 @@ public class NotificationService {
         String patientName = appointment.getPatient().getUser().getFullName();
         String doctorName = appointment.getDoctor().getUser().getFullName();
         
+        log.info("Sending appointment status change notification for appointment {} with status {}", 
+                 appointment.getAppointmentId(), appointment.getStatus());
+        
         // Create patient notification with contextual message
         String patientMessage;
         String notificationType = "APPOINTMENT_" + appointment.getStatus();
@@ -100,6 +106,8 @@ public class NotificationService {
         } else {
             patientMessage = "Your appointment status is now: " + appointment.getStatus();
         }
+        
+        log.info("Notification message for patient {}: {}", patientEmail, patientMessage);
         
         createAndSend(
                 patientEmail,

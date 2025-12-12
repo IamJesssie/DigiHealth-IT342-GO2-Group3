@@ -53,6 +53,9 @@ public class DoctorDashboardController {
     @Autowired
     private com.digihealth.backend.repository.AdminSettingsRepository adminSettingsRepository;
 
+    @Autowired
+    private com.digihealth.backend.service.AppointmentNotificationService notificationService;
+
     @GetMapping("/dashboard/summary")
     public ResponseEntity<DashboardSummaryDto> getDashboardSummary() {
         DashboardSummaryDto summary = dashboardService.getDashboardSummaryForCurrentDoctor();
@@ -62,6 +65,12 @@ public class DoctorDashboardController {
     @GetMapping("/appointments/today")
     public ResponseEntity<List<TodayAppointmentDto>> getTodayAppointments() {
         List<TodayAppointmentDto> appointments = dashboardService.getTodayAppointmentsForCurrentDoctor();
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/appointments/upcoming")
+    public ResponseEntity<List<TodayAppointmentDto>> getUpcomingAppointments() {
+        List<TodayAppointmentDto> appointments = dashboardService.getUpcomingAppointmentsForCurrentDoctor();
         return ResponseEntity.ok(appointments);
     }
 
@@ -154,6 +163,9 @@ public class DoctorDashboardController {
             return ResponseEntity.status(403).build();
         }
 
+        // Track old status to detect changes
+        AppointmentStatus oldStatus = a.getStatus();
+
         if (req.getAppointmentDate() != null) {
             a.setAppointmentDate(req.getAppointmentDate());
         }
@@ -180,6 +192,12 @@ public class DoctorDashboardController {
         }
 
         Appointment updated = appointmentRepository.save(a);
+        
+        // Send notification if status changed
+        if (!oldStatus.equals(updated.getStatus())) {
+            notificationService.notifyAppointmentStatusChange(updated);
+        }
+        
         return ResponseEntity.ok(toDoctorAppointmentDto(updated));
     }
 
@@ -200,7 +218,7 @@ public class DoctorDashboardController {
         dto.setPatientName(pUser != null ? pUser.getFullName() : ("Patient " + appointment.getPatient().getPatientId().toString().substring(0,8)));
         dto.setPatientId(appointment.getPatient().getPatientId().toString());
         dto.setDoctorName(appointment.getDoctor().getUser().getFullName());
-        dto.setType("Consultation");
+        dto.setType(appointment.getAppointmentType() != null ? appointment.getAppointmentType() : "Consultation");
         dto.setStatus(appointment.getStatus().name());
         dto.setNotes(appointment.getNotes());
         dto.setSymptoms(appointment.getSymptoms());

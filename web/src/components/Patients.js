@@ -556,25 +556,30 @@ const Patients = () => {
                       Templates...
                     </button>
                   </div>
-                  <div
-                    contentEditable
+                  <textarea
                     className="rte-editor"
-                    onInput={(e) =>
+                    value={noteForm.noteText}
+                    onChange={(e) =>
                       setNoteForm({
                         ...noteForm,
-                        noteText: e.currentTarget.innerText,
+                        noteText: e.target.value,
                       })
                     }
-                    suppressContentEditableWarning={true}
+                    rows={6}
                     style={{
                       minHeight: 120,
                       border: "1px solid #ddd",
                       borderRadius: 8,
                       padding: 12,
+                      fontFamily: "Arial, sans-serif",
+                      fontSize: 14,
+                      resize: "vertical",
+                      width: "100%",
+                      boxSizing: "border-box",
                     }}
-                  >
-                    {noteForm.noteText}
-                  </div>
+                    placeholder="Enter consultation notes here..."
+                  />
+                
                 </div>
                 <div className="form-group">
                   <label>Diagnosis</label>

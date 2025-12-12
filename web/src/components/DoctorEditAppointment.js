@@ -11,6 +11,10 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
   const [doctorName, setDoctorName] = useState(appointment?.doctorName || '');
   const [status, setStatus] = useState(appointment?.status || 'CONFIRMED');
   const [notes, setNotes] = useState(appointment?.notes || '');
+  const [consultation, setConsultation] = useState(appointment?.consultation || '');
+  const [diagnosis, setDiagnosis] = useState(appointment?.diagnosis || '');
+  const [observation, setObservation] = useState(appointment?.observation || '');
+  const [prescription, setPrescription] = useState(appointment?.prescription || '');
   const [saving, setSaving] = useState(false);
 
   if (!appointment) return null;
@@ -25,19 +29,22 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
         notes
       };
       await updateDoctorAppointment(appointment.id, payload);
-      if (status === 'COMPLETED' && notes && notes.trim() && appointment.patientId) {
+      
+      // Save medical notes when appointment is marked as completed
+      if ((status === 'COMPLETED' || consultation || diagnosis || observation || prescription) && appointment.patientId) {
         try {
           await apiClient.post(`/api/doctors/me/patients/${appointment.patientId}/notes`, {
             appointmentId: appointment.id,
-            noteText: notes,
-            diagnosis: '',
-            prescriptions: '',
-            observations: ''
+            noteText: consultation || notes,
+            diagnosis: diagnosis || '',
+            prescriptions: prescription || '',
+            observations: observation || ''
           });
         } catch (e) {
-          console.warn('Saved status, but note creation failed', e);
+          console.warn('Saved appointment, but note creation failed', e);
         }
       }
+      
       onSaved && onSaved({ status });
       onClose && onClose();
     } catch (e) {
@@ -131,6 +138,51 @@ const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) =
               value={notes} 
               onChange={(e) => setNotes(e.target.value)} 
             />
+          </div>
+
+          {/* Consultation Fields - Always visible for editing */}
+          <div className="consultation-section">
+            <h3 className="section-title">Clinical Notes</h3>
+            
+            <div className="form-group">
+              <label>Consultation Notes</label>
+              <textarea 
+                placeholder="Enter consultation notes..." 
+                value={consultation} 
+                onChange={(e) => setConsultation(e.target.value)} 
+                rows="2"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Diagnosis</label>
+              <textarea 
+                placeholder="Enter diagnosis..." 
+                value={diagnosis} 
+                onChange={(e) => setDiagnosis(e.target.value)} 
+                rows="2"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Observation</label>
+              <textarea 
+                placeholder="Enter observations..." 
+                value={observation} 
+                onChange={(e) => setObservation(e.target.value)} 
+                rows="2"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Prescription</label>
+              <textarea 
+                placeholder="Enter prescriptions..." 
+                value={prescription} 
+                onChange={(e) => setPrescription(e.target.value)} 
+                rows="2"
+              />
+            </div>
           </div>
         </div>
 

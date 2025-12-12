@@ -20,43 +20,54 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const DASHBOARD_SUMMARY_URL = "/api/dashboard/summary";
-  const TODAY_APPOINTMENTS_URL = "/api/appointments/today";
+  const UPCOMING_APPOINTMENTS_URL = "/api/appointments/upcoming";
+
+  // Define fetch functions that will be used by both useEffect and WebSocket callback
+  const fetchSummary = useCallback(async () => {
+    try {
+      const res = await apiClient.get(DASHBOARD_SUMMARY_URL);
+      setSummary(
+        res.data || {
+          totalPatients: 0,
+          todayConfirmed: 0,
+          todayPending: 0,
+          todayCompleted: 0,
+        }
+      );
+    } catch (err) {
+      console.error("Failed to fetch summary:", err);
+    }
+  }, []);
+
+  const fetchTodayAppointments = useCallback(async () => {
+    try {
+      const res = await apiClient.get(UPCOMING_APPOINTMENTS_URL);
+      setTodayAppointments(
+        Array.isArray(res.data) ? res.data : []
+      );
+    } catch (err) {
+      console.error("Failed to fetch appointments:", err);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const [summaryRes, appointmentsRes] = await Promise.all([
-          apiClient.get(DASHBOARD_SUMMARY_URL),
-          apiClient.get(TODAY_APPOINTMENTS_URL),
-        ]);
-
-        setSummary(
-          summaryRes.data || {
-            totalPatients: 0,
-            todayConfirmed: 0,
-            todayPending: 0,
-            todayCompleted: 0,
-          }
-        );
-        setTodayAppointments(
-          Array.isArray(appointmentsRes.data) ? appointmentsRes.data : []
-        );
+        await Promise.all([fetchSummary(), fetchTodayAppointments()]);
       } catch (err) {
-        // Gracefully handle auth/permission issues without crashing UI
-
         setError("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [setSummary, setTodayAppointments]);
+  }, [fetchSummary, fetchTodayAppointments]);
 
   const handleAppointmentUpdate = useCallback(async () => {
+    // Reload both summary and appointments when WebSocket notification received
     await Promise.all([fetchSummary(), fetchTodayAppointments()]);
-  }, [setSummary, setTodayAppointments]);
+  }, [fetchSummary, fetchTodayAppointments]);
 
   useAppointmentUpdates(handleAppointmentUpdate);
 
@@ -126,7 +137,7 @@ const Dashboard = () => {
 
         <div className="appointments-table-card">
           <div className="appointment-header">
-            <h3>My Appointments Today</h3>
+            <h3>Upcoming Appointments</h3>
             <button
               className="view-all-btn"
               onClick={() => navigate("/appointments")}
@@ -137,6 +148,7 @@ const Dashboard = () => {
           <table className="page-table">
             <thead>
               <tr>
+                <th>Date</th>
                 <th>Time</th>
                 <th>Patient Name</th>
                 <th>Type</th>
@@ -144,8 +156,36 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {todayAppointments.map((appt) => (
-                <tr key={appt.id}>
+              {todayAppointments.map((appt) => {
+                // Format date for display and navigation state - handle various date field names
+                let displayDate = "N/A";
+                let dateForNav = null;
+                if (appt.startDateTime) {
+                  displayDate = new Date(appt.startDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  dateForNav = appt.startDateTime.split('T')[0]; // ISO format to YYYY-MM-DD
+                } else if (appt.appointmentDate) {
+                  const dateStr = typeof appt.appointmentDate === 'string' 
+                    ? appt.appointmentDate 
+                    : appt.appointmentDate;
+                  displayDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  dateForNav = dateStr.split('T')[0];
+                } else if (appt.date) {
+                  const dateStr = typeof appt.date === 'string' 
+                    ? appt.date 
+                    : appt.date;
+                  displayDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  dateForNav = dateStr.split('T')[0];
+                }
+                
+                return (
+                <tr
+                  key={appt.id}
+                  onClick={() => navigate("/appointments", { state: { selectedDate: dateForNav } })}
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
+                >
+                  <td>{displayDate}</td>
                   <td>{appt.time}</td>
                   <td>{appt.patientName}</td>
                   <td>{appt.type}</td>
@@ -157,7 +197,8 @@ const Dashboard = () => {
                     </span>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

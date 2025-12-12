@@ -36,6 +36,9 @@ public class MedicalNotesController {
     @Autowired
     private AuditLogRepository auditLogRepository;
 
+    @Autowired
+    private com.digihealth.backend.service.NotificationService notificationService;
+
     private Doctor getCurrentDoctor() {
         org.springframework.security.core.Authentication authentication =
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
@@ -57,6 +60,7 @@ public class MedicalNotesController {
         dto.setPatientId(note.getPatient().getPatientId().toString());
         dto.setDoctorId(note.getDoctor().getDoctorId().toString());
         dto.setAppointmentId(note.getAppointment() != null ? note.getAppointment().getAppointmentId().toString() : null);
+        dto.setAppointmentType(note.getAppointment() != null ? note.getAppointment().getAppointmentType() : null);
         dto.setNoteText(note.getNoteText());
         dto.setDiagnosis(note.getDiagnosis());
         dto.setPrescriptions(note.getPrescriptions());
@@ -147,6 +151,15 @@ public class MedicalNotesController {
         log.setResourceId(saved.getNoteId().toString());
         log.setCreatedAt(LocalDateTime.now());
         auditLogRepository.save(log);
+        
+        // Send notification to patient that medical records were added
+        String patientEmail = patient.getUser().getEmail();
+        String appointmentType = request.getAppointmentId() != null && !request.getAppointmentId().isBlank() ? 
+            (note.getAppointment() != null ? note.getAppointment().getAppointmentType() : "Appointment") : "General";
+        String title = "Medical Records Available - " + appointmentType;
+        String message = "Dr. " + doctor.getUser().getFullName() + " has added medical records for your appointment.";
+        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_ADDED", saved.getNoteId().toString());
+        
         return ResponseEntity.ok(toDto(saved));
     }
 
@@ -180,6 +193,14 @@ public class MedicalNotesController {
         log.setResourceId(saved.getNoteId().toString());
         log.setCreatedAt(LocalDateTime.now());
         auditLogRepository.save(log);
+        
+        // Send notification to patient that medical records were updated
+        String patientEmail = patient.getUser().getEmail();
+        String appointmentType = note.getAppointment() != null ? note.getAppointment().getAppointmentType() : "General";
+        String title = "Medical Records Updated - " + appointmentType;
+        String message = "Dr. " + doctor.getUser().getFullName() + " has updated your medical records.";
+        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_UPDATED", saved.getNoteId().toString());
+        
         return ResponseEntity.ok(toDto(saved));
     }
 

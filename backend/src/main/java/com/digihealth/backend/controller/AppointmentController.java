@@ -173,6 +173,7 @@ public class AppointmentController {
       appointment.setDoctor(doctor);
       appointment.setAppointmentDate(apptDate);
       appointment.setAppointmentTime(apptTime);
+      appointment.setAppointmentType(bookingDto.getAppointmentType());
       appointment.setNotes(bookingDto.getReason());
       appointment.setSymptoms(bookingDto.getSymptoms());
       appointment.setStatus(autoConfirm ? AppointmentStatus.CONFIRMED : AppointmentStatus.SCHEDULED);

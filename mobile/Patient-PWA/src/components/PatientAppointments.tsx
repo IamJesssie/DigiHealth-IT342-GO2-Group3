@@ -144,7 +144,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
         specialization: a.doctor?.user?.specialization || 'General Physician',
         date: a.appointmentDate,
         time: a.appointmentTime,
-        type: 'Consultation',
+        type: a.appointmentType || a.type || 'Consultation',
         status: a.status || 'Scheduled',
         location: a.doctor?.hospitalAffiliation || 'Clinic',
         reason: a.notes || a.symptoms || '',

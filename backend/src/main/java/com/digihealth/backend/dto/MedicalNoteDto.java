@@ -11,6 +11,7 @@ public class MedicalNoteDto {
     private String patientId;
     private String doctorId;
     private String appointmentId;
+    private String appointmentType;
     private String noteText;
     private String diagnosis;
     private String prescriptions;

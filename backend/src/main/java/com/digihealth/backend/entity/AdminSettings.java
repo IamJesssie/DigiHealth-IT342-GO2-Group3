@@ -36,7 +36,7 @@ public class AdminSettings implements Serializable {
     private Boolean allowNewRegistrations = true;
 
     @Column(name = "allow_same_day_booking")
-    private Boolean allowSameDayBooking = false;
+    private Boolean allowSameDayBooking = true;
 
     @Column(name = "appointment_slot_minutes")
     private Integer appointmentSlotMinutes = 30;
@@ -51,7 +51,7 @@ public class AdminSettings implements Serializable {
     private Integer maxAdvanceDays = 90;
 
     @Column(name = "min_advance_hours")
-    private Integer minAdvanceHours = 24;
+    private Integer minAdvanceHours = 0;
 
     @Column(name = "maintenance_mode")
     private Boolean maintenanceMode = false;

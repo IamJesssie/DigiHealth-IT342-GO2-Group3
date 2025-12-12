@@ -17,4 +17,5 @@ public class AppointmentBookingDto {
     private LocalTime appointmentTime;
     private String reason;
     private String symptoms;
+    private String appointmentType;
 }

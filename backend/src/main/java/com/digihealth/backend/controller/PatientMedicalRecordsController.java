@@ -62,7 +62,11 @@ public class PatientMedicalRecordsController {
             record.put("hospitalAffiliation", doctor.getHospitalAffiliation() != null ? doctor.getHospitalAffiliation() : "");
             
             // Medical information
-            record.put("type", "Consultation");
+            String appointmentType = "Consultation";
+            if (note.getAppointment() != null && note.getAppointment().getAppointmentType() != null) {
+                appointmentType = note.getAppointment().getAppointmentType();
+            }
+            record.put("type", appointmentType);
             record.put("chiefComplaint", note.getNoteText() != null ? note.getNoteText() : "");
             record.put("diagnosis", note.getDiagnosis() != null ? note.getDiagnosis() : "");
             record.put("clinicalNotes", note.getObservations() != null ? note.getObservations() : "");

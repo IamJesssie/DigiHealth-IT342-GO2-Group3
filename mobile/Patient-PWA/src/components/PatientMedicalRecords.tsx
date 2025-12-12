@@ -177,7 +177,17 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-1">Type</p>
-              <Badge>{selectedRecord.type}</Badge>
+              <Badge 
+                className={`text-sm font-medium ${
+                  selectedRecord.type === 'Consultation' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                  selectedRecord.type === 'Follow-up' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
+                  selectedRecord.type === 'General Check-up' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                  selectedRecord.type === 'Emergency' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                  'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                }`}
+              >
+                {selectedRecord.type || 'Consultation'}
+              </Badge>
             </div>
           </div>
 
@@ -360,8 +370,17 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
                               <Calendar className="h-4 w-4" />
                               <span>{new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {record.type}
+                            <Badge 
+                              variant="secondary" 
+                              className={`text-xs font-medium ${
+                                record.type === 'Consultation' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                                record.type === 'Follow-up' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
+                                record.type === 'General Check-up' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                record.type === 'Emergency' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                              }`}
+                            >
+                              {record.type || 'Consultation'}
                             </Badge>
                           </div>
                         </div>

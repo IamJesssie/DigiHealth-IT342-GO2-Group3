@@ -191,6 +191,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
         doctorId: doctor.id,
         appointmentDate: dateStr,
         appointmentTime: selectedTime,
+        appointmentType: appointmentType, // <-- include selected type
         reason,
         symptoms: reason,
       };
