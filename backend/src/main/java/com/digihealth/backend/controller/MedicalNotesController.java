@@ -158,7 +158,7 @@ public class MedicalNotesController {
             (note.getAppointment() != null ? note.getAppointment().getAppointmentType() : "Appointment") : "General";
         String title = "Medical Records Available - " + appointmentType;
         String message = "Dr. " + doctor.getUser().getFullName() + " has added medical records for your appointment.";
-        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_ADDED", saved.getNoteId().toString());
+        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_ADDED", saved.getNoteId().toString(), null);
         
         return ResponseEntity.ok(toDto(saved));
     }
@@ -199,7 +199,7 @@ public class MedicalNotesController {
         String appointmentType = note.getAppointment() != null ? note.getAppointment().getAppointmentType() : "General";
         String title = "Medical Records Updated - " + appointmentType;
         String message = "Dr. " + doctor.getUser().getFullName() + " has updated your medical records.";
-        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_UPDATED", saved.getNoteId().toString());
+        notificationService.createAndSend(patientEmail, title, message, "MEDICAL_NOTES_UPDATED", saved.getNoteId().toString(), null);
         
         return ResponseEntity.ok(toDto(saved));
     }
